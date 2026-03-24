@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天机 — 八字排盘 · 六爻占卜 · 紫微斗数</title>
+    <meta name="description" content="天机 (tianji) — 中国玄学在线排盘工具。八字四柱命理、六爻周易占卜、紫微斗数命盘，纯前端计算，开源免费。">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>☯</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <span class="header-symbol">☯</span>
+    <h1>天 机</h1>
+    <div class="subtitle">八字排盘 · 六爻占卜 · 紫微斗数</div>
+    <div class="header-line"></div>
+</header>
+
+<!-- Tab Navigation -->
+<nav class="tab-nav">
+    <button class="tab-btn active" data-tab="bazi">
+        <span class="tab-icon">🔢</span>
+        八字排盘
+    </button>
+    <button class="tab-btn" data-tab="liuyao">
+        <span class="tab-icon">🎴</span>
+        六爻占卜
+    </button>
+    <button class="tab-btn" data-tab="ziwei">
+        <span class="tab-icon">⭐</span>
+        紫微斗数
+    </button>
+</nav>
+
+<!-- ==================== 八字排盘 Tab ==================== -->
+<section id="bazi" class="tab-panel active">
+    <div class="form-section">
+        <div class="section-title">输入出生信息</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>出生年</label>
+                <select id="bazi-year"></select>
+            </div>
+            <div class="form-group">
+                <label>月</label>
+                <select id="bazi-month"></select>
+            </div>
+            <div class="form-group">
+                <label>日</label>
+                <select id="bazi-day"></select>
+            </div>
+            <div class="form-group">
+                <label>时辰</label>
+                <select id="bazi-hour">
+                    <option value="0">子时 (23:00–01:00)</option>
+                    <option value="2">丑时 (01:00–03:00)</option>
+                    <option value="4">寅时 (03:00–05:00)</option>
+                    <option value="6">卯时 (05:00–07:00)</option>
+                    <option value="8">辰时 (07:00–09:00)</option>
+                    <option value="10">巳时 (09:00–11:00)</option>
+                    <option value="12" selected>午时 (11:00–13:00)</option>
+                    <option value="14">未时 (13:00–15:00)</option>
+                    <option value="16">申时 (15:00–17:00)</option>
+                    <option value="18">酉时 (17:00–19:00)</option>
+                    <option value="20">戌时 (19:00–21:00)</option>
+                    <option value="22">亥时 (21:00–23:00)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>性别</label>
+                <select id="bazi-gender">
+                    <option value="male">男 ♂</option>
+                    <option value="female">女 ♀</option>
+                </select>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+            <button class="btn-primary" id="bazi-calculate">排 盘</button>
+        </div>
+    </div>
+
+    <div id="bazi-result">
+        <!-- Four Pillars -->
+        <div class="result-section">
+            <div class="section-title">四柱八字</div>
+            <div id="four-pillars"></div>
+        </div>
+
+        <!-- Five Elements -->
+        <div class="result-section">
+            <div class="section-title">五行分布</div>
+            <div id="five-elements"></div>
+        </div>
+
+        <!-- Day Master Strength -->
+        <div class="result-section">
+            <div class="section-title">日主强弱分析</div>
+            <div id="strength"></div>
+        </div>
+
+        <!-- Ten Gods -->
+        <div class="result-section">
+            <div class="section-title">十神关系</div>
+            <div id="ten-gods"></div>
+        </div>
+
+        <!-- Luck Pillars -->
+        <div class="result-section">
+            <div class="section-title">大运</div>
+            <div id="luck-pillars"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== 六爻占卜 Tab ==================== -->
+<section id="liuyao" class="tab-panel">
+    <div class="form-section">
+        <div class="section-title">选择起卦方式</div>
+
+        <div class="liuyao-methods">
+            <button class="liuyao-method-btn active" data-method="time">⏰ 时间起卦</button>
+            <button class="liuyao-method-btn" data-method="number">🔢 数字起卦</button>
+            <button class="liuyao-method-btn" data-method="coin">🪙 铜钱摇卦</button>
+        </div>
+
+        <!-- Time casting -->
+        <div id="liuyao-time" class="liuyao-method-panel active">
+            <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">
+                以当前时间的年、月、日、时数值起卦。心中默想所问之事，然后点击起卦。
+            </p>
+            <div style="text-align: center;">
+                <button class="btn-primary" id="liuyao-time-cast">起 卦</button>
+            </div>
+        </div>
+
+        <!-- Number casting -->
+        <div id="liuyao-number" class="liuyao-method-panel">
+            <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">
+                心中想两个数字（任意正整数），用于确定上卦和下卦。
+            </p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>第一个数（上卦）</label>
+                    <input type="number" id="liuyao-num1" min="1" max="999" placeholder="如: 168">
+                </div>
+                <div class="form-group">
+                    <label>第二个数（下卦）</label>
+                    <input type="number" id="liuyao-num2" min="1" max="999" placeholder="如: 88">
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 0.5rem;">
+                <button class="btn-primary" id="liuyao-number-cast">起 卦</button>
+            </div>
+        </div>
+
+        <!-- Coin casting -->
+        <div id="liuyao-coin" class="liuyao-method-panel">
+            <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">
+                模拟古法铜钱摇卦。每次摇三枚铜钱，共摇六次（从初爻到上爻）。
+            </p>
+            <div class="coin-container" id="coin-animation"></div>
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <button class="btn-primary" id="liuyao-coin-shake">🪙 摇一次</button>
+                <button class="btn-secondary" id="liuyao-coin-reset" style="margin-left: 0.5rem;">重置</button>
+            </div>
+            <div id="coin-status" style="text-align: center;"></div>
+        </div>
+    </div>
+
+    <!-- LiuYao Result -->
+    <div id="liuyao-result" class="result-section"></div>
+</section>
+
+<!-- ==================== 紫微斗数 Tab ==================== -->
+<section id="ziwei" class="tab-panel">
+    <div class="form-section">
+        <div class="section-title">输入农历生日</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>农历年</label>
+                <select id="ziwei-year"></select>
+            </div>
+            <div class="form-group">
+                <label>农历月</label>
+                <select id="ziwei-month"></select>
+            </div>
+            <div class="form-group">
+                <label>农历日</label>
+                <select id="ziwei-day"></select>
+            </div>
+            <div class="form-group">
+                <label>时辰</label>
+                <select id="ziwei-hour">
+                    <option value="0">子时</option>
+                    <option value="2">丑时</option>
+                    <option value="4">寅时</option>
+                    <option value="6">卯时</option>
+                    <option value="8">辰时</option>
+                    <option value="10">巳时</option>
+                    <option value="12" selected>午时</option>
+                    <option value="14">未时</option>
+                    <option value="16">申时</option>
+                    <option value="18">酉时</option>
+                    <option value="20">戌时</option>
+                    <option value="22">亥时</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>性别</label>
+                <select id="ziwei-gender">
+                    <option value="male">男 ♂</option>
+                    <option value="female">女 ♀</option>
+                </select>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 1rem;">
+            <button class="btn-primary" id="ziwei-calculate">排 盘</button>
+        </div>
+    </div>
+
+    <div id="ziwei-result">
+        <div class="result-section">
+            <div class="section-title">紫微斗数命盘</div>
+            <div id="ziwei-grid"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>天机 (tianji) — 中国玄学算法库 · 纯前端计算，无需后端</p>
+    <p style="margin-top: 0.3rem;">
+        <a href="https://github.com/Zijian-Ni/tianji" target="_blank">GitHub</a>
+        · <a href="https://pypi.org/project/tianji/" target="_blank">PyPI</a>
+        · MIT License
+    </p>
+    <p style="margin-top: 0.5rem; font-family: var(--font-serif); color: var(--text-muted);">
+        "天机不可泄露" — 但代码可以开源 ☯
+    </p>
+</footer>
+
+<!-- Scripts -->
+<script src="js/bazi.js"></script>
+<script src="js/liuyao.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

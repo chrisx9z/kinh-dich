@@ -1,0 +1,1087 @@
+/* ==================== 天机 Web Frontend Styles ==================== */
+/* Dark theme + Chinese aesthetic design */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+/* ==================== CSS Variables ==================== */
+:root {
+    --bg-primary: #0a0a1a;
+    --bg-secondary: #12122a;
+    --bg-card: #1a1a35;
+    --bg-card-hover: #222250;
+    --border-color: #2a2a55;
+    --border-gold: #d4a853;
+    --text-primary: #e8e8f0;
+    --text-secondary: #a0a0c0;
+    --text-muted: #666688;
+    --gold: #d4a853;
+    --gold-light: #f0d080;
+    --red: #c0392b;
+    --red-light: #e74c3c;
+    --crimson: #8b0000;
+    --wood: #4CAF50;
+    --fire: #F44336;
+    --earth: #FFB300;
+    --metal: #E0E0E0;
+    --water: #2196F3;
+    --font-serif: 'Noto Serif SC', 'STSong', 'SimSun', serif;
+    --font-sans: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --shadow-gold: 0 0 20px rgba(212,168,83,0.15);
+}
+
+/* ==================== Reset & Base ==================== */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Background decoration */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: 
+        radial-gradient(ellipse at 20% 20%, rgba(212,168,83,0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(139,0,0,0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(18,18,42,0.8) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ==================== Header ==================== */
+.header {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.header-symbol {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    filter: drop-shadow(0 0 10px rgba(212,168,83,0.3));
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.header h1 {
+    font-family: var(--font-serif);
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--red-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.3rem;
+}
+
+.header .subtitle {
+    font-family: var(--font-serif);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+}
+
+.header-line {
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 1.5rem auto 0;
+}
+
+/* ==================== Tab Navigation ==================== */
+.tab-nav {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 0 auto 2rem;
+    max-width: 600px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.tab-btn:not(:last-child) {
+    border-right: 1px solid var(--border-color);
+}
+
+.tab-btn:hover {
+    color: var(--gold-light);
+    background: rgba(212,168,83,0.05);
+}
+
+.tab-btn.active {
+    color: var(--gold);
+    background: rgba(212,168,83,0.1);
+    font-weight: 600;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    right: 20%;
+    height: 2px;
+    background: var(--gold);
+}
+
+.tab-btn .tab-icon {
+    display: block;
+    font-size: 1.3rem;
+    margin-bottom: 0.2rem;
+}
+
+/* ==================== Tab Panels ==================== */
+.tab-panel {
+    display: none;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1rem 3rem;
+    position: relative;
+    z-index: 1;
+}
+
+.tab-panel.active {
+    display: block;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease;
+}
+
+/* ==================== Form Styles ==================== */
+.form-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: end;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    flex: 1;
+    min-width: 120px;
+}
+
+.form-group label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+    font-family: var(--font-serif);
+}
+
+select, input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    transition: border-color 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0a0c0' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 2rem;
+}
+
+select:focus, input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(212,168,83,0.15);
+}
+
+.btn-primary {
+    padding: 0.75rem 2.5rem;
+    background: linear-gradient(135deg, var(--gold), #b8862d);
+    border: none;
+    border-radius: 8px;
+    color: #1a1a2e;
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 0.1em;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-gold);
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    padding: 0.65rem 1.5rem;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-secondary:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+/* ==================== Section Headers ==================== */
+.section-title {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(212,168,83,0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-title::before {
+    content: '◆';
+    font-size: 0.6rem;
+    color: var(--gold);
+}
+
+/* ==================== BaZi Result Styles ==================== */
+#bazi-result {
+    display: none;
+}
+
+.result-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+/* Four Pillars */
+#four-pillars {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.pillar-card {
+    text-align: center;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1rem 0.5rem;
+    background: linear-gradient(180deg, rgba(212,168,83,0.03), transparent);
+    transition: all 0.3s;
+}
+
+.pillar-card:hover {
+    border-color: var(--gold);
+    box-shadow: var(--shadow-gold);
+    transform: translateY(-2px);
+}
+
+.pillar-label {
+    font-family: var(--font-serif);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+}
+
+.pillar-god {
+    font-size: 0.8rem;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+    min-height: 1.2em;
+}
+
+.pillar-stem, .pillar-branch {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 700;
+    padding: 0.6rem 0;
+    border-radius: 8px;
+    margin: 0.3rem 0;
+    position: relative;
+}
+
+.element-tag {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 400;
+    opacity: 0.7;
+    margin-top: 0.1rem;
+}
+
+.pillar-hidden {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.hidden-label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+}
+
+.hidden-stem {
+    margin: 0 0.2rem;
+    font-family: var(--font-serif);
+    font-weight: 600;
+}
+
+.pillar-zodiac {
+    margin-top: 0.3rem;
+    font-size: 0.9rem;
+    min-height: 1.3em;
+}
+
+/* Five Elements */
+.five-elements-chart {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.five-elements-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.95rem;
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.legend-name {
+    font-family: var(--font-serif);
+    width: 1.2em;
+}
+
+.legend-value {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.missing-elements {
+    margin-top: 0.5rem;
+    color: var(--red-light);
+    font-size: 0.85rem;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid rgba(231,76,60,0.3);
+    border-radius: 6px;
+    background: rgba(231,76,60,0.05);
+}
+
+/* Ten Gods Table */
+.ten-gods-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ten-gods-table th {
+    padding: 0.7rem 1rem;
+    text-align: left;
+    font-family: var(--font-serif);
+    color: var(--gold);
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.ten-gods-table td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid rgba(42,42,85,0.5);
+    font-size: 0.9rem;
+}
+
+.ten-gods-table tr:hover td {
+    background: rgba(212,168,83,0.03);
+}
+
+.hidden-row td {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+.td-pos {
+    font-family: var(--font-serif);
+    color: var(--text-muted);
+    width: 80px;
+}
+
+.td-god {
+    color: var(--gold-light);
+    font-family: var(--font-serif);
+    font-weight: 600;
+}
+
+.td-meaning {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+}
+
+/* Day Master Strength */
+.strength-display {
+    text-align: center;
+}
+
+.strength-header {
+    margin-bottom: 0.5rem;
+}
+
+.day-master-char {
+    font-family: var(--font-serif);
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+.strength-label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.strength-level {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+}
+
+.strength-level.strong {
+    color: var(--gold);
+}
+
+.strength-level.weak {
+    color: var(--text-muted);
+}
+
+.strength-bar-container {
+    position: relative;
+    height: 8px;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    margin: 1rem auto;
+    max-width: 400px;
+    overflow: hidden;
+}
+
+.strength-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+}
+
+.strength-score {
+    position: absolute;
+    right: -40px;
+    top: -6px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.strength-factors {
+    text-align: left;
+    max-width: 500px;
+    margin: 1rem auto 0;
+}
+
+.factor {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    padding: 0.25rem 0;
+    border-bottom: 1px solid rgba(42,42,85,0.3);
+}
+
+/* Luck Pillars */
+.luck-info {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.luck-timeline {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+}
+
+.luck-card {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    min-width: 70px;
+    transition: all 0.3s;
+}
+
+.luck-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-2px);
+}
+
+.luck-ages {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+}
+
+.luck-stem, .luck-branch {
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+/* ==================== LiuYao Styles ==================== */
+.liuyao-methods {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.liuyao-method-btn {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.liuyao-method-btn:not(:last-child) {
+    border-right: 1px solid var(--border-color);
+}
+
+.liuyao-method-btn.active {
+    background: rgba(212,168,83,0.1);
+    color: var(--gold);
+}
+
+.liuyao-method-panel {
+    display: none;
+}
+
+.liuyao-method-panel.active {
+    display: block;
+}
+
+/* Coin animation */
+.coin-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    min-height: 60px;
+}
+
+.coin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 700;
+    border: 2px solid var(--gold);
+}
+
+.coin.heads {
+    background: linear-gradient(135deg, var(--gold), #b8862d);
+    color: #1a1a2e;
+}
+
+.coin.tails {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0) rotate(0); }
+    25% { transform: translateX(-5px) rotate(-5deg); }
+    75% { transform: translateX(5px) rotate(5deg); }
+}
+
+.shake-anim {
+    animation: shake 0.5s ease;
+}
+
+.coin-line {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    padding: 0.3rem 0;
+}
+
+/* Hexagram Display */
+#liuyao-result {
+    display: none;
+}
+
+.liuyao-result-content {
+    text-align: center;
+}
+
+.hexagram-display {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.hexagram-section {
+    min-width: 240px;
+}
+
+.hexagram-section h3 {
+    font-family: var(--font-serif);
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+}
+
+.hexagram-symbol {
+    font-size: 4rem;
+    margin: 0.5rem 0;
+    filter: drop-shadow(0 0 8px rgba(212,168,83,0.2));
+}
+
+.hexagram-name {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    margin-bottom: 0.3rem;
+}
+
+.hexagram-trigrams {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.hexagram-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+.hex-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.hex-line.moving {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.line-name {
+    font-family: var(--font-serif);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    width: 2em;
+    text-align: right;
+}
+
+.line-symbol {
+    width: 80px;
+}
+
+.yang-line {
+    height: 6px;
+    background: var(--gold);
+    border-radius: 2px;
+}
+
+.yin-line {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.yin-line span {
+    flex: 1;
+    height: 6px;
+    background: var(--text-secondary);
+    border-radius: 2px;
+}
+
+.moving-mark {
+    font-size: 0.7rem;
+    color: var(--red-light);
+    width: 2.5em;
+}
+
+.shi-marker, .ying-marker {
+    font-family: var(--font-serif);
+    font-size: 0.75rem;
+    font-weight: 700;
+    width: 1.5em;
+}
+
+.shi-marker { color: var(--gold); }
+.ying-marker { color: var(--water); }
+
+.hexagram-arrow {
+    font-size: 2rem;
+    color: var(--gold);
+    align-self: center;
+    margin-top: 4rem;
+}
+
+.hexagram-desc {
+    font-family: var(--font-serif);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 1rem;
+    font-style: italic;
+}
+
+.casting-info {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* ==================== ZiWei Styles ==================== */
+#ziwei-result {
+    display: none;
+}
+
+#ziwei-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, auto);
+    gap: 2px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.ziwei-cell {
+    border: 1px solid var(--border-color);
+    padding: 0.6rem 0.5rem;
+    min-height: 100px;
+    background: var(--bg-card);
+    position: relative;
+    transition: all 0.3s;
+}
+
+.ziwei-cell:hover {
+    border-color: var(--gold);
+    z-index: 2;
+}
+
+.ziwei-cell.ming-gong {
+    border-color: var(--gold);
+    background: rgba(212,168,83,0.05);
+    box-shadow: inset 0 0 15px rgba(212,168,83,0.05);
+}
+
+.ziwei-cell.center-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+}
+
+.center-title {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    color: var(--gold);
+    margin-bottom: 0.8rem;
+}
+
+.center-sihua {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.sihua-item {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.sihua-item.lu { color: #4CAF50; background: rgba(76,175,80,0.1); }
+.sihua-item.quan { color: var(--gold); background: rgba(212,168,83,0.1); }
+.sihua-item.ke { color: var(--water); background: rgba(33,150,243,0.1); }
+.sihua-item.ji { color: var(--fire); background: rgba(244,67,54,0.1); }
+
+.center-info {
+    font-family: var(--font-serif);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.palace-name {
+    font-family: var(--font-serif);
+    font-size: 0.75rem;
+    color: var(--gold);
+    font-weight: 600;
+}
+
+.palace-branch {
+    font-family: var(--font-serif);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    position: absolute;
+    top: 0.4rem;
+    right: 0.5rem;
+}
+
+.palace-stars {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+
+.star {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.03);
+    white-space: nowrap;
+}
+
+.star-ziwei { color: #ce93d8; font-weight: 600; }
+.star-tianfu { color: var(--gold-light); font-weight: 600; }
+.star-luminary { color: #ffcc02; }
+
+.sihua-lu { color: #4CAF50; font-size: 0.6rem; }
+.sihua-quan { color: var(--gold); font-size: 0.6rem; }
+.sihua-ke { color: var(--water); font-size: 0.6rem; }
+.sihua-ji { color: var(--fire); font-size: 0.6rem; }
+
+/* ==================== Footer ==================== */
+.footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 3rem;
+    position: relative;
+    z-index: 1;
+}
+
+.footer a {
+    color: var(--gold);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 768px) {
+    .header h1 { font-size: 1.8rem; }
+    .header-symbol { font-size: 3rem; }
+
+    .tab-btn {
+        padding: 0.7rem 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .tab-btn .tab-icon { font-size: 1.1rem; }
+
+    #four-pillars {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.4rem;
+    }
+
+    .pillar-stem, .pillar-branch {
+        font-size: 1.5rem;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-group {
+        min-width: 100%;
+    }
+
+    .five-elements-chart {
+        flex-direction: column;
+    }
+
+    #ziwei-grid {
+        grid-template-columns: repeat(4, 1fr);
+        font-size: 0.8rem;
+    }
+
+    .ziwei-cell {
+        min-height: 80px;
+        padding: 0.4rem;
+    }
+
+    .palace-stars { gap: 0.15rem; }
+    .star { font-size: 0.6rem; padding: 0.05rem 0.2rem; }
+
+    .hexagram-display {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hexagram-arrow {
+        transform: rotate(90deg);
+        margin: 0;
+    }
+
+    .luck-timeline {
+        gap: 0.3rem;
+    }
+
+    .luck-card {
+        min-width: 55px;
+        padding: 0.5rem;
+    }
+
+    .luck-stem, .luck-branch {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header h1 { font-size: 1.5rem; }
+    
+    .pillar-stem, .pillar-branch {
+        font-size: 1.3rem;
+        padding: 0.4rem 0;
+    }
+
+    .pillar-card { padding: 0.6rem 0.3rem; }
+
+    .form-section { padding: 1rem; }
+}
+
+/* ==================== Scrollbar ==================== */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gold);
+}

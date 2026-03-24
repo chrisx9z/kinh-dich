@@ -9,6 +9,23 @@
 
 > "天机不可泄露" — 但代码可以开源。
 
+## 🌐 Web Interface
+
+**在线体验** → [https://zijian-ni.github.io/tianji/](https://zijian-ni.github.io/tianji/)
+
+天机提供一个纯前端的 Web 界面，无需安装任何依赖，直接在浏览器中使用：
+
+- 🔢 **八字排盘** — 输入出生日期，自动计算四柱八字、五行分布、十神关系、日主强弱、大运流年
+- 🎴 **六爻占卜** — 三种起卦方式（时间起卦、数字起卦、模拟摇铜钱），卦象可视化展示
+- ⭐ **紫微斗数** — 十二宫命盘排列，四化标注
+
+所有计算均在浏览器端完成（纯 JavaScript），不向任何服务器发送数据。
+
+> 💡 **本地运行**：直接用浏览器打开 `web/index.html` 即可，无需构建工具。
+
+<!-- Screenshots placeholder -->
+<!-- ![Web Demo Screenshot](docs/web-screenshot.png) -->
+
 作者：Zijian Ni（倪子健）
 
 ---
