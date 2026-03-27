@@ -116,7 +116,7 @@ chart.display()
 
 print(chart.year_pillar)   # 庚午
 print(chart.month_pillar)  # 辛巳
-print(chart.day_pillar)    # 庚午
+print(chart.day_pillar)    # 庚辰
 print(chart.hour_pillar)   # 癸未
 print(chart.day_master)    # 庚 (Metal, Yang)
 ```
@@ -438,7 +438,7 @@ from tianji.bazi import BaZiChart
 chart = BaZiChart(birth_dt=datetime(1990, 5, 15, 14, 30), gender="male")
 print(chart.year_pillar)   # 庚午
 print(chart.month_pillar)  # 辛巳
-print(chart.day_pillar)    # 庚午
+print(chart.day_pillar)    # 庚辰
 print(chart.hour_pillar)   # 癸未
 
 # Ten Gods analysis
