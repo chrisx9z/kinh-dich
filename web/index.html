@@ -2,7 +2,7 @@
 <html lang="zh-CN" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none';">
   <title>天机 — 中国传统玄学计算 | Tianji</title>
   <meta name="description" content="Pure offline Chinese metaphysics calculator — BaZi, Liu Yao, Zi Wei Dou Shu. Privacy-first, no data collection.">
@@ -10,6 +10,12 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☯</text></svg>">
 </head>
 <body>
+  <!-- Background particle canvas -->
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <!-- Skip link for accessibility -->
+  <a href="#main-content" class="skip-link">跳到主要内容</a>
+
   <!-- Header -->
   <header class="app-header" role="banner">
     <div class="container">
@@ -25,7 +31,20 @@
     </div>
   </header>
 
-  <!-- Tab Navigation -->
+  <!-- Hero Section -->
+  <section class="hero" aria-label="天机介绍">
+    <div class="hero-taiji" aria-hidden="true">☯</div>
+    <h2 class="hero-title" data-i18n="appTitle">天机</h2>
+    <p class="hero-subtitle" data-i18n="appSubtitle">中国传统玄学计算</p>
+    <button id="hero-cta-btn" class="hero-cta" data-i18n="quickStart" aria-label="快速开始">
+      快速开始
+    </button>
+  </section>
+
+  <!-- Decorative Divider -->
+  <div class="divider-ornament" aria-hidden="true">易 · 道 · 术</div>
+
+  <!-- Tab Navigation (Desktop) -->
   <nav class="tab-nav" role="tablist" aria-label="功能选项">
     <div class="container">
       <button id="tab-bazi" class="tab active" role="tab" aria-selected="true" aria-controls="panel-bazi" data-panel="panel-bazi" data-i18n="tabBazi">八字排盘</button>
@@ -35,11 +54,11 @@
   </nav>
 
   <!-- Main Content -->
-  <main class="container">
+  <main id="main-content" class="container">
 
     <!-- BaZi Panel -->
     <section id="panel-bazi" class="tab-panel active" role="tabpanel" aria-labelledby="tab-bazi">
-      <div class="card">
+      <div class="card animate-spring">
         <div class="card-header">
           <h2 data-i18n="tabBazi">八字排盘</h2>
         </div>
@@ -76,14 +95,14 @@
           </div>
         </div>
       </div>
-      <div id="bazi-result">
+      <div id="bazi-result" class="stagger" aria-live="polite">
         <canvas id="five-elements-chart" width="300" height="300" aria-label="五行力量雷达图"></canvas>
       </div>
     </section>
 
     <!-- Liu Yao Panel -->
     <section id="panel-liuyao" class="tab-panel" role="tabpanel" aria-labelledby="tab-liuyao" hidden>
-      <div class="card">
+      <div class="card animate-spring">
         <div class="card-header">
           <h2 data-i18n="tabLiuyao">六爻占卜</h2>
         </div>
@@ -112,15 +131,18 @@
               <input type="number" id="liuyao-num3" min="1" max="999" placeholder="可选">
             </div>
           </div>
-          <button id="liuyao-cast-btn" class="btn btn-primary" data-i18n="castNow">起卦</button>
+          <button id="liuyao-cast-btn" class="btn btn-primary" data-i18n="castNow">
+            <span class="taiji-spinner" style="display:none;" aria-hidden="true">☯</span>
+            起卦
+          </button>
         </div>
       </div>
-      <div id="liuyao-result" aria-live="polite"></div>
+      <div id="liuyao-result" class="stagger" aria-live="polite"></div>
     </section>
 
     <!-- Zi Wei Panel -->
     <section id="panel-ziwei" class="tab-panel" role="tabpanel" aria-labelledby="tab-ziwei" hidden>
-      <div class="card">
+      <div class="card animate-spring">
         <div class="card-header">
           <h2 data-i18n="tabZiwei">紫微斗数</h2>
         </div>
@@ -190,6 +212,7 @@
         <h3>🔒 <span data-i18n="privacy">隐私声明</span></h3>
         <p data-i18n="privacyText">本工具完全在浏览器本地运行，不收集任何个人数据，不发送任何网络请求。您的出生信息仅用于本地计算，不会被存储或传输。</p>
       </div>
+      <hr class="divider-pattern" aria-hidden="true">
       <p class="footer-brand">☯ 天机 (Tianji) v0.2.0 — MIT License</p>
       <p class="footer-links">
         <a href="https://github.com/Zijian-Ni/tianji" target="_blank" rel="noopener">GitHub</a> ·
@@ -197,6 +220,30 @@
       </p>
     </div>
   </footer>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="bottom-nav" role="tablist" aria-label="底部导航">
+    <ul class="bottom-nav-items">
+      <li>
+        <button class="bottom-nav-item active" data-tab="bazi" role="tab" aria-selected="true" aria-controls="panel-bazi">
+          <span class="nav-icon" aria-hidden="true">卦</span>
+          <span data-i18n="tabBazi">八字</span>
+        </button>
+      </li>
+      <li>
+        <button class="bottom-nav-item" data-tab="liuyao" role="tab" aria-selected="false" aria-controls="panel-liuyao">
+          <span class="nav-icon" aria-hidden="true">爻</span>
+          <span data-i18n="tabLiuyao">六爻</span>
+        </button>
+      </li>
+      <li>
+        <button class="bottom-nav-item" data-tab="ziwei" role="tab" aria-selected="false" aria-controls="panel-ziwei">
+          <span class="nav-icon" aria-hidden="true">星</span>
+          <span data-i18n="tabZiwei">紫微</span>
+        </button>
+      </li>
+    </ul>
+  </nav>
 
   <!-- Share Modal -->
   <div id="share-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="分享" style="display:none;">

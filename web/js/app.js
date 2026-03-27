@@ -457,93 +457,153 @@ const TianjiApp = (function () {
   }
 
   // -----------------------------------------------------------------------
-  //  Five Elements Radar Chart (Canvas 2D)
+  //  Five Elements Radar Chart (Canvas 2D) — Enhanced with gradients
   // -----------------------------------------------------------------------
 
+  /** Five-element traditional colors for radar chart. */
+  var RADAR_COLORS = {
+    '木': '#4caf50',
+    '火': '#f44336',
+    '土': '#ff9800',
+    '金': '#ffd600',
+    '水': '#2196f3'
+  };
+
   /**
-   * Draw a radar (pentagon) chart of five-element scores on a <canvas>.
+   * Draw a premium radar (pentagon) chart with gradient fill and expand animation.
    * @param {HTMLCanvasElement} canvas
    * @param {Object} scores  e.g. { '木':3, '火':1.5, ... }
+   * @param {boolean} [animate=true]
    */
-  function drawRadarChart(canvas, scores) {
+  function drawRadarChart(canvas, scores, animate) {
     if (!canvas || !canvas.getContext) return;
     var ctx = canvas.getContext('2d');
-    var W = canvas.width, H = canvas.height;
+    var dpr = window.devicePixelRatio || 1;
+    var rect = canvas.getBoundingClientRect();
+    var W = rect.width || 300;
+    var H = rect.height || 300;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
     var cx = W / 2, cy = H / 2;
-    var R = Math.min(W, H) * 0.38; // max radius
-
-    ctx.clearRect(0, 0, W, H);
-
+    var R = Math.min(W, H) * 0.36;
     var labels = ['木','火','土','金','水'];
     var vals = labels.map(function (l) { return scores[l] || 0; });
     var maxVal = Math.max.apply(null, vals.concat([1]));
     var angleStep = (2 * Math.PI) / 5;
-    var startAngle = -Math.PI / 2; // top
+    var startAngle = -Math.PI / 2;
+    var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
 
-    // Helper: vertex at given radius fraction for axis i
     function vtx(i, frac) {
       var a = startAngle + i * angleStep;
       return { x: cx + R * frac * Math.cos(a), y: cy + R * frac * Math.sin(a) };
     }
 
-    // Draw grid rings (3 levels)
-    ctx.strokeStyle = darkTheme ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)';
-    ctx.lineWidth = 1;
-    [0.33, 0.66, 1].forEach(function (frac) {
+    function drawFrame(progress) {
+      ctx.clearRect(0, 0, W, H);
+
+      // Grid rings (4 levels)
+      ctx.strokeStyle = isDark ? 'rgba(212, 175, 55, 0.1)' : 'rgba(0, 0, 0, 0.08)';
+      ctx.lineWidth = 0.5;
+      [0.25, 0.5, 0.75, 1].forEach(function (frac) {
+        ctx.beginPath();
+        for (var i = 0; i <= 5; i++) {
+          var v = vtx(i % 5, frac);
+          if (i === 0) ctx.moveTo(v.x, v.y); else ctx.lineTo(v.x, v.y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      });
+
+      // Axis lines
+      ctx.strokeStyle = isDark ? 'rgba(212, 175, 55, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+      for (var a = 0; a < 5; a++) {
+        var v1 = vtx(a, 1);
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(v1.x, v1.y);
+        ctx.stroke();
+      }
+
+      // Data polygon with gradient fill
       ctx.beginPath();
-      for (var i = 0; i <= 5; i++) {
-        var v = vtx(i % 5, frac);
-        if (i === 0) ctx.moveTo(v.x, v.y); else ctx.lineTo(v.x, v.y);
+      for (var d = 0; d < 5; d++) {
+        var frac = (vals[d] / maxVal) * progress;
+        var vd = vtx(d, frac);
+        if (d === 0) ctx.moveTo(vd.x, vd.y); else ctx.lineTo(vd.x, vd.y);
       }
       ctx.closePath();
-      ctx.stroke();
-    });
 
-    // Draw axis lines
-    for (var a = 0; a < 5; a++) {
-      var v0 = vtx(a, 0);
-      var v1 = vtx(a, 1);
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(v1.x, v1.y);
-      ctx.stroke();
-    }
-
-    // Draw data polygon
-    ctx.beginPath();
-    for (var d = 0; d < 5; d++) {
-      var frac = vals[d] / maxVal;
-      var vd = vtx(d, frac);
-      if (d === 0) ctx.moveTo(vd.x, vd.y); else ctx.lineTo(vd.x, vd.y);
-    }
-    ctx.closePath();
-    ctx.fillStyle = darkTheme ? 'rgba(100,181,246,0.35)' : 'rgba(33,150,243,0.3)';
-    ctx.fill();
-    ctx.strokeStyle = darkTheme ? '#64b5f6' : '#1976d2';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Draw data points
-    for (var p = 0; p < 5; p++) {
-      var fp = vals[p] / maxVal;
-      var vp = vtx(p, fp);
-      ctx.beginPath();
-      ctx.arc(vp.x, vp.y, 4, 0, 2 * Math.PI);
-      ctx.fillStyle = ELEMENT_COLORS[labels[p]];
+      // Radial gradient fill
+      var grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+      if (isDark) {
+        grad.addColorStop(0, 'rgba(212, 175, 55, 0.3)');
+        grad.addColorStop(1, 'rgba(192, 57, 43, 0.15)');
+      } else {
+        grad.addColorStop(0, 'rgba(212, 175, 55, 0.25)');
+        grad.addColorStop(1, 'rgba(192, 57, 43, 0.1)');
+      }
+      ctx.fillStyle = grad;
       ctx.fill();
+
+      // Stroke
+      ctx.strokeStyle = isDark ? 'rgba(212, 175, 55, 0.6)' : 'rgba(180, 140, 40, 0.5)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Data points with glow
+      for (var p = 0; p < 5; p++) {
+        var fp = (vals[p] / maxVal) * progress;
+        var vp = vtx(p, fp);
+        // Glow
+        ctx.beginPath();
+        ctx.arc(vp.x, vp.y, 8, 0, 2 * Math.PI);
+        ctx.fillStyle = RADAR_COLORS[labels[p]].replace(')', ', 0.3)').replace('rgb', 'rgba');
+        ctx.fill();
+        // Dot
+        ctx.beginPath();
+        ctx.arc(vp.x, vp.y, 4, 0, 2 * Math.PI);
+        ctx.fillStyle = RADAR_COLORS[labels[p]];
+        ctx.fill();
+        ctx.strokeStyle = isDark ? '#0a0a0f' : '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Labels
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      for (var lb = 0; lb < 5; lb++) {
+        var vl = vtx(lb, 1.22);
+        var elKey = { '木':'wood','火':'fire','土':'earth','金':'metal','水':'water' }[labels[lb]];
+        ctx.font = 'bold 13px system-ui, sans-serif';
+        ctx.fillStyle = RADAR_COLORS[labels[lb]];
+        ctx.fillText(I18n.t(elKey), vl.x, vl.y - 8);
+        ctx.font = '11px system-ui, sans-serif';
+        ctx.fillStyle = isDark ? 'rgba(232, 224, 208, 0.7)' : 'rgba(28, 24, 16, 0.6)';
+        ctx.fillText(vals[lb].toFixed(1), vl.x, vl.y + 8);
+      }
     }
 
-    // Draw labels
-    ctx.font = '14px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = darkTheme ? '#e0e0e0' : '#333';
-    for (var lb = 0; lb < 5; lb++) {
-      var vl = vtx(lb, 1.18);
-      var elKey = { '木':'wood','火':'fire','土':'earth','金':'metal','水':'water' }[labels[lb]];
-      var text = I18n.t(elKey) + ' ' + vals[lb].toFixed(1);
-      ctx.fillStyle = ELEMENT_COLORS[labels[lb]];
-      ctx.fillText(text, vl.x, vl.y);
+    // Animation: expand from center
+    if (animate !== false && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var start = null;
+      var duration = 600;
+      function step(ts) {
+        if (!start) start = ts;
+        var elapsed = ts - start;
+        var t = Math.min(elapsed / duration, 1);
+        // Ease out cubic
+        var p = 1 - Math.pow(1 - t, 3);
+        drawFrame(p);
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    } else {
+      drawFrame(1);
     }
   }
 
@@ -562,7 +622,8 @@ const TianjiApp = (function () {
     var h = 6 * lineH + 5 * gap + 2 * padY;
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '">';
 
-    var strokeColor = darkTheme ? '#e0e0e0' : '#333';
+    var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    var strokeColor = isDark ? '#e8e0d0' : '#1c1810';
     var movingColor = '#f44336';
     var lineW = 160, lx = (w - lineW) / 2;
 
@@ -622,12 +683,12 @@ const TianjiApp = (function () {
     document.title = I18n.t('appTitle') + ' - ' + I18n.t('appSubtitle');
   }
 
-  /** Toggle theme. */
+  /** Toggle theme using data-theme attribute. */
   function toggleTheme() {
     darkTheme = !darkTheme;
-    document.body.classList.toggle('dark-theme', darkTheme);
+    document.documentElement.setAttribute('data-theme', darkTheme ? 'dark' : 'light');
     var btn = $('theme-toggle');
-    if (btn) btn.textContent = I18n.t(darkTheme ? 'lightTheme' : 'darkTheme');
+    if (btn) btn.textContent = darkTheme ? '🌙' : '☀️';
     // Redraw canvas if visible
     refreshActiveTab();
   }
@@ -642,17 +703,35 @@ const TianjiApp = (function () {
     refreshActiveTab();
   }
 
-  /** Switch active tab. */
+  /** Switch active tab — syncs desktop tabs, mobile bottom nav, and panels. */
   function switchTab(tab) {
     activeTab = tab;
     ['bazi','liuyao','ziwei'].forEach(function (t) {
       var panel = $('panel-' + t);
       var tabBtn = $('tab-' + t);
-      if (panel) panel.style.display = t === tab ? 'block' : 'none';
+      var isActive = t === tab;
+      if (panel) {
+        panel.style.display = isActive ? 'block' : 'none';
+        if (isActive) {
+          panel.removeAttribute('hidden');
+        } else {
+          panel.setAttribute('hidden', '');
+        }
+      }
+      // Desktop tabs
       if (tabBtn) {
-        tabBtn.classList.toggle('active', t === tab);
+        tabBtn.classList.toggle('active', isActive);
+        tabBtn.setAttribute('aria-selected', isActive ? 'true' : 'false');
       }
     });
+    // Mobile bottom nav
+    var bottomItems = document.querySelectorAll('.bottom-nav-item');
+    for (var i = 0; i < bottomItems.length; i++) {
+      var itemTab = bottomItems[i].getAttribute('data-tab');
+      var active = itemTab === tab;
+      bottomItems[i].classList.toggle('active', active);
+      bottomItems[i].setAttribute('aria-selected', active ? 'true' : 'false');
+    }
     refreshActiveTab();
   }
 
@@ -693,7 +772,7 @@ const TianjiApp = (function () {
   function calculateBazi() {
     var dateStr = $('bazi-date') ? $('bazi-date').value : '';
     var hourVal = $('bazi-hour') ? parseInt($('bazi-hour').value, 10) : 12;
-    var genderVal = document.querySelector('input[name="gender"]:checked');
+    var genderVal = document.querySelector('input[name="bazi-gender"]:checked');
     var gender = genderVal ? genderVal.value : 'male';
 
     if (!dateStr) {
@@ -825,6 +904,9 @@ const TianjiApp = (function () {
     requestAnimationFrame(function () {
       var canvas = $('radar-canvas');
       if (canvas) drawRadarChart(canvas, elCounts);
+      // Enable drag scroll on luck pillars timeline
+      var luckScroll = document.querySelector('.luck-pillars-scroll');
+      if (luckScroll) enableDragScroll(luckScroll);
     });
   }
 
@@ -938,7 +1020,7 @@ const TianjiApp = (function () {
     var mVal = $('ziwei-month') ? parseInt($('ziwei-month').value, 10) : 0;
     var dVal = $('ziwei-day') ? parseInt($('ziwei-day').value, 10) : 0;
     var hVal = $('ziwei-hour') ? parseInt($('ziwei-hour').value, 10) : 12;
-    var genderEl = document.querySelector('input[name="zw-gender"]:checked');
+    var genderEl = document.querySelector('input[name="ziwei-gender"]:checked');
     var gender = genderEl ? genderEl.value : 'male';
 
     var area = $('ziwei-result');
@@ -1047,7 +1129,7 @@ const TianjiApp = (function () {
       params.tab = 'bazi';
       params.date = $('bazi-date') ? $('bazi-date').value : '';
       params.hour = $('bazi-hour') ? $('bazi-hour').value : '12';
-      var g = document.querySelector('input[name="gender"]:checked');
+      var g = document.querySelector('input[name="bazi-gender"]:checked');
       params.gender = g ? g.value : 'male';
     } else if (activeTab === 'ziwei') {
       params.tab = 'ziwei';
@@ -1100,7 +1182,7 @@ const TianjiApp = (function () {
         if (decoded.date && $('bazi-date')) $('bazi-date').value = decoded.date;
         if (decoded.hour && $('bazi-hour')) $('bazi-hour').value = decoded.hour;
         if (decoded.gender) {
-          var radio = document.querySelector('input[name="gender"][value="' + decoded.gender + '"]');
+          var radio = document.querySelector('input[name="bazi-gender"][value="' + decoded.gender + '"]');
           if (radio) radio.checked = true;
         }
         switchTab('bazi');
@@ -1120,7 +1202,97 @@ const TianjiApp = (function () {
   //  Initialization
   // -----------------------------------------------------------------------
 
+  // -----------------------------------------------------------------------
+  //  Background Particle Canvas (subtle bagua / taiji particles)
+  // -----------------------------------------------------------------------
+
+  function initBgCanvas() {
+    var canvas = $('bg-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var PARTICLE_COUNT = 30;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    for (var i = 0; i < PARTICLE_COUNT; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.5,
+        dx: (Math.random() - 0.5) * 0.15,
+        dy: (Math.random() - 0.5) * 0.15,
+        opacity: Math.random() * 0.3 + 0.05
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+      for (var j = 0; j < particles.length; j++) {
+        var p = particles[j];
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = isDark
+          ? 'rgba(212, 175, 55, ' + p.opacity + ')'
+          : 'rgba(180, 140, 40, ' + (p.opacity * 0.5) + ')';
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    // Only animate if user allows
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      draw();
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  //  Drag-to-scroll for luck pillars timeline
+  // -----------------------------------------------------------------------
+
+  function enableDragScroll(container) {
+    if (!container) return;
+    var isDown = false, startX, scrollLeft;
+    container.addEventListener('mousedown', function (e) {
+      isDown = true;
+      startX = e.pageX - container.offsetLeft;
+      scrollLeft = container.scrollLeft;
+      container.style.cursor = 'grabbing';
+    });
+    container.addEventListener('mouseleave', function () { isDown = false; container.style.cursor = 'grab'; });
+    container.addEventListener('mouseup', function () { isDown = false; container.style.cursor = 'grab'; });
+    container.addEventListener('mousemove', function (e) {
+      if (!isDown) return;
+      e.preventDefault();
+      var x = e.pageX - container.offsetLeft;
+      container.scrollLeft = scrollLeft - (x - startX);
+    });
+  }
+
+  // -----------------------------------------------------------------------
+  //  Initialization
+  // -----------------------------------------------------------------------
+
   function init() {
+    // Detect initial theme from HTML attribute
+    darkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    // Initialize background particles
+    initBgCanvas();
+
     // Build hour selector
     rebuildHourSelector();
 
@@ -1131,16 +1303,36 @@ const TianjiApp = (function () {
       String(today.getDate()).padStart(2, '0');
     if ($('bazi-date')) $('bazi-date').value = dateStr;
 
-    // Tab buttons
+    // Desktop tab buttons
     ['bazi','liuyao','ziwei'].forEach(function (t) {
       var btn = $('tab-' + t);
       if (btn) btn.addEventListener('click', function () { switchTab(t); });
     });
 
+    // Mobile bottom nav buttons
+    var bottomItems = document.querySelectorAll('.bottom-nav-item');
+    for (var bi = 0; bi < bottomItems.length; bi++) {
+      (function (item) {
+        item.addEventListener('click', function () {
+          var tab = item.getAttribute('data-tab');
+          if (tab) switchTab(tab);
+        });
+      })(bottomItems[bi]);
+    }
+
+    // Hero CTA button — scroll to main content
+    var heroCta = $('hero-cta-btn');
+    if (heroCta) {
+      heroCta.addEventListener('click', function () {
+        var main = $('main-content');
+        if (main) main.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
     // Theme toggle
     var themeBtn = $('theme-toggle');
     if (themeBtn) {
-      themeBtn.textContent = I18n.t('darkTheme');
+      themeBtn.textContent = darkTheme ? '🌙' : '☀️';
       themeBtn.addEventListener('click', toggleTheme);
     }
 
@@ -1154,7 +1346,7 @@ const TianjiApp = (function () {
     // BaZi real-time calculation
     if ($('bazi-date')) $('bazi-date').addEventListener('change', calculateBazi);
     if ($('bazi-hour')) $('bazi-hour').addEventListener('change', calculateBazi);
-    var genderRadios = document.querySelectorAll('input[name="gender"]');
+    var genderRadios = document.querySelectorAll('input[name="bazi-gender"]');
     for (var i = 0; i < genderRadios.length; i++) {
       genderRadios[i].addEventListener('change', calculateBazi);
     }
@@ -1170,7 +1362,7 @@ const TianjiApp = (function () {
     ['ziwei-year','ziwei-month','ziwei-day','ziwei-hour'].forEach(function (id) {
       if ($(id)) $(id).addEventListener('change', calculateZiwei);
     });
-    var zwGenders = document.querySelectorAll('input[name="zw-gender"]');
+    var zwGenders = document.querySelectorAll('input[name="ziwei-gender"]');
     for (var g = 0; g < zwGenders.length; g++) {
       zwGenders[g].addEventListener('change', calculateZiwei);
     }
@@ -1183,7 +1375,7 @@ const TianjiApp = (function () {
       $('reset-btn').addEventListener('click', function () {
         if ($('bazi-date')) $('bazi-date').value = dateStr;
         if ($('bazi-hour')) $('bazi-hour').value = '0';
-        var mr = document.querySelector('input[name="gender"][value="male"]');
+        var mr = document.querySelector('input[name="bazi-gender"][value="male"]');
         if (mr) mr.checked = true;
         calculateBazi();
       });
@@ -1197,6 +1389,10 @@ const TianjiApp = (function () {
 
     // Initial tab
     switchTab(activeTab);
+
+    // Enable drag scroll on any existing luck pillar containers
+    var luckScroll = document.querySelector('.luck-pillars-scroll');
+    if (luckScroll) enableDragScroll(luckScroll);
   }
 
   // -----------------------------------------------------------------------
@@ -1216,5 +1412,6 @@ const TianjiApp = (function () {
     drawRadarChart: drawRadarChart,
     buildHexagramSVG: buildHexagramSVG,
     copyShareLink: copyShareLink,
+    enableDragScroll: enableDragScroll,
   };
 })();
