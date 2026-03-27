@@ -15,8 +15,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 
-from tianji.calendar.heavenly_stems import Element, HeavenlyStem, ELEMENT_PRODUCES
-from tianji.calendar.earthly_branches import EarthlyBranch
+from tianji.calendar.heavenly_stems import ELEMENT_PRODUCES, Element, HeavenlyStem
 
 
 class StrengthLevel(str, Enum):

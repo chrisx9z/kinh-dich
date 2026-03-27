@@ -4,7 +4,7 @@ Shared Pydantic models for tianji.
 
 from __future__ import annotations
 
-from datetime import datetime, date
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field

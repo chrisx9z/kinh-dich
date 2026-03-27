@@ -19,11 +19,11 @@ then apply: 3 days = 1 year of luck pillar start age.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date
 
-from tianji.calendar.stem_branch import StemBranch, get_jiazi
 from tianji.calendar.heavenly_stems import Polarity
 from tianji.calendar.solar_terms import get_solar_term_date
+from tianji.calendar.stem_branch import StemBranch, get_jiazi
 
 # The 12 monthly solar terms (节) in order
 _MONTHLY_JIEQI = [
@@ -144,7 +144,7 @@ def compute_luck_pillars(
     # Plus remainder: 1 day = 4 months
     full_years = days_diff // 3
     remaining_days = days_diff % 3
-    extra_months = remaining_days * 4
+    remaining_days * 4
 
     start_age = full_years
     if start_age == 0:

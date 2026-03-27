@@ -7,7 +7,7 @@ and months of the lunar year.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from tianji.calendar.heavenly_stems import Element, HeavenlyStem, Polarity, get_stem_by_char
 

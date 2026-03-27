@@ -13,10 +13,7 @@ from dataclasses import dataclass
 from tianji.calendar.heavenly_stems import (
     HeavenlyStem,
     stem_relationship,
-    ELEMENT_PRODUCES,
-    ELEMENT_CONQUERS,
 )
-
 
 # Ten God names and their meanings
 TEN_GOD_INFO: dict[str, dict] = {

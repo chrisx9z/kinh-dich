@@ -5,9 +5,9 @@ Zi Wei Dou Shu is a Chinese astrological system that maps stars
 into 12 palaces to reveal destiny patterns.
 """
 
-from tianji.ziwei.palaces import Palace, build_palace_ring, PALACE_NAMES
-from tianji.ziwei.stars import MAJOR_STARS, place_ziwei_group, place_tianfu_group
 from tianji.ziwei.chart import ZiWeiChart, create_ziwei_chart
+from tianji.ziwei.palaces import PALACE_NAMES, Palace, build_palace_ring
+from tianji.ziwei.stars import MAJOR_STARS, place_tianfu_group, place_ziwei_group
 
 __all__ = [
     "Palace", "build_palace_ring", "PALACE_NAMES",

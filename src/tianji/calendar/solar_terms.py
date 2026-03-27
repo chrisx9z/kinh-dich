@@ -10,9 +10,7 @@ which determines the year boundary.
 
 from __future__ import annotations
 
-import math
-from datetime import datetime, date, timedelta
-
+from datetime import date, datetime, timedelta
 
 # 24 Solar Terms in order, starting from 小寒
 SOLAR_TERMS: tuple[str, ...] = (

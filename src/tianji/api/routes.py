@@ -9,10 +9,10 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from tianji.bazi.chart import create_chart
-from tianji.bazi.ten_gods import compute_ten_gods
 from tianji.bazi.five_elements import analyze_five_elements
-from tianji.liuyao.casting import cast_by_time, cast_by_numbers
+from tianji.bazi.ten_gods import compute_ten_gods
 from tianji.liuyao.analysis import full_analysis
+from tianji.liuyao.casting import cast_by_numbers, cast_by_time
 
 router = APIRouter(prefix="/api/v1", tags=["tianji"])
 

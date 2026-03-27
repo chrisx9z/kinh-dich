@@ -6,7 +6,6 @@ Major stars placement based on Zi Wei star position.
 
 from __future__ import annotations
 
-
 # 紫微星系 (Zi Wei Group) — positions relative to Zi Wei
 # These stars follow a fixed pattern from Zi Wei's position
 ZIWEI_GROUP_OFFSETS: dict[str, int] = {

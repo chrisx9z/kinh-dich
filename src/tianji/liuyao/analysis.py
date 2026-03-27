@@ -11,12 +11,10 @@ After casting a hexagram, this module "loads" it (装卦) with:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date
 
-from tianji.liuyao.hexagram import Hexagram, Trigram, TRIGRAMS
+from tianji.calendar.heavenly_stems import ELEMENT_CONQUERS, ELEMENT_PRODUCES, Element
 from tianji.liuyao.casting import CastResult
-from tianji.calendar.heavenly_stems import Element, HeavenlyStem, ELEMENT_PRODUCES, ELEMENT_CONQUERS
-
+from tianji.liuyao.hexagram import Hexagram
 
 # 世应 (World-Response) positions for each hexagram based on palace structure
 # For each of the 8 palaces (one per trigram), the world position cycles:
@@ -96,7 +94,7 @@ def _get_line_element(line_pos: int, hexagram: Hexagram) -> Element:
         "离": Element.FIRE, "震": Element.WOOD, "巽": Element.WOOD,
         "坎": Element.WATER, "艮": Element.EARTH, "坤": Element.EARTH,
     }
-    palace_element = palace_element_map.get(hexagram.lower.name, Element.EARTH)
+    palace_element_map.get(hexagram.lower.name, Element.EARTH)
 
     # Simplified: return standard branch element for line position
     branch = _YANG_PALACE_BRANCHES[line_pos - 1]

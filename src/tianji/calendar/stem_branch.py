@@ -10,7 +10,7 @@ Reference epoch: 1900-01-01 (Gregorian) = 甲子日 (index 0 of 60-cycle)
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date
 
 from tianji.calendar.earthly_branches import EarthlyBranch, get_branch
 from tianji.calendar.heavenly_stems import HeavenlyStem, get_stem

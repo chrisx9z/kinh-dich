@@ -12,17 +12,17 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import datetime, date
+from datetime import date, datetime
 
 
 def cmd_bazi(args: argparse.Namespace) -> None:
     """Run BaZi chart calculation."""
     from tianji.bazi import BaZiChart
-    from tianji.bazi.ten_gods import display_ten_gods
-    from tianji.bazi.five_elements import elements_from_chart
     from tianji.bazi.day_master import analyze_day_master_strength
+    from tianji.bazi.five_elements import elements_from_chart
     from tianji.bazi.luck_pillars import compute_luck_pillars
     from tianji.bazi.relationships import relationships_from_chart
+    from tianji.bazi.ten_gods import display_ten_gods
 
     # Parse date and time
     birth_date = date.fromisoformat(args.date)
@@ -43,7 +43,7 @@ def cmd_bazi(args: argparse.Namespace) -> None:
 
 def cmd_liuyao(args: argparse.Namespace) -> None:
     """Run Liu Yao hexagram casting."""
-    from tianji.liuyao import cast_hexagram, LiuYaoAnalysis
+    from tianji.liuyao import LiuYaoAnalysis, cast_hexagram
 
     result = cast_hexagram(
         method=args.method,

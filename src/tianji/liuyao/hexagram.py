@@ -90,7 +90,6 @@ class Hexagram:
         print(f"  下卦: {self.lower}")
         lines = self.lines
         line_names = ["初", "二", "三", "四", "五", "上"]
-        polarity_names = ["", "六", "九"]  # 0=placeholder, yin=六, yang=九
         for i in range(5, -1, -1):
             line = lines[i]
             sym = "⚊" if line == 1 else "⚋"

@@ -10,9 +10,8 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass, field
 
-from tianji.calendar.heavenly_stems import Element, HeavenlyStem
 from tianji.calendar.earthly_branches import EarthlyBranch
-
+from tianji.calendar.heavenly_stems import Element, HeavenlyStem
 
 # Element scores for branch hidden stems (main/middle/residual weights)
 _HIDDEN_STEM_WEIGHTS = (1.0, 0.6, 0.4)

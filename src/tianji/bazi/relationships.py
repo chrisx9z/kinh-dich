@@ -15,12 +15,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from tianji.calendar.earthly_branches import (
-    EarthlyBranch,
-    SIX_HARMONIES,
-    THREE_HARMONIES,
     SIX_CONFLICTS,
-    THREE_PUNISHMENTS,
+    SIX_HARMONIES,
     SIX_HARMS,
+    THREE_HARMONIES,
+    THREE_PUNISHMENTS,
+    EarthlyBranch,
     Element,
 )
 

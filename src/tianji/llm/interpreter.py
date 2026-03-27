@@ -8,13 +8,13 @@ from __future__ import annotations
 
 from typing import Optional
 
-from tianji.config import get_config, LLMConfig
+from tianji.config import LLMConfig, get_config
 from tianji.llm.prompts import (
-    BAZI_SYSTEM_PROMPT,
     BAZI_ANALYSIS_TEMPLATE,
-    LIUYAO_SYSTEM_PROMPT,
-    LIUYAO_ANALYSIS_TEMPLATE,
+    BAZI_SYSTEM_PROMPT,
     DISCLAIMER_ZH,
+    LIUYAO_ANALYSIS_TEMPLATE,
+    LIUYAO_SYSTEM_PROMPT,
 )
 
 
@@ -84,8 +84,8 @@ def interpret_bazi(
     Returns:
         Natural language interpretation string
     """
-    from tianji.bazi.ten_gods import compute_ten_gods
     from tianji.bazi.five_elements import analyze_five_elements
+    from tianji.bazi.ten_gods import compute_ten_gods
 
     gods = compute_ten_gods(chart)
     elements = analyze_five_elements(chart)

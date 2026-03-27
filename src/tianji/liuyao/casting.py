@@ -10,10 +10,10 @@ Three methods for casting a hexagram:
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 
-from tianji.liuyao.hexagram import Hexagram, lines_to_hexagram, get_hexagram_by_trigrams, TRIGRAMS
+from tianji.liuyao.hexagram import TRIGRAMS, Hexagram, lines_to_hexagram
 
 
 @dataclass
@@ -41,7 +41,6 @@ class CastResult:
         print(f"  动爻: {self.moving_lines if self.moving_lines else '无'}")
         print("\n  爻象 (从下至上):")
         line_names = ["初", "二", "三", "四", "五", "上"]
-        pol_names = {6: "六(动)", 7: "九(动)", 8: "六", 9: "九"}
         for i, (line, name) in enumerate(zip(self.raw_lines, line_names)):
             # Normalize for display
             is_yang = line in (7, 9, 1)
@@ -138,8 +137,8 @@ def cast_by_time(dt: datetime | None = None) -> CastResult:
     lower_code = _ORDER[lower_idx]
 
     # Build 6 lines from trigrams
-    upper_trigram = TRIGRAMS[upper_code]
-    lower_trigram = TRIGRAMS[lower_code]
+    TRIGRAMS[upper_code]
+    TRIGRAMS[lower_code]
 
     raw_lines = []
     for i in range(3):

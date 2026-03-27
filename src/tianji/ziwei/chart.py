@@ -9,10 +9,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-from tianji.calendar.earthly_branches import EARTHLY_BRANCHES, EarthlyBranch
-from tianji.calendar.heavenly_stems import HEAVENLY_STEMS
+from tianji.calendar.earthly_branches import EARTHLY_BRANCHES
 from tianji.ziwei.palaces import PALACE_NAMES
-from tianji.ziwei.stars import MAJOR_STARS, place_ziwei_group, place_tianfu_group
+from tianji.ziwei.stars import place_tianfu_group, place_ziwei_group
 
 
 @dataclass
@@ -44,7 +43,7 @@ class ZiWeiChart:
         # Step 1: Determine Ming Palace (命宫) position
         # Ming palace index = (month + hour_branch_index) mapped to 12 branches
         hour_branch = self._hour_to_branch(self.hour)
-        ming_index = (self.month - 1 + hour_branch) % 12
+        (self.month - 1 + hour_branch) % 12
         # Ming palace is counted from 寅 (index 2)
         ming_position = (2 + self.month - 1 - hour_branch) % 12
 
@@ -112,7 +111,7 @@ class ZiWeiChart:
     def display(self) -> str:
         """Format chart for display."""
         lines = [
-            f"紫微斗数命盘",
+            "紫微斗数命盘",
             f"出生：农历{self.year}年{self.month}月{self.day}日 {self.hour}时",
             f"性别：{self.gender}",
             "",

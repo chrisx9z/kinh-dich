@@ -13,13 +13,12 @@ Key rules:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, date
+from datetime import date, datetime
 
-from tianji.calendar.stem_branch import StemBranch, date_to_day_jiazi, get_jiazi
-from tianji.calendar.heavenly_stems import HeavenlyStem, get_stem, HEAVENLY_STEMS
 from tianji.calendar.earthly_branches import EarthlyBranch, get_branch, get_branch_for_hour
-from tianji.calendar.solar_terms import lichun_date, get_month_boundary_dates
-
+from tianji.calendar.heavenly_stems import HeavenlyStem, get_stem
+from tianji.calendar.solar_terms import lichun_date
+from tianji.calendar.stem_branch import StemBranch, date_to_day_jiazi, get_jiazi
 
 # 五虎遁月 — Month stem lookup table
 # Maps year stem index (mod 5) → starting stem index for 寅月 (month 1 = 寅)
@@ -107,8 +106,8 @@ def compute_month_pillar(d: date, year_stem_index: int) -> StemBranch:
     # Month 2 → +1 stem, Month 3 → +2 stems, etc.
     month_offset = _MONTH_BRANCH_INDICES.index(branch_idx)
     stem_idx = (base_stem_idx + month_offset) % 10
-    branch = get_branch(branch_idx)
-    stem = get_stem(stem_idx)
+    get_branch(branch_idx)
+    get_stem(stem_idx)
 
     # Find the StemBranch in the 60-cycle
     for sb in _iter_stem_branch(stem_idx, branch_idx):

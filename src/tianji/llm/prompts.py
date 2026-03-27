@@ -20,7 +20,7 @@ BAZI_ANALYSIS_TEMPLATE = """请分析以下八字命盘：
 
 **四柱**：
 - 年柱：{year_pillar}
-- 月柱：{month_pillar}  
+- 月柱：{month_pillar}
 - 日柱：{day_pillar}（日主：{day_master}）
 - 时柱：{hour_pillar}
 
