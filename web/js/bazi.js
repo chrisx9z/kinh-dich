@@ -167,7 +167,8 @@ const BaZi = (function () {
   /**
    * computeDayPillar — 日柱
    *
-   * Reference: 1900-01-01 = 甲子 (index 0 in the 60-cycle).
+   * Reference: 1900-01-01 = 甲戌 (index 10 in the 60-cycle).
+   * Verified: 1949-10-01 = 甲子, 2004-07-21 = 辛丑
    *
    * @param {Date} date
    * @returns {{ stemIndex: number, branchIndex: number, char: string, jiaziIndex: number }}
@@ -175,12 +176,12 @@ const BaZi = (function () {
   function computeDayPillar(date) {
     var C = _C();
 
-    // Reference date: 1900-01-01 = index 0
+    // Reference date: 1900-01-01 = index 10 (甲戌)
     var refDate = new Date(1900, 0, 1); // month is 0-based in JS
     var diffMs = date.getTime() - refDate.getTime();
     var diffDays = Math.floor(diffMs / 86400000);
 
-    var idx = ((diffDays % 60) + 60) % 60;
+    var idx = (((diffDays + 10) % 60) + 60) % 60;
     var stemIdx = idx % 10;
     var branchIdx = idx % 12;
 
