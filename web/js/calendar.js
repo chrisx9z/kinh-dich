@@ -227,9 +227,10 @@ const Calendar = (function () {
     return _jiaziByChar[ch];
   }
 
-  // Reference epoch: 1900-01-01 = 甲子 (index 0)
+  // Reference epoch: 1900-01-01 = 甲戌 (index 10)
+  // Verified: with index 10, 1949-10-01 = 甲子, 2004-07-21 = 辛丑
   var _REFERENCE_DATE = new Date(Date.UTC(1900, 0, 1)); // months are 0-based
-  var _REFERENCE_INDEX = 0;
+  var _REFERENCE_INDEX = 10;
 
   /**
    * Number of whole days between two UTC-midnight Date objects.
@@ -738,6 +739,72 @@ const Calendar = (function () {
   }
 
   // ────────────────────────────────────────────────────────────────────────
+  // Additional helpers for BaZi engine
+  // ────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Get the element index (0-4: 木火土金水) for a stem by index.
+   */
+  function stemElement(stemIndex) {
+    var s = getStem(stemIndex);
+    return ELEMENTS.indexOf(s.element);
+  }
+
+  /**
+   * Get element index that `elIdx` produces (相生).
+   * @param {number} elIdx — element index 0-4
+   * @returns {number} produced element index
+   */
+  function elementProduces(elIdx) {
+    var el = ELEMENTS[elIdx];
+    return ELEMENTS.indexOf(ELEMENT_PRODUCES[el]);
+  }
+
+  /**
+   * Get element index that `elIdx` conquers (相克).
+   */
+  function elementConquers(elIdx) {
+    var el = ELEMENTS[elIdx];
+    return ELEMENTS.indexOf(ELEMENT_CONQUERS[el]);
+  }
+
+  /**
+   * Get 立春 Date object for a given year.
+   * @returns {Date} — local time Date
+   */
+  function getLiChunDate(year) {
+    var d = lichunDate(year);
+    return new Date(d.year, d.month - 1, d.day);
+  }
+
+  /**
+   * Get a solar term date as a local Date object.
+   */
+  function getSolarTermAsDate(year, termName) {
+    var d = getSolarTermDate(year, termName);
+    return new Date(d.year, d.month - 1, d.day);
+  }
+
+  /**
+   * Get hidden stem indices for a branch by index.
+   * @param {number} branchIndex — 0-11
+   * @returns {number[]} array of stem indices
+   */
+  function getHiddenStemIndices(branchIndex) {
+    var branch = getBranch(branchIndex);
+    return branch.hiddenStems.map(function (ch) {
+      return getStemByChar(ch).index;
+    });
+  }
+
+  /**
+   * Compute Ten God by stem indices (convenience wrapper).
+   */
+  function stemRelationshipByIndex(dmIndex, otherIndex) {
+    return stemRelationship(getStem(dmIndex), getStem(otherIndex));
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
   // Public API
   // ────────────────────────────────────────────────────────────────────────
 
@@ -788,7 +855,16 @@ const Calendar = (function () {
     THREE_HARMONIES:    THREE_HARMONIES,
     SIX_CONFLICTS:      SIX_CONFLICTS,
     THREE_PUNISHMENTS:  THREE_PUNISHMENTS,
-    SIX_HARMS:          SIX_HARMS
+    SIX_HARMS:          SIX_HARMS,
+
+    // Additional helpers
+    stemElement:              stemElement,
+    elementProduces:          elementProduces,
+    elementConquers:          elementConquers,
+    getLiChunDate:            getLiChunDate,
+    getSolarTermAsDate:       getSolarTermAsDate,
+    getHiddenStemIndices:     getHiddenStemIndices,
+    stemRelationshipByIndex:  stemRelationshipByIndex
   };
 })();
 

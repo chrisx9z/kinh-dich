@@ -23,16 +23,8 @@ const TianjiApp = (function () {
   const ZODIAC = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
   /** Element of each stem (index aligned). */
   const STEM_ELEMENT = ['木','木','火','火','土','土','金','金','水','水'];
-  /** Polarity of each stem (index aligned). */
-  const STEM_POLARITY = ['阳','阴','阳','阴','阳','阴','阳','阴','阳','阴'];
   /** Primary element of each branch (index aligned). */
   const BRANCH_ELEMENT = ['水','土','木','木','土','火','火','土','金','金','土','水'];
-  /** Hidden stems per branch. */
-  const BRANCH_HIDDEN = [
-    ['癸'],['己','癸','辛'],['甲','丙','戊'],['乙'],
-    ['戊','乙','癸'],['丙','庚','戊'],['丁','己'],['己','丁','乙'],
-    ['庚','壬','戊'],['辛'],['戊','辛','丁'],['壬','甲']
-  ];
   /** Element colors for theming. */
   const ELEMENT_COLORS = { '木':'#4caf50', '火':'#f44336', '土':'#ff9800', '金':'#ffd600', '水':'#2196f3' };
 
@@ -43,38 +35,7 @@ const TianjiApp = (function () {
     return arr;
   })();
 
-  /** Wu-Hu month stem start: year-stem-index mod 5 -> starting stem for Yin month. */
-  const WUHU = { 0:2, 1:4, 2:6, 3:8, 4:0 };
-  /** Wu-Shu hour stem start: day-stem-index mod 5 -> starting stem for Zi hour. */
-  const WUSHU = { 0:0, 1:2, 2:4, 3:6, 4:8 };
-
-  /** Monthly solar term Jie approximate day-of-year (non-leap). Used for month boundary. */
-  const JIE_APPROX = [
-    { m:2,  d:4  }, // 立春  ~ Feb 4
-    { m:3,  d:6  }, // 惊蛰  ~ Mar 6
-    { m:4,  d:5  }, // 清明  ~ Apr 5
-    { m:5,  d:6  }, // 立夏  ~ May 6
-    { m:6,  d:6  }, // 芒种  ~ Jun 6
-    { m:7,  d:7  }, // 小暑  ~ Jul 7
-    { m:8,  d:7  }, // 立秋  ~ Aug 7
-    { m:9,  d:8  }, // 白露  ~ Sep 8
-    { m:10, d:8  }, // 寒露  ~ Oct 8
-    { m:11, d:7  }, // 立冬  ~ Nov 7
-    { m:12, d:7  }, // 大雪  ~ Dec 7
-    { m:1,  d:6  }, // 小寒  ~ Jan 6 (of next year cycle)
-  ];
-  /** Branch index for each BaZi month (寅=2 .. 丑=1). */
-  const MONTH_BRANCH_IDX = [2,3,4,5,6,7,8,9,10,11,0,1];
-
-  // Ten God computation: relationship of a stem to the day master.
-  const ELEMENT_PRODUCES = { '木':'火','火':'土','土':'金','金':'水','水':'木' };
-  const ELEMENT_CONQUERS = { '木':'土','土':'水','水':'火','火':'金','金':'木' };
-
-  // Branch relationship tables
-  const SIX_HARMONIES = [['子','丑'],['寅','亥'],['卯','戌'],['辰','酉'],['巳','申'],['午','未']];
-  const THREE_HARMONIES = [['申','子','辰'],['亥','卯','未'],['寅','午','戌'],['巳','酉','丑']];
-  const SIX_CLASHES = [['子','午'],['丑','未'],['寅','申'],['卯','酉'],['辰','戌'],['巳','亥']];
-  const SIX_HARMS = [['子','未'],['丑','午'],['寅','巳'],['卯','辰'],['申','亥'],['酉','戌']];
+  // (BaZi engine constants removed — now using bazi.js + calendar.js)
 
   // Liu Yao: trigram codes and hexagram tables
   const TRIGRAM_ORDER = [7,6,5,4,3,2,1,0]; // 先天 order for modular mapping
@@ -157,187 +118,7 @@ const TianjiApp = (function () {
   /** Convert clock hour (0-23) to branch index. */
   function hourToBranch(h) { return h === 23 ? 0 : Math.floor((h + 1) / 2); }
 
-  /** Get stem index of a character. */
-  function stemIdx(ch) { return STEMS.indexOf(ch); }
-
-  // -----------------------------------------------------------------------
-  //  BaZi Engine (pure JS, mirrors Python logic)
-  // -----------------------------------------------------------------------
-
-  /**
-   * Approximate the year pillar Jia-Zi index for a gregorian date.
-   * Year changes at Li-Chun (~Feb 4). Year 4 CE = Jia-Zi.
-   */
-  function yearPillar(date) {
-    var y = date.getFullYear();
-    // Simple Li-Chun approximation: Feb 4
-    if (date.getMonth() < 1 || (date.getMonth() === 1 && date.getDate() < 4)) {
-      y -= 1;
-    }
-    var idx = mod(y - 4, 60);
-    return { stem: STEMS[idx % 10], branch: BRANCHES[idx % 12], jiaziIdx: idx };
-  }
-
-  /**
-   * Determine BaZi month number (1-12) and branch index from a date.
-   * Month boundaries are the 12 Jie solar terms.
-   */
-  function monthInfo(date) {
-    var m = date.getMonth(); // 0-based
-    var d = date.getDate();
-    // Walk JIE_APPROX to find which month we are in.
-    // JIE_APPROX[i] is the start of BaZi month (i+1), branch = MONTH_BRANCH_IDX[i].
-    var baziMonth = 12; // default: before Li-Chun = month 12 (丑月) of previous year
-    for (var i = 0; i < 12; i++) {
-      var jm = JIE_APPROX[i].m - 1; // 0-based
-      var jd = JIE_APPROX[i].d;
-      if (i === 11) {
-        // 小寒 in January belongs to same solar year but previous BaZi year cycle
-        if (m === 0 && d >= jd) { baziMonth = 12; break; }
-      } else {
-        if (m === jm && d >= jd) {
-          baziMonth = i + 1;
-        } else if (m > jm && i < 11) {
-          baziMonth = i + 1;
-        }
-      }
-    }
-    // Refine: pick the latest Jie boundary before or on the date
-    var best = 0;
-    for (var j = 0; j < 12; j++) {
-      var jDate = new Date(date.getFullYear(), JIE_APPROX[j].m - 1, JIE_APPROX[j].d);
-      if (j === 11 && JIE_APPROX[j].m === 1) {
-        // 小寒 of this year
-        jDate = new Date(date.getFullYear(), 0, JIE_APPROX[j].d);
-      }
-      if (jDate <= date) { best = j; }
-    }
-    baziMonth = best + 1;
-    // Handle wrap: if date is before 立春 (Feb ~4), month = 12 of prev year
-    var lichun = new Date(date.getFullYear(), 1, JIE_APPROX[0].d);
-    if (date < lichun) { baziMonth = 12; }
-    return { month: baziMonth, branchIdx: MONTH_BRANCH_IDX[baziMonth - 1] };
-  }
-
-  function monthPillar(date, yearStemIdx) {
-    var mi = monthInfo(date);
-    var baseStem = WUHU[mod(yearStemIdx, 5)];
-    var offset = MONTH_BRANCH_IDX.indexOf(mi.branchIdx);
-    var sIdx = mod(baseStem + offset, 10);
-    return { stem: STEMS[sIdx], branch: BRANCHES[mi.branchIdx] };
-  }
-
-  /** Day pillar: reference 1900-01-01 = 甲子 (index 0). */
-  function dayPillar(date) {
-    var ref = new Date(1900, 0, 1);
-    var diff = Math.floor((date.getTime() - ref.getTime()) / 86400000);
-    var idx = mod(diff, 60);
-    return { stem: STEMS[idx % 10], branch: BRANCHES[idx % 12], jiaziIdx: idx };
-  }
-
-  function hourPillar(hour, dayStemIdx) {
-    var bIdx = hourToBranch(hour);
-    var baseStem = WUSHU[mod(dayStemIdx, 5)];
-    var sIdx = mod(baseStem + bIdx, 10);
-    return { stem: STEMS[sIdx], branch: BRANCHES[bIdx] };
-  }
-
-  /** Compute the Ten God name of `other` stem relative to `dm` stem character. */
-  function tenGod(dmChar, otherChar) {
-    var dEl = STEM_ELEMENT[stemIdx(dmChar)];
-    var dPol = STEM_POLARITY[stemIdx(dmChar)];
-    var oEl = STEM_ELEMENT[stemIdx(otherChar)];
-    var oPol = STEM_POLARITY[stemIdx(otherChar)];
-    var same = dPol === oPol;
-    if (dEl === oEl) return same ? '比肩' : '劫财';
-    if (ELEMENT_PRODUCES[dEl] === oEl) return same ? '食神' : '伤官';
-    if (ELEMENT_PRODUCES[oEl] === dEl) return same ? '偏印' : '正印';
-    if (ELEMENT_CONQUERS[dEl] === oEl) return same ? '偏财' : '正财';
-    if (ELEMENT_CONQUERS[oEl] === dEl) return same ? '七杀' : '正官';
-    return '';
-  }
-
-  /** Count five-element totals from all stems and branch hidden stems. */
-  function countElements(pillars) {
-    var counts = { '木':0, '火':0, '土':0, '金':0, '水':0 };
-    pillars.forEach(function (p) {
-      counts[STEM_ELEMENT[stemIdx(p.stem)]] += 1;
-      var bIdx = BRANCHES.indexOf(p.branch);
-      BRANCH_HIDDEN[bIdx].forEach(function (hs) { counts[STEM_ELEMENT[stemIdx(hs)]] += 0.5; });
-    });
-    return counts;
-  }
-
-  /** Simple day-master strength heuristic. */
-  function dayMasterStrength(dmElement, counts) {
-    var supporting = counts[dmElement] + (counts[ELEMENT_PRODUCES[ELEMENT_PRODUCES[ELEMENT_PRODUCES[ELEMENT_PRODUCES[dmElement]]]]] || 0);
-    // The element that produces DM
-    var producerEl;
-    for (var k in ELEMENT_PRODUCES) { if (ELEMENT_PRODUCES[k] === dmElement) { producerEl = k; break; } }
-    supporting += (counts[producerEl] || 0);
-    var total = 0;
-    for (var e in counts) total += counts[e];
-    var ratio = supporting / (total || 1);
-    if (ratio > 0.55) return 'strong';
-    if (ratio < 0.40) return 'weak';
-    return 'neutral';
-  }
-
-  /** Find branch relationships among the four pillar branches. */
-  function findRelationships(branchChars) {
-    var results = [];
-    function has(a, b) {
-      return branchChars.indexOf(a) !== -1 && branchChars.indexOf(b) !== -1;
-    }
-    SIX_HARMONIES.forEach(function (pair) {
-      if (has(pair[0], pair[1])) results.push({ type: 'liuhe', branches: pair });
-    });
-    THREE_HARMONIES.forEach(function (tri) {
-      if (branchChars.indexOf(tri[0])!==-1 && branchChars.indexOf(tri[1])!==-1 && branchChars.indexOf(tri[2])!==-1) {
-        results.push({ type: 'sanhe', branches: tri });
-      }
-    });
-    SIX_CLASHES.forEach(function (pair) {
-      if (has(pair[0], pair[1])) results.push({ type: 'liuchong', branches: pair });
-    });
-    SIX_HARMS.forEach(function (pair) {
-      if (has(pair[0], pair[1])) results.push({ type: 'liuhai', branches: pair });
-    });
-    return results;
-  }
-
-  /** Compute 10 luck pillars (大运). */
-  function luckPillars(yearStem, yearBranch, gender) {
-    var yStemIdx = stemIdx(yearStem);
-    var yPol = STEM_POLARITY[yStemIdx]; // 阳 or 阴
-    // Forward if (yang male) or (yin female), backward otherwise
-    var forward = (yPol === '阳' && gender === 'male') || (yPol === '阴' && gender === 'female');
-    // Luck pillars start from month pillar, stepping through Jia-Zi cycle
-    // We need the month pillar's Jia-Zi index; approximate from stem+branch
-    // Find jiazi index for month pillar
-    var result = [];
-    // The month pillar characters are the starting point; compute jiazi index
-    return function (monthStem, monthBranch) {
-      var mStemIdx = stemIdx(monthStem);
-      var mBranchIdx = BRANCHES.indexOf(monthBranch);
-      // Find jiazi index: the cycle position where stem=mStemIdx, branch=mBranchIdx
-      var jIdx = -1;
-      for (var i = 0; i < 60; i++) {
-        if (i % 10 === mStemIdx && i % 12 === mBranchIdx) { jIdx = i; break; }
-      }
-      if (jIdx === -1) jIdx = 0;
-      var pillars = [];
-      for (var p = 1; p <= 10; p++) {
-        var idx = forward ? mod(jIdx + p, 60) : mod(jIdx - p, 60);
-        pillars.push({
-          stem: STEMS[idx % 10],
-          branch: BRANCHES[idx % 12],
-          startAge: p * 10 - 7, // rough approximation
-        });
-      }
-      return pillars;
-    };
-  }
+  // (BaZi engine functions removed — now delegated to bazi.js)
 
   // -----------------------------------------------------------------------
   //  Liu Yao Engine
@@ -746,6 +527,10 @@ const TianjiApp = (function () {
   //  Hour Selector Builder
   // -----------------------------------------------------------------------
 
+  /**
+   * Rebuild hour selector with branch indices 0-11 as values.
+   * Values correspond to: 子(0), 丑(1), 寅(2), ..., 亥(11).
+   */
   function rebuildHourSelector() {
     var sel = $('bazi-hour');
     if (!sel) return;
@@ -753,9 +538,7 @@ const TianjiApp = (function () {
     sel.innerHTML = '';
     for (var i = 0; i < 12; i++) {
       var opt = document.createElement('option');
-      // Map to representative clock hours: 子=0, 丑=2, 寅=4, ... 亥=22
-      var clockHour = i === 0 ? 0 : i * 2 - 1;
-      opt.value = clockHour;
+      opt.value = i; // branch index
       opt.textContent = I18n.t('shiChen' + i);
       sel.appendChild(opt);
     }
@@ -765,146 +548,263 @@ const TianjiApp = (function () {
     }
   }
 
+  /** Convert hour branch index (0-11) to representative clock hour (0-23). */
+  function branchIdxToClockHour(branchIdx) {
+    return branchIdx === 0 ? 23 : branchIdx * 2 - 1;
+  }
+
   // -----------------------------------------------------------------------
   //  BaZi Tab Rendering
   // -----------------------------------------------------------------------
 
+  /**
+   * calculateBazi — 综合八字排盘
+   *
+   * Uses BaZi.createChart() engine for all computation.
+   * Renders: 农历日期, 四柱+纳音, 十神, 藏干, 胎元/命宫, 神煞,
+   *          五行分析, 日主强弱, 用神忌神, 格局, 地支关系, 大运, 流年
+   */
   function calculateBazi() {
     var dateStr = $('bazi-date') ? $('bazi-date').value : '';
-    var hourVal = $('bazi-hour') ? parseInt($('bazi-hour').value, 10) : 12;
+    var hourBranchIdx = $('bazi-hour') ? parseInt($('bazi-hour').value, 10) : 7;
     var genderVal = document.querySelector('input[name="bazi-gender"]:checked');
     var gender = genderVal ? genderVal.value : 'male';
 
+    var resultArea = $('bazi-result');
+    if (!resultArea) return;
+
     if (!dateStr) {
-      var out = $('bazi-result');
-      if (out) out.innerHTML = '<p class="empty-state">' + I18n.t('noData') + '</p>';
+      resultArea.innerHTML = '<p class="empty-state">' + I18n.t('noData') + '</p>';
       return;
     }
 
     var parts = dateStr.split('-');
-    var date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]), hourVal);
+    var year = parseInt(parts[0], 10);
+    var month = parseInt(parts[1], 10);
+    var day = parseInt(parts[2], 10);
+    var clockHour = branchIdxToClockHour(hourBranchIdx);
 
-    // Show brief loading indicator
-    var resultArea = $('bazi-result');
-    if (!resultArea) return;
+    // ── Core computation via BaZi engine ──
+    var chart = BaZi.createChart(year, month, day, clockHour, gender);
+    var tenGods = BaZi.tenGodsFromChart(chart);
+    var elements = BaZi.analyzeFiveElements(chart.allStems, chart.allBranches);
+    var strength = BaZi.analyzeDayMasterStrength(chart);
+    var nayinArr = BaZi.getNayinForChart(chart);
+    var taiyuan = BaZi.computeTaiyuan(chart);
+    var minggong = BaZi.computeMinggong(chart);
+    var shensha = BaZi.computeShensha(chart);
+    var pattern = BaZi.analyzePattern(chart, strength);
+    var favorable = BaZi.suggestFavorable(chart, strength, elements);
+    var relResult = BaZi.analyzeRelationships(chart.allBranches);
+    var luck = BaZi.computeLuckPillars(chart);
+    var lunar = BaZi.getLunarDate(year, month, day);
 
-    // Compute four pillars
-    var yp = yearPillar(date);
-    var mp = monthPillar(date, stemIdx(yp.stem));
-    var dp = dayPillar(date);
-    var hp = hourPillar(hourVal, stemIdx(dp.stem));
-    var pillars = [yp, mp, dp, hp];
-    var dmChar = dp.stem;
-    var dmElement = STEM_ELEMENT[stemIdx(dmChar)];
+    var dmChar = chart.dayMasterChar;
+    var dmElement = chart.dayMasterElement;
+    var pillars = chart.pillars;
 
-    // -- Build HTML --
+    // Shorthand lookups
+    function stemColor(sIdx) { return ELEMENT_COLORS[STEM_ELEMENT[sIdx]]; }
+    function branchColor(bIdx) { return ELEMENT_COLORS[BRANCH_ELEMENT[bIdx]]; }
+
+    // ── Build HTML ──
     var html = '';
 
-    // Four Pillars table
-    var pillarKeys = ['yearPillar','monthPillar','dayPillar','hourPillar'];
+    // 1. 日期信息 (Solar + Lunar)
+    html += '<div class="bazi-date-info">';
+    html += '<span>阳历 ' + year + '年' + month + '月' + day + '日</span>';
+    html += ' <span class="date-sep">/</span> ';
+    html += '<span>' + lunar.traditional + '</span>';
+    html += '</div>';
+
+    // 2. 四柱表格 (含纳音)
+    var pillarLabels = [I18n.t('yearPillar'), I18n.t('monthPillar'), I18n.t('dayPillar'), I18n.t('hourPillar')];
     html += '<div class="pillars-table"><table><thead><tr>';
-    pillarKeys.forEach(function (k) { html += '<th>' + I18n.t(k) + '</th>'; });
+    pillarLabels.forEach(function (l) { html += '<th>' + l + '</th>'; });
     html += '</tr></thead><tbody>';
-    // Stems row
+
+    // 十神 row
+    html += '<tr class="tengod-row">';
+    for (var ti = 0; ti < 4; ti++) {
+      var tgName = '';
+      if (ti === 2) { tgName = I18n.t('dayMaster'); }
+      else {
+        var key = ['年干', '月干', '', '时干'][ti];
+        tgName = tenGods[key] ? tenGods[key].god : '';
+      }
+      html += '<td><small class="ten-god-label">' + tgName + '</small></td>';
+    }
+    html += '</tr>';
+
+    // 天干 row
     html += '<tr class="stems-row">';
-    pillars.forEach(function (p, idx) {
-      var elColor = ELEMENT_COLORS[STEM_ELEMENT[stemIdx(p.stem)]];
-      var tg = idx !== 2 ? tenGod(dmChar, p.stem) : I18n.t('dayMaster');
-      html += '<td><span class="stem" style="color:' + elColor + '">' + p.stem + '</span><br><small>' + tg + '</small></td>';
+    pillars.forEach(function (p) {
+      html += '<td><span class="stem" style="color:' + stemColor(p.stemIndex) + '">' +
+        STEMS[p.stemIndex] + '</span></td>';
     });
     html += '</tr>';
-    // Branches row
+
+    // 地支 row
     html += '<tr class="branches-row">';
     pillars.forEach(function (p) {
-      var bIdx = BRANCHES.indexOf(p.branch);
-      var elColor = ELEMENT_COLORS[BRANCH_ELEMENT[bIdx]];
-      html += '<td><span class="branch" style="color:' + elColor + '">' + p.branch + '</span>';
-      html += '<br><small>' + ZODIAC[bIdx] + '</small></td>';
+      html += '<td><span class="branch" style="color:' + branchColor(p.branchIndex) + '">' +
+        BRANCHES[p.branchIndex] + '</span>' +
+        '<br><small>' + ZODIAC[p.branchIndex] + '</small></td>';
     });
     html += '</tr>';
-    // Hidden stems row
+
+    // 藏干 row
     html += '<tr class="hidden-row">';
-    pillars.forEach(function (p) {
-      var bIdx = BRANCHES.indexOf(p.branch);
-      var hidden = BRANCH_HIDDEN[bIdx];
-      var parts = hidden.map(function (hs) {
-        var c = ELEMENT_COLORS[STEM_ELEMENT[stemIdx(hs)]];
-        var tg = tenGod(dmChar, hs);
-        return '<span style="color:' + c + '">' + hs + '</span><sub>' + tg + '</sub>';
+    var branchLabels = ['年支藏干', '月支藏干', '日支藏干', '时支藏干'];
+    for (var hi = 0; hi < 4; hi++) {
+      var hiddenArr = tenGods[branchLabels[hi]] || [];
+      var hiddenParts = hiddenArr.map(function (h) {
+        var c = ELEMENT_COLORS[STEM_ELEMENT[h.stemIndex]];
+        return '<span style="color:' + c + '">' + h.stem + '</span><sub>' + h.god + '</sub>';
       });
-      html += '<td>' + parts.join(' ') + '</td>';
+      html += '<td>' + (hiddenParts.length > 0 ? hiddenParts.join(' ') : '-') + '</td>';
+    }
+    html += '</tr>';
+
+    // 纳音 row
+    html += '<tr class="nayin-row">';
+    nayinArr.forEach(function (n) {
+      html += '<td><small class="nayin-label">' + n.nayin + '</small></td>';
     });
     html += '</tr>';
+
     html += '</tbody></table></div>';
 
-    // Day Master info
+    // 3. 日主信息 + 强弱
     html += '<div class="day-master-info">';
     html += '<strong>' + I18n.t('dayMaster') + ':</strong> ';
     html += '<span style="color:' + ELEMENT_COLORS[dmElement] + ';font-size:1.3em">' + dmChar + '</span> ';
-    html += '(' + I18n.t(dmElement === '木' ? 'wood' : dmElement === '火' ? 'fire' : dmElement === '土' ? 'earth' : dmElement === '金' ? 'metal' : 'water') + ')';
-
-    // Strength
-    var elCounts = countElements(pillars);
-    var strength = dayMasterStrength(dmElement, elCounts);
-    var strengthLabel = I18n.t(strength);
-    html += ' &mdash; ' + I18n.t('dayMasterStrength') + ': <strong>' + strengthLabel + '</strong>';
+    var elKey = { '木': 'wood', '火': 'fire', '土': 'earth', '金': 'metal', '水': 'water' }[dmElement];
+    html += '(' + I18n.t(elKey) + ')';
+    html += ' &mdash; ' + I18n.t('dayMasterStrength') + ': <strong>' + strength.level + '</strong>';
+    html += ' (得分: ' + strength.score.toFixed(1) + ')';
     html += '</div>';
 
-    // Five elements radar chart canvas
-    html += '<div class="radar-section"><h3>' + I18n.t('fiveElements') + '</h3>';
-    html += '<canvas id="radar-canvas" width="300" height="300"></canvas></div>';
+    // 强弱因素
+    if (strength.factors.length > 0) {
+      html += '<div class="strength-factors"><details><summary>强弱分析详情</summary><ul>';
+      strength.factors.forEach(function (f) {
+        html += '<li>' + f + '</li>';
+      });
+      html += '</ul></details></div>';
+    }
 
-    // Branch relationships
-    var branchChars = pillars.map(function (p) { return p.branch; });
-    var rels = findRelationships(branchChars);
+    // 4. 胎元 + 命宫
+    html += '<div class="taiyuan-minggong">';
+    html += '<div class="tm-item"><span class="tm-label">胎元</span>';
+    html += '<span class="tm-value">' + taiyuan.char + '</span>';
+    html += '<span class="tm-nayin">' + taiyuan.nayin + '</span></div>';
+    html += '<div class="tm-item"><span class="tm-label">命宫</span>';
+    html += '<span class="tm-value">' + minggong.char + '</span>';
+    html += '<span class="tm-nayin">' + minggong.nayin + '</span></div>';
+    html += '</div>';
+
+    // 5. 神煞
+    if (shensha.length > 0) {
+      html += '<div class="shensha-section"><h3>神煞</h3><div class="shensha-tags">';
+      shensha.forEach(function (ss) {
+        var cls = 'shensha-tag';
+        // 吉神用金色, 凶神用红色
+        var auspicious = ['天乙贵人', '文昌贵人', '天德', '月德', '禄神', '将星'].indexOf(ss.name) !== -1;
+        cls += auspicious ? ' shensha-good' : ' shensha-neutral';
+        html += '<span class="' + cls + '">' + ss.name + '<sub>' + ss.pillar + '</sub></span>';
+      });
+      html += '</div></div>';
+    }
+
+    // 6. 格局分析
+    html += '<div class="pattern-section"><h3>格局</h3>';
+    html += '<div class="pattern-name">' + pattern.pattern + '</div>';
+    html += '<p class="pattern-desc">' + pattern.description + '</p>';
+    html += '</div>';
+
+    // 7. 用神忌神
+    html += '<div class="favorable-section"><h3>用神忌神</h3>';
+    html += '<div class="fav-row"><span class="fav-label">用神:</span> ';
+    html += '<span class="fav-good">' + favorable.favorable.join('、') + '</span></div>';
+    html += '<div class="fav-row"><span class="fav-label">忌神:</span> ';
+    html += '<span class="fav-bad">' + favorable.unfavorable.join('、') + '</span></div>';
+    html += '<p class="fav-suggestion">' + favorable.suggestion + '</p>';
+    html += '</div>';
+
+    // 8. 五行雷达图 + 详情
+    // Build element counts in {木:n, 火:n, ...} format for radar chart
+    var elCounts = {};
+    for (var ei = 0; ei < 5; ei++) {
+      var elName = ['木', '火', '土', '金', '水'][ei];
+      elCounts[elName] = elements.scores[ei];
+    }
+    html += '<div class="radar-section"><h3>' + I18n.t('fiveElements') + '</h3>';
+    html += '<canvas id="radar-canvas" width="300" height="300"></canvas>';
+    // 五行详情
+    html += '<div class="elements-detail">';
+    elements.details.forEach(function (d) {
+      var barW = elements.total > 0 ? (d.score / elements.total * 100) : 0;
+      html += '<div class="el-row">';
+      html += '<span class="el-name" style="color:' + ELEMENT_COLORS[d.element] + '">' + d.element + '</span>';
+      html += '<div class="el-bar-bg"><div class="el-bar" style="width:' + barW + '%;background:' + ELEMENT_COLORS[d.element] + '"></div></div>';
+      html += '<span class="el-score">' + d.score.toFixed(1) + '</span>';
+      html += '<span class="el-status el-status-' + d.status + '">' + d.status + '</span>';
+      html += '</div>';
+    });
+    if (elements.missing.length > 0) {
+      var missingNames = elements.missing.map(function (i) { return ['木', '火', '土', '金', '水'][i]; });
+      html += '<div class="el-missing">缺: ' + missingNames.join('、') + '</div>';
+    }
+    html += '</div></div>';
+
+    // 9. 地支关系
+    var rels = relResult.relationships;
     if (rels.length > 0) {
       html += '<div class="relationships-section"><h3>' + I18n.t('relationships') + '</h3><ul>';
       rels.forEach(function (r) {
-        html += '<li><strong>' + I18n.t(r.type) + ':</strong> ' + r.branches.join(' ') + '</li>';
+        html += '<li><strong>' + r.kind + ':</strong> ' + r.description + '</li>';
       });
       html += '</ul></div>';
     }
 
-    // Luck Pillars
-    var lpFn = luckPillars(yp.stem, yp.branch, gender);
-    var lps = lpFn(mp.stem, mp.branch);
+    // 10. 大运
+    var lps = luck.pillars;
     html += '<div class="luck-pillars-section"><h3>' + I18n.t('luckPillars') + '</h3>';
+    html += '<div class="luck-direction">起运: ' + luck.startAge + '岁 (' + luck.direction + ')</div>';
     html += '<div class="luck-pillars-scroll"><div class="luck-pillars-track">';
     lps.forEach(function (lp) {
-      var sColor = ELEMENT_COLORS[STEM_ELEMENT[stemIdx(lp.stem)]];
-      var bColor = ELEMENT_COLORS[BRANCH_ELEMENT[BRANCHES.indexOf(lp.branch)]];
       html += '<div class="luck-pillar-card">';
-      html += '<div class="lp-age">' + (lp.startAge > 0 ? lp.startAge : 1) + ' ' + I18n.t('age') + '</div>';
-      html += '<div class="lp-stem" style="color:' + sColor + '">' + lp.stem + '</div>';
-      html += '<div class="lp-branch" style="color:' + bColor + '">' + lp.branch + '</div>';
+      html += '<div class="lp-age">' + lp.startAge + '-' + lp.endAge + I18n.t('age') + '</div>';
+      html += '<div class="lp-year">' + lp.startYear + '-' + lp.endYear + '</div>';
+      html += '<div class="lp-stem" style="color:' + stemColor(lp.stemIndex) + '">' + STEMS[lp.stemIndex] + '</div>';
+      html += '<div class="lp-branch" style="color:' + branchColor(lp.branchIndex) + '">' + BRANCHES[lp.branchIndex] + '</div>';
+      html += '<div class="lp-nayin">' + lp.nayin + '</div>';
       html += '</div>';
     });
     html += '</div></div></div>';
 
-    // Flow years (10 years from current year)
+    // 11. 流年
     var thisYear = new Date().getFullYear();
+    var flowYears = BaZi.computeFlowYears(chart, thisYear, 10);
     html += '<div class="flow-years-section"><h3>' + I18n.t('flowYears') + '</h3>';
     html += '<div class="flow-years-grid">';
-    for (var fy = 0; fy < 10; fy++) {
-      var fyYear = thisYear + fy;
-      var fyIdx = mod(fyYear - 4, 60);
-      var fyStem = STEMS[fyIdx % 10];
-      var fyBranch = BRANCHES[fyIdx % 12];
-      var fyEl = STEM_ELEMENT[stemIdx(fyStem)];
+    flowYears.forEach(function (fy) {
       html += '<div class="flow-year-cell">';
-      html += '<div class="fy-year">' + fyYear + '</div>';
-      html += '<div class="fy-gz" style="color:' + ELEMENT_COLORS[fyEl] + '">' + fyStem + fyBranch + '</div>';
+      html += '<div class="fy-year">' + fy.year + '</div>';
+      html += '<div class="fy-gz" style="color:' + stemColor(fy.stemIndex) + '">' + fy.char + '</div>';
+      html += '<div class="fy-tg">' + fy.tenGod + '</div>';
+      html += '<div class="fy-nayin">' + fy.nayin + '</div>';
       html += '</div>';
-    }
+    });
     html += '</div></div>';
 
     resultArea.innerHTML = html;
 
-    // Draw radar chart after DOM update
+    // Draw radar chart + enable drag scroll
     requestAnimationFrame(function () {
       var canvas = $('radar-canvas');
       if (canvas) drawRadarChart(canvas, elCounts);
-      // Enable drag scroll on luck pillars timeline
       var luckScroll = document.querySelector('.luck-pillars-scroll');
       if (luckScroll) enableDragScroll(luckScroll);
     });

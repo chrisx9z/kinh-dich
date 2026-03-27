@@ -2165,3 +2165,313 @@ input[type="number"]::-webkit-outer-spin-button {
     color: #666 !important;
   }
 }
+
+
+/* ============================================================
+   32. BaZi Enhanced Components
+   ============================================================ */
+
+/* 日期信息 (Solar + Lunar) */
+.bazi-date-info {
+  text-align: center;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-md);
+  background: var(--color-gold-muted);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+.bazi-date-info .date-sep {
+  color: var(--color-gold);
+  margin: 0 0.3em;
+}
+
+/* 十神标签行 */
+.tengod-row td {
+  text-align: center;
+  padding: 4px 6px !important;
+}
+.ten-god-label {
+  color: var(--color-gold);
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+/* 纳音行 */
+.nayin-row td {
+  text-align: center;
+  padding: 4px 6px !important;
+  border-top: 1px dashed var(--color-border-subtle) !important;
+}
+.nayin-label {
+  color: var(--color-jade);
+  font-size: 0.78em;
+  letter-spacing: 0.05em;
+}
+
+/* 强弱因素 */
+.strength-factors {
+  margin: var(--space-sm) 0;
+}
+.strength-factors details {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm);
+}
+.strength-factors summary {
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+.strength-factors ul {
+  margin: var(--space-xs) 0 0;
+  padding-left: 1.2em;
+  font-size: 0.82em;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+/* 胎元 / 命宫 */
+.taiyuan-minggong {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  margin: var(--space-md) 0;
+  flex-wrap: wrap;
+}
+.tm-item {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-lg);
+  text-align: center;
+  min-width: 120px;
+}
+.tm-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+.tm-value {
+  display: block;
+  font-size: 1.3em;
+  font-weight: 700;
+  color: var(--color-gold);
+  font-family: var(--font-heading);
+}
+.tm-nayin {
+  display: block;
+  font-size: 0.8em;
+  color: var(--color-jade);
+  margin-top: 2px;
+}
+
+/* 神煞 */
+.shensha-section {
+  margin: var(--space-md) 0;
+}
+.shensha-section h3 {
+  font-size: var(--font-size-base);
+  color: var(--color-gold);
+  margin-bottom: var(--space-sm);
+}
+.shensha-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.shensha-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.82em;
+  font-weight: 600;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text);
+}
+.shensha-tag sub {
+  font-size: 0.7em;
+  color: var(--color-text-muted);
+  margin-left: 2px;
+}
+.shensha-good {
+  border-color: rgba(212, 175, 55, 0.4);
+  color: var(--color-gold);
+  background: var(--color-gold-muted);
+}
+.shensha-neutral {
+  border-color: rgba(126, 206, 206, 0.3);
+  color: var(--color-jade);
+  background: var(--color-jade-muted);
+}
+
+/* 格局分析 */
+.pattern-section {
+  margin: var(--space-md) 0;
+  padding: var(--space-md);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.pattern-section h3 {
+  font-size: var(--font-size-base);
+  color: var(--color-gold);
+  margin-bottom: var(--space-sm);
+}
+.pattern-name {
+  font-size: 1.2em;
+  font-weight: 700;
+  color: var(--color-gold-bright);
+  font-family: var(--font-heading);
+  margin-bottom: 4px;
+}
+.pattern-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* 用神忌神 */
+.favorable-section {
+  margin: var(--space-md) 0;
+  padding: var(--space-md);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.favorable-section h3 {
+  font-size: var(--font-size-base);
+  color: var(--color-gold);
+  margin-bottom: var(--space-sm);
+}
+.fav-row {
+  margin-bottom: 6px;
+  font-size: var(--font-size-sm);
+}
+.fav-label {
+  color: var(--color-text-muted);
+  margin-right: 4px;
+}
+.fav-good {
+  color: var(--color-wood);
+  font-weight: 600;
+}
+.fav-bad {
+  color: var(--color-fire);
+  font-weight: 600;
+}
+.fav-suggestion {
+  font-size: 0.82em;
+  color: var(--color-text-muted);
+  margin: var(--space-xs) 0 0;
+  line-height: 1.5;
+}
+
+/* 五行详情 */
+.elements-detail {
+  margin-top: var(--space-md);
+}
+.el-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: var(--font-size-sm);
+}
+.el-name {
+  width: 24px;
+  font-weight: 700;
+  text-align: center;
+}
+.el-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: var(--color-bg-input);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.el-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease-out;
+}
+.el-score {
+  width: 32px;
+  text-align: right;
+  color: var(--color-text-muted);
+  font-size: 0.85em;
+}
+.el-status {
+  width: 24px;
+  text-align: center;
+  font-size: 0.78em;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+.el-status-旺 { color: var(--color-fire); }
+.el-status-中 { color: var(--color-gold); }
+.el-status-弱 { color: var(--color-text-muted); }
+.el-status-缺 { color: var(--color-fire); background: rgba(244, 67, 54, 0.15); }
+.el-missing {
+  margin-top: var(--space-xs);
+  color: var(--color-fire);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+/* 大运方向提示 */
+.luck-direction {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+/* 大运卡片纳音 */
+.lp-nayin {
+  font-size: 0.72em;
+  color: var(--color-jade);
+  margin-top: 2px;
+}
+.lp-year {
+  font-size: 0.7em;
+  color: var(--color-text-faint);
+}
+
+/* 流年增强 */
+.fy-tg {
+  font-size: 0.72em;
+  color: var(--color-gold);
+}
+.fy-nayin {
+  font-size: 0.68em;
+  color: var(--color-jade);
+}
+
+/* Light theme overrides */
+[data-theme="light"] .bazi-date-info {
+  background: rgba(212, 175, 55, 0.08);
+}
+[data-theme="light"] .shensha-good {
+  background: rgba(212, 175, 55, 0.1);
+}
+[data-theme="light"] .shensha-neutral {
+  background: rgba(126, 206, 206, 0.08);
+}
+[data-theme="light"] .pattern-section,
+[data-theme="light"] .favorable-section {
+  background: rgba(0, 0, 0, 0.02);
+}
+[data-theme="light"] .strength-factors details {
+  background: rgba(0, 0, 0, 0.02);
+}
+[data-theme="light"] .tm-item {
+  background: rgba(0, 0, 0, 0.02);
+}
