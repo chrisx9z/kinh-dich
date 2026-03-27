@@ -69,22 +69,22 @@ class TestDayPillarKnownDates:
     def test_reference_date_jiazi(self):
         """1900-01-01 = 甲子 (universally accepted reference)."""
         pillar = compute_day_pillar(date(1900, 1, 1))
-        assert str(pillar) == "甲子"
+        assert str(pillar) == "甲戌"
 
     def test_day2_is_yichou(self):
         """1900-01-02 = 乙丑 (reference + 1 day)."""
         pillar = compute_day_pillar(date(1900, 1, 2))
-        assert str(pillar) == "乙丑"
+        assert str(pillar) == "乙亥"
 
     def test_day60_cycle_restart(self):
-        """60 days after 甲子 should be 甲子 again (cycle wraps)."""
+        """60 days after 甲戌 should be 甲戌 again (cycle wraps)."""
         pillar = compute_day_pillar(date(1900, 3, 2))
-        assert str(pillar) == "甲子"
+        assert str(pillar) == "甲戌"
 
     def test_day59_is_guihai(self):
-        """59 days after 甲子 (1900-03-01) should be 癸亥."""
+        """59 days after 甲戌 (1900-03-01) should be 癸酉."""
         pillar = compute_day_pillar(date(1900, 3, 1))
-        assert str(pillar) == "癸亥"
+        assert str(pillar) == "癸酉"
 
     def test_cycle_index_range(self):
         """Day pillar index is always 0-59."""
@@ -196,7 +196,7 @@ class TestFullChartKnownDates:
         chart = BaZiChart(birth_dt=datetime(1990, 5, 15, 14, 30), gender="male")
         assert str(chart.year_pillar) == "庚午"
         assert str(chart.month_pillar) == "辛巳"
-        assert str(chart.day_pillar) == "庚午"
+        assert str(chart.day_pillar) == "庚辰"
         assert str(chart.hour_pillar) == "癸未"
         assert chart.day_master.char == "庚"
 

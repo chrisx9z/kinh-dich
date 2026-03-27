@@ -120,26 +120,26 @@ class TestStemBranch:
         assert len(set(chars)) == 60
 
     def test_reference_date(self):
-        """1900-01-01 should be 甲子 day."""
+        """1900-01-01 should be 甲戌 day."""
         sb = date_to_day_jiazi(date(1900, 1, 1))
-        assert str(sb) == "甲子"
+        assert str(sb) == "甲戌"
 
     def test_known_date_1(self):
-        """1900-01-02 should be 乙丑 day."""
+        """1900-01-02 should be 乙亥 day."""
         sb = date_to_day_jiazi(date(1900, 1, 2))
-        assert str(sb) == "乙丑"
+        assert str(sb) == "乙亥"
 
     def test_known_date_60(self):
-        """1900-03-01 (day 60 from 1900-01-01) should be 癸亥."""
+        """1900-03-01 (day 59+offset from 1900-01-01) should be 癸酉."""
         sb = date_to_day_jiazi(date(1900, 3, 1))
         # 1900-03-01 is 59 days after 1900-01-01
-        assert sb.index == 59
-        assert str(sb) == "癸亥"
+        assert sb.index == 9
+        assert str(sb) == "癸酉"
 
     def test_known_date_cycle(self):
-        """60 days after 甲子 should be 甲子 again."""
+        """60 days after 甲戌 should be 甲戌 again."""
         sb = date_to_day_jiazi(date(1900, 3, 2))
-        assert str(sb) == "甲子"
+        assert str(sb) == "甲戌"
 
     def test_get_jiazi_by_char(self):
         sb = get_jiazi_by_char("甲子")

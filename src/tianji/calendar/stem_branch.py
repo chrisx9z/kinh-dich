@@ -50,9 +50,10 @@ JIAZI_CYCLE: tuple[StemBranch, ...] = _build_jiazi_cycle()
 JIAZI_BY_CHAR: dict[str, StemBranch] = {sb.char: sb for sb in JIAZI_CYCLE}
 
 # Reference epoch for day calculation
-# 1900-01-01 (Gregorian) = 甲子 (index 0)
+# 1900-01-01 (Gregorian) = 甲戌 (index 10)
+# Verified against: 1949-10-01 = 甲子, 2004-07-21 = 辛丑, 2024-01-01 = 甲子
 _REFERENCE_DATE = date(1900, 1, 1)
-_REFERENCE_INDEX = 0  # 甲子
+_REFERENCE_INDEX = 10  # 甲戌
 
 
 def get_jiazi(index: int) -> StemBranch:

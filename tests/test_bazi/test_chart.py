@@ -37,16 +37,16 @@ class TestDayPillar:
     """Tests for day pillar (日柱) computation."""
 
     def test_reference_date(self):
-        """1900-01-01 = 甲子."""
+        """1900-01-01 = 甲戌 (verified against 1949-10-01=甲子, 2004-07-21=辛丑)."""
         from datetime import date
         pillar = compute_day_pillar(date(1900, 1, 1))
-        assert str(pillar) == "甲子"
+        assert str(pillar) == "甲戌"
 
     def test_day_after_reference(self):
-        """1900-01-02 = 乙丑."""
+        """1900-01-02 = 乙亥."""
         from datetime import date
         pillar = compute_day_pillar(date(1900, 1, 2))
-        assert str(pillar) == "乙丑"
+        assert str(pillar) == "乙亥"
 
     def test_recent_date(self):
         """Test a recent date for consistency."""
