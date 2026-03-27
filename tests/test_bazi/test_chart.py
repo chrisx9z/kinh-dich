@@ -2,15 +2,12 @@
 
 from datetime import datetime
 
-import pytest
-
 from tianji.bazi.chart import (
     BaZiChart,
-    compute_year_pillar,
     compute_day_pillar,
     compute_hour_pillar,
+    compute_year_pillar,
 )
-from tianji.calendar.stem_branch import date_to_day_jiazi
 
 
 class TestYearPillar:

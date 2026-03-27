@@ -4,24 +4,21 @@ from datetime import date
 
 import pytest
 
-from tianji.calendar.heavenly_stems import (
-    HEAVENLY_STEMS,
-    get_stem,
-    get_stem_by_char,
-    Element,
-    Polarity,
-    stem_relationship,
-)
 from tianji.calendar.earthly_branches import (
     EARTHLY_BRANCHES,
-    get_branch,
-    get_branch_by_char,
     get_branch_for_hour,
+)
+from tianji.calendar.heavenly_stems import (
+    HEAVENLY_STEMS,
+    Element,
+    Polarity,
+    get_stem,
+    get_stem_by_char,
+    stem_relationship,
 )
 from tianji.calendar.stem_branch import (
     JIAZI_CYCLE,
     date_to_day_jiazi,
-    get_jiazi,
     get_jiazi_by_char,
 )
 

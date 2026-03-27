@@ -1,9 +1,8 @@
 """Tests for Ten Gods (十神) computation."""
 
-import pytest
 
+from tianji.bazi.ten_gods import compute_all_ten_gods, compute_ten_god
 from tianji.calendar.heavenly_stems import get_stem_by_char
-from tianji.bazi.ten_gods import compute_ten_god, compute_all_ten_gods, TenGodResult
 
 
 class TestTenGods:

@@ -12,8 +12,6 @@ All expected values have been cross-verified against traditional 万年历 (perp
 
 from datetime import date, datetime
 
-import pytest
-
 from tianji.bazi.chart import (
     BaZiChart,
     compute_day_pillar,

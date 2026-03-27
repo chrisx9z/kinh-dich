@@ -1,8 +1,7 @@
 """Tests for Zi Wei Dou Shu chart calculation."""
 
-import pytest
 
-from tianji.ziwei import ZiWeiChart, create_ziwei_chart, PALACE_NAMES, MAJOR_STARS
+from tianji.ziwei import MAJOR_STARS, PALACE_NAMES, create_ziwei_chart
 
 
 class TestZiWeiPalaces:

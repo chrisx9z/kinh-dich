@@ -5,12 +5,9 @@ import pytest
 from tianji.liuyao.hexagram import (
     ALL_HEXAGRAMS,
     TRIGRAMS,
-    Trigram,
-    Hexagram,
     get_hexagram_by_number,
     get_hexagram_by_trigrams,
     lines_to_hexagram,
-    HEXAGRAM_BY_NUMBER,
 )
 
 

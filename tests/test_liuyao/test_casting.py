@@ -5,11 +5,11 @@ from datetime import datetime
 import pytest
 
 from tianji.liuyao.casting import (
-    cast_by_time,
-    cast_by_numbers,
-    cast_by_coins,
-    cast_hexagram,
     CastResult,
+    cast_by_coins,
+    cast_by_numbers,
+    cast_by_time,
+    cast_hexagram,
 )
 
 
