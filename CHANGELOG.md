@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-03-27
+
+### Added
+- Modern web frontend (pure HTML/CSS/JS, zero dependencies)
+  - Chinese-style dark/light theme with cinnabar red and gold accents
+  - Responsive design for mobile/tablet/desktop
+  - Chinese/English bilingual UI
+  - Interactive BaZi calculator with real-time updates
+  - Five Elements radar chart (Canvas)
+  - Luck Pillars timeline visualization
+  - Liu Yao hexagram SVG visualization with casting methods
+  - Zi Wei Dou Shu 12-palace grid display
+  - Share via URL feature
+- Flow Year (流年) calculation in BaZi module
+- GitHub Pages deployment workflow
+- Release workflow (tag-triggered)
+- Privacy-first design: zero data collection, fully offline
+
+### Changed
+- Updated CI to test Python 3.10–3.13
+- Enhanced README with web UI documentation and privacy section
+
+### Security
+- Added Content Security Policy headers
+- No external resource loading (CDN-free)
+- No cookies, no localStorage tracking
+- No analytics or third-party requests
+
 ## [0.1.0] - 2026-03-19
 
 ### Added
@@ -38,5 +66,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI interface
 - Comprehensive test suite
 
-[Unreleased]: https://github.com/Zijian-Ni/tianji/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Zijian-Ni/tianji/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Zijian-Ni/tianji/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Zijian-Ni/tianji/releases/tag/v0.1.0

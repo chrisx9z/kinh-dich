@@ -179,3 +179,35 @@ def compute_luck_pillars(
         direction=direction,
         start_date=start_date,
     )
+
+
+def compute_flow_years(
+    chart,
+    start_year: int | None = None,
+    count: int = 10,
+) -> list[tuple[int, StemBranch]]:
+    """
+    Compute 流年 (Flow Years) — the stem-branch for each calendar year.
+
+    Each year in the 60-cycle has its own stem-branch, which interacts
+    with the natal chart to produce yearly influences.
+
+    Args:
+        chart: A BaZiChart instance
+        start_year: Starting year (defaults to birth year)
+        count: Number of years to compute
+
+    Returns:
+        List of (year, StemBranch) tuples
+    """
+    if start_year is None:
+        start_year = chart.birth_dt.year
+
+    results = []
+    for i in range(count):
+        year = start_year + i
+        year_index = (year - 4) % 60
+        sb = get_jiazi(year_index)
+        results.append((year, sb))
+
+    return results

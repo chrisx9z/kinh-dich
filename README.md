@@ -4,8 +4,9 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/Zijian-Ni/tianji/actions/workflows/ci.yml/badge.svg)](https://github.com/Zijian-Ni/tianji/actions)
+[![Demo](https://img.shields.io/badge/Demo-GitHub%20Pages-brightgreen)](https://zijian-ni.github.io/tianji/)
 
-**天机** 是一个纯 Python 实现的中国玄学算法库，支持八字排盘、六爻起卦、紫微斗数等功能，并提供可选的大语言模型解读层。所有算法均从零实现，不依赖外部数据库。
+**天机** 是一个纯 Python 实现的中国玄学算法库，支持八字排盘、六爻起卦、紫微斗数等功能。所有算法均从零实现，不依赖外部数据库。v0.2.0 新增完整的现代化 Web 前端，完全离线运行，零数据收集。
 
 > "天机不可泄露" — 但代码可以开源。
 
@@ -30,12 +31,37 @@
 
 ---
 
+## 在线体验 / Live Demo
+
+**https://zijian-ni.github.io/tianji/**
+
+完全在浏览器本地运行，不发送任何网络请求，不收集任何数据。
+
+```
+┌──────────────────────────────────────────────────────┐
+│  ☯ 天机 — 中国传统玄学计算                              │
+│                                                      │
+│  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐        │
+│  │  年柱  │ │  月柱  │ │  日柱  │ │  时柱  │        │
+│  │  庚    │ │  辛    │ │  庚    │ │  癸    │        │
+│  │  午    │ │  巳    │ │  午    │ │  未    │        │
+│  └────────┘ └────────┘ └────────┘ └────────┘        │
+│                                                      │
+│  五行: ████ 金  ██ 水  ███ 木  █████ 火  ██ 土      │
+│                                                      │
+│  大运: 壬午→癸未→甲申→乙酉→丙戌→丁亥→戊子→己丑        │
+└──────────────────────────────────────────────────────┘
+```
+
+---
+
 ## 功能特性
 
-- 🔢 **八字 (BaZi / 四柱命理)** — 年月日时四柱排盘，十神推算，五行分析，大运，刑冲合害
-- 🎴 **六爻 (Liu Yao / 六爻占卜)** — 64卦定义，多种起卦方法（时间/数字/铜钱），变卦推算
+- 🔢 **八字 (BaZi / 四柱命理)** — 年月日时四柱排盘，十神推算，五行分析，大运，流年，刑冲合害
+- 🎴 **六爻 (Liu Yao / 六爻占卜)** — 64卦定义，多种起卦方法（时间/数字/铜钱），装卦分析
 - ⭐ **紫微斗数 (Zi Wei Dou Shu / 紫微命盘)** — 十二宫定位，紫微/天府星系安星
-- 🤖 **LLM 解读** — 可选接入 OpenAI，自动生成命盘解读
+- 🖥️ **现代 Web 前端** — 深色主题中国风 UI，响应式设计，中英文双语，五行雷达图，完全离线
+- 🔒 **隐私优先** — 零数据收集，无 CDN，无追踪，无 Cookie，完全本地计算
 - 🌐 **REST API** — FastAPI 服务，便于系统集成
 - 💻 **命令行工具** — `tianji bazi`, `tianji liuyao`
 
@@ -295,7 +321,7 @@ tianji/
 │   │   ├── ten_gods.py         # 十神推算
 │   │   ├── five_elements.py    # 五行分析
 │   │   ├── day_master.py       # 日主强弱
-│   │   ├── luck_pillars.py     # 大运推算
+│   │   ├── luck_pillars.py     # 大运推算 + 流年
 │   │   └── relationships.py    # 刑冲合害
 │   ├── liuyao/            # 六爻算法
 │   │   ├── hexagram.py         # 六十四卦定义
@@ -305,25 +331,86 @@ tianji/
 │   │   ├── palaces.py          # 十二宫
 │   │   ├── stars.py            # 主星安星
 │   │   └── chart.py            # 命盘计算
-│   ├── llm/               # LLM 解读层
+│   ├── llm/               # LLM 解读层（可选）
 │   └── api/               # FastAPI 接口
-├── tests/                 # 测试套件
+├── web/                   # 现代化 Web 前端 (v0.2.0)
+│   ├── index.html              # 主页面
+│   ├── css/style.css           # 中国风深色主题样式
+│   └── js/
+│       ├── calendar.js         # 干支历法引擎 (JS)
+│       ├── bazi.js             # 八字算法 (JS)
+│       ├── liuyao.js           # 六爻算法 (JS)
+│       ├── ziwei.js            # 紫微斗数 (JS)
+│       ├── i18n.js             # 中英文国际化
+│       └── app.js              # UI 控制器
+├── tests/                 # 测试套件（140 个测试）
 ├── examples/              # 示例脚本
+├── .github/workflows/     # CI/CD
+│   ├── ci.yml                  # 测试 + lint
+│   ├── pages.yml               # GitHub Pages 部署
+│   └── release.yml             # 版本发布
 └── pyproject.toml
 ```
 
 ---
 
+## 隐私声明 / Privacy
+
+**天机完全尊重用户隐私。**
+
+- **零数据收集**：Web 前端完全在浏览器本地运行，不发送任何网络请求
+- **无追踪**：不使用 Google Analytics、百度统计或任何分析服务
+- **无 CDN**：不从外部 CDN 加载字体、图标或脚本，使用系统字体栈
+- **无 Cookie**：不设置任何 Cookie 或 localStorage 跨页追踪
+- **完全离线**：所有计算在本地完成，断网也能正常使用
+- **CSP 保护**：Content Security Policy 头部阻止任何外部资源加载
+
+您的出生日期等信息仅用于浏览器本地的命盘计算，计算完成后即刻丢弃，不会被存储、传输或分享给任何第三方。
+
+---
+
+## Web 前端
+
+v0.2.0 新增了完整的现代化 Web 前端，特点包括：
+
+- **中国风深色主题**：朱砂红 + 金色 + 墨色，支持暗/亮主题切换
+- **响应式设计**：完美支持手机、平板和桌面浏览器
+- **中英文双语**：一键切换中/英文界面
+- **实时计算**：输入即更新，无需点击按钮
+- **五行雷达图**：Canvas 绘制的五行能量分布图
+- **大运时间轴**：可视化横向滚动时间轴
+- **六爻可视化**：阴阳爻 SVG 渲染，动爻高亮
+- **紫微命盘**：传统十二宫格局显示
+- **分享功能**：生成分享链接
+
+### 本地运行
+
+```bash
+# 方式一：直接打开
+open web/index.html
+
+# 方式二：本地服务器
+cd web && python3 -m http.server 8080
+# 访问 http://localhost:8080
+```
+
+### GitHub Pages
+
+推送到 `main` 分支后自动部署：https://zijian-ni.github.io/tianji/
+
+---
+
 ## English
 
-**tianji** is a pure-Python library for Chinese metaphysics calculations, implementing all algorithms from scratch. Created by Zijian Ni.
+**tianji** is a pure-Python library for Chinese metaphysics calculations, implementing all algorithms from scratch. v0.2.0 adds a modern, privacy-first web frontend. Created by Zijian Ni.
 
 ### Features
 
-- **BaZi (Eight Characters / Four Pillars)**: Year/month/day/hour pillars, Ten Gods, Five Elements analysis, Luck Pillars, branch relationships
-- **Liu Yao (Six Lines Divination)**: 64 hexagrams, multiple casting methods (time/number/coin), moving lines and changed hexagrams
+- **BaZi (Eight Characters / Four Pillars)**: Year/month/day/hour pillars, Ten Gods, Five Elements analysis, Luck Pillars, Flow Years, branch relationships
+- **Liu Yao (Six Lines Divination)**: 64 hexagrams, multiple casting methods (time/number/coin), full hexagram analysis
 - **Zi Wei Dou Shu (Purple Star Astrology)**: 12-palace chart, major star placement (Zi Wei group + Tian Fu group)
-- **LLM Layer**: Optional OpenAI integration for interpretation
+- **Modern Web UI**: Chinese-style dark theme, responsive, bilingual (zh/en), Canvas radar chart, fully offline
+- **Privacy-first**: Zero data collection, no CDN, no tracking, no cookies, local computation only
 - **REST API**: FastAPI-powered endpoints
 - **CLI**: Command-line interface
 
@@ -360,6 +447,17 @@ gods = ten_gods_from_chart(chart)
 for pos, result in gods.items():
     print(f"{pos}: {result.stem.char} → {result.ten_god}")
 ```
+
+---
+
+### Privacy
+
+tianji is fully privacy-respecting:
+- **Zero data collection**: The web frontend runs entirely in your browser
+- **No tracking**: No Google Analytics, no third-party analytics
+- **No CDN**: No external fonts, icons, or scripts loaded
+- **Fully offline**: Works without internet after initial page load
+- **CSP protected**: Content Security Policy blocks external resources
 
 ---
 

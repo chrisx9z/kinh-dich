@@ -9,7 +9,7 @@ from tianji.bazi.chart import BaZiChart, compute_year_pillar, compute_month_pill
 from tianji.bazi.ten_gods import TenGodResult, compute_ten_god, compute_all_ten_gods, ten_gods_from_chart, display_ten_gods
 from tianji.bazi.five_elements import FiveElementsAnalysis, analyze_five_elements, elements_from_chart
 from tianji.bazi.day_master import DayMasterStrength, StrengthLevel, analyze_day_master_strength
-from tianji.bazi.luck_pillars import LuckPillar, LuckPillarsResult, compute_luck_pillars
+from tianji.bazi.luck_pillars import LuckPillar, LuckPillarsResult, compute_luck_pillars, compute_flow_years
 from tianji.bazi.relationships import BranchRelationship, RelationshipsAnalysis, analyze_relationships, relationships_from_chart
 
 __all__ = [
@@ -18,6 +18,6 @@ __all__ = [
     "TenGodResult", "compute_ten_god", "compute_all_ten_gods", "ten_gods_from_chart", "display_ten_gods",
     "FiveElementsAnalysis", "analyze_five_elements", "elements_from_chart",
     "DayMasterStrength", "StrengthLevel", "analyze_day_master_strength",
-    "LuckPillar", "LuckPillarsResult", "compute_luck_pillars",
+    "LuckPillar", "LuckPillarsResult", "compute_luck_pillars", "compute_flow_years",
     "BranchRelationship", "RelationshipsAnalysis", "analyze_relationships", "relationships_from_chart",
 ]
