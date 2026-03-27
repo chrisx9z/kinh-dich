@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tianji"
-version = "0.2.0"
+version = "0.3.0"
 description = "Python library for Chinese metaphysics — BaZi (八字), Liu Yao (六爻), Zi Wei Dou Shu (紫微斗数)"
 readme = "README.md"
 license = { file = "LICENSE" }

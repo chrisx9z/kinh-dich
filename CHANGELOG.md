@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-03-27
+
+### Added
+- **纳音五行** — 完整 60 甲子纳音表，每柱显示对应纳音
+- **胎元推算** — 月柱天干进一位 + 月柱地支进三位
+- **命宫推算** — 年支逆推至出生月，再从出生时辰顺推至卯位
+- **神煞系统** — 天乙贵人、文昌贵人、驿马、桃花、华盖、将星、天德、月德、禄神、羊刃
+- **格局分析** — 根据月令透干判断格局（正官格、七杀格、食神格等）
+- **用神忌神** — 基于日主强弱自动推荐用神/忌神五行
+- **农历日期显示** — 阳历/农历对照
+- **五行力量条形图** — 百分比显示，旺/中/弱/缺状态标注
+- **大运纳音** — 每步大运显示纳音五行
+- **流年增强** — 增加十神和纳音显示
+
+### Fixed
+- **日柱计算错误** — 修正基准日：1900-01-01 = 甲戌（序号 10），而非甲子
+- **时辰传参错误** — select 值 0-11 正确转换为时钟小时
+- **bazi.js / calendar.js API 不兼容** — 重写 bazi.js 适配 calendar.js 对象接口
+- **月柱精度** — 从硬编码近似日期改为 calendar.js 节气精确计算
+- **README 示例日柱** — 1990-05-15 日柱从错误的庚午改为正确的庚辰
+
+### Changed
+- **统一计算引擎** — app.js 删除独立的八字计算代码，全部委托给 bazi.js + calendar.js
+- CSS 新增纳音、胎元命宫、神煞、格局、用神等 UI 组件样式
+
 ## [0.2.0] - 2026-03-27
 
 ### Added
@@ -41,31 +66,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release of tianji (天机) library
 - BaZi (八字) four-pillar chart calculation
   - Year, month, day, hour pillar computation
-  - 立春-based year boundary
-  - 五虎遁月 month stem derivation
-  - 五鼠遁时 hour stem derivation
-  - 十神 (Ten Gods) calculation
-  - 五行 (Five Elements) analysis
-  - 日主强弱 (Day Master strength) judgment
-  - 大运 (Luck Pillars) calculation
-  - 刑冲合害 (Relationships) analysis
-- Liu Yao (六爻) divination
-  - 64 hexagram definitions with Unicode symbols
-  - Time-based, number-based, and coin-flip casting methods
-  - 装卦: 世应, 六亲, 六神, 动爻变爻 analysis
+  - 十神, 五行, 日主强弱, 大运, 刑冲合害
+- Liu Yao (六爻) divination (64 hexagrams, 3 casting methods)
 - Zi Wei Dou Shu (紫微斗数) basic framework
-  - 12-palace chart
-  - Major stars placement
-- Calendar engine
-  - 天干地支 (Heavenly Stems & Earthly Branches) tables
-  - 六十甲子 cycle
-  - 24节气 solar term calculation
-  - Lunar calendar utilities via lunardate
-- LLM interpretation layer (optional, requires OpenAI)
+- Calendar engine (天干地支, 六十甲子, 24节气, 农历)
+- LLM interpretation layer (optional)
 - FastAPI REST API
 - CLI interface
 - Comprehensive test suite
 
-[Unreleased]: https://github.com/Zijian-Ni/tianji/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Zijian-Ni/tianji/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Zijian-Ni/tianji/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Zijian-Ni/tianji/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Zijian-Ni/tianji/releases/tag/v0.1.0
