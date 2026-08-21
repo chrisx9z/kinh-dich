@@ -432,7 +432,7 @@ const TianjiApp = (function () {
       }
 
       // Position label (left)
-      var posNames = ['初','二','三','四','五','上'];
+      var posNames = ['Sơ','Nhị','Tam','Tứ','Ngũ','Thượng'];
       svg += '<text x="' + (lx - 14) + '" y="' + (y + 1) + '" text-anchor="end" font-size="12" fill="' + color + '">' + posNames[i] + '</text>';
 
       // Moving marker (right)
@@ -462,6 +462,7 @@ const TianjiApp = (function () {
     }
     // Update page title
     document.title = I18n.t('appTitle') + ' - ' + I18n.t('appSubtitle');
+    I18n.localizeDocument(document.body);
   }
 
   /** Toggle theme using data-theme attribute. */
@@ -478,8 +479,14 @@ const TianjiApp = (function () {
   function toggleLang() {
     var lang = I18n.toggle();
     var btn = $('lang-toggle');
-    if (btn) btn.textContent = lang === 'zh' ? 'EN' : '中';
+    if (btn) btn.textContent = lang === 'vi' ? 'EN' : 'VI';
     applyI18n();
+
+    var localizer = new MutationObserver(function(records) {
+      if (I18n.getLang() !== 'vi') return;
+      I18n.localizeDocument(document.body);
+    });
+    localizer.observe(document.body, { childList: true, subtree: true, characterData: true });
     rebuildHourSelector();
     refreshActiveTab();
   }
@@ -609,12 +616,15 @@ const TianjiApp = (function () {
 
     // ── Build HTML ──
     var html = '';
+    function bilingual(chinese, className) {
+      return '<span class="han-pair" data-preserve-han><span class="' + className + '">' + chinese + '</span><small class="han-viet">' + I18n.hanViet(chinese) + '</small></span>';
+    }
 
     // 1. 日期信息 (Solar + Lunar)
     html += '<div class="bazi-date-info">';
-    html += '<span>阳历 ' + year + '年' + month + '月' + day + '日</span>';
+    html += '<span>Dương lịch ' + year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0') + '</span>';
     html += ' <span class="date-sep">/</span> ';
-    html += '<span>' + lunar.traditional + '</span>';
+    html += '<span>Âm lịch ' + lunar.year + ', tháng ' + lunar.month + ', ngày ' + lunar.day + '</span>';
     html += '</div>';
 
     // 2. 四柱表格 (含纳音)
@@ -632,24 +642,24 @@ const TianjiApp = (function () {
         var key = ['年干', '月干', '', '时干'][ti];
         tgName = tenGods[key] ? tenGods[key].god : '';
       }
-      html += '<td><small class="ten-god-label">' + tgName + '</small></td>';
+      html += '<td>' + bilingual(tgName, 'ten-god-label') + '</td>';
     }
     html += '</tr>';
 
     // 天干 row
     html += '<tr class="stems-row">';
     pillars.forEach(function (p) {
-      html += '<td><span class="stem" style="color:' + stemColor(p.stemIndex) + '">' +
-        STEMS[p.stemIndex] + '</span></td>';
+      html += '<td><span class="han-pair" data-preserve-han><span class="stem" style="color:' + stemColor(p.stemIndex) + '">' +
+        STEMS[p.stemIndex] + '</span><small class="han-viet">' + I18n.hanViet(STEMS[p.stemIndex]) + '</small></span></td>';
     });
     html += '</tr>';
 
     // 地支 row
     html += '<tr class="branches-row">';
     pillars.forEach(function (p) {
-      html += '<td><span class="branch" style="color:' + branchColor(p.branchIndex) + '">' +
-        BRANCHES[p.branchIndex] + '</span>' +
-        '<br><small>' + ZODIAC[p.branchIndex] + '</small></td>';
+      html += '<td><span class="han-pair" data-preserve-han><span class="branch" style="color:' + branchColor(p.branchIndex) + '">' +
+        BRANCHES[p.branchIndex] + '</span><small class="han-viet">' + I18n.hanViet(BRANCHES[p.branchIndex]) + '</small></span>' +
+        '<span class="han-pair zodiac-pair" data-preserve-han><small>' + ZODIAC[p.branchIndex] + '</small><small class="han-viet">' + I18n.hanViet(ZODIAC[p.branchIndex]) + '</small></span></td>';
     });
     html += '</tr>';
 
@@ -660,7 +670,7 @@ const TianjiApp = (function () {
       var hiddenArr = tenGods[branchLabels[hi]] || [];
       var hiddenParts = hiddenArr.map(function (h) {
         var c = ELEMENT_COLORS[STEM_ELEMENT[h.stemIndex]];
-        return '<span style="color:' + c + '">' + h.stem + '</span><sub>' + h.god + '</sub>';
+        return '<span class="hidden-pair" data-preserve-han><span style="color:' + c + '">' + h.stem + '</span><sub>' + h.god + '</sub><small class="han-viet">' + I18n.hanViet(h.stem) + ' ' + I18n.hanViet(h.god) + '</small></span>';
       });
       html += '<td>' + (hiddenParts.length > 0 ? hiddenParts.join(' ') : '-') + '</td>';
     }
@@ -669,7 +679,7 @@ const TianjiApp = (function () {
     // 纳音 row
     html += '<tr class="nayin-row">';
     nayinArr.forEach(function (n) {
-      html += '<td><small class="nayin-label">' + n.nayin + '</small></td>';
+      html += '<td>' + bilingual(n.nayin, 'nayin-label') + '</td>';
     });
     html += '</tr>';
 
@@ -800,6 +810,7 @@ const TianjiApp = (function () {
     html += '</div></div>';
 
     resultArea.innerHTML = html;
+    I18n.localizeDocument(resultArea);
 
     // Draw radar chart + enable drag scroll
     requestAnimationFrame(function () {
@@ -841,6 +852,24 @@ const TianjiApp = (function () {
     renderLiuyaoResult(result);
   }
 
+  function plainLanguageReading(primary, changed, movingNames) {
+    var text = '<strong>Tình huống gần gũi:</strong> ' + I18n.hexagramEverydaySituation(primary[0], I18n.hexagramDescription(primary[0], primary[5]));
+    text += '<br><strong>Nên làm:</strong> ' + I18n.hexagramPlainAdvice(primary[0], I18n.hexagramDescription(primary[0], primary[5]));
+    if (movingNames.length) {
+      var movingDetail = { 'Sơ hào':'việc mới khởi động và dữ kiện ban đầu', 'Nhị hào':'cách trao đổi, phối hợp hoặc điều kiện gần nhất', 'Tam hào':'giai đoạn triển khai giữa chừng', 'Tứ hào':'thời điểm sắp phải lựa chọn hoặc chuyển hướng', 'Ngũ hào':'nút quyết định, người chủ việc hoặc phần cốt lõi', 'Thượng hào':'bước kết thúc, bàn giao hoặc dừng lại' };
+      text += '<br><strong>Điểm đang đổi:</strong> ' + movingNames.map(function (name) { return name + ' liên quan đến ' + (movingDetail[name] || 'phần cần rà soát'); }).join('; ') + '. Hãy kiểm tra phần này trước khi quyết định.';
+    }
+    if (changed) text += '<br><strong>Hướng tiếp theo:</strong> ' + I18n.hexagramPlainAdvice(changed[0], I18n.hexagramDescription(changed[0], changed[5]));
+    if (primary[0] === 5 && changed && changed[0] === 11) {
+      text += '<br><strong>Ví dụ áp dụng:</strong> Nếu đang chờ duyệt việc, ký hợp đồng hoặc nhận phản hồi, hãy hoàn thiện hồ sơ và hỏi rõ mốc trả lời. Khi người quyết định đã phản hồi, chuyển sang phối hợp triển khai thay vì tiếp tục chờ.';
+    } else if (primary[0] === 34 && changed && changed[0] === 32) {
+      text += '<br><strong>Ví dụ áp dụng:</strong> Nếu muốn đẩy nhanh một dự án hoặc mối quan hệ, đừng ép tiến độ. Chọn một bước nhỏ có thể lặp lại hằng tuần, rồi theo dõi kết quả trước khi mở rộng.';
+    } else {
+      text += '<br><strong>Ví dụ áp dụng:</strong> Hãy chọn một việc cụ thể đang khiến bạn băn khoăn, xác định phần đang đổi ở trên, rồi thực hiện một bước nhỏ theo hướng quẻ biến trong hôm nay.';
+    }
+    return text;
+  }
+
   function renderLiuyaoResult(result) {
     var area = $('liuyao-result');
     if (!area) return;
@@ -852,16 +881,16 @@ const TianjiApp = (function () {
     html += '<div class="hex-header">';
     html += '<div class="hex-primary"><h3>' + I18n.t('primaryHex') + '</h3>';
     html += '<div class="hex-symbol">' + ph[2] + '</div>';
-    html += '<div class="hex-name">' + ph[1] + ' (' + I18n.t('hexagram') + ' ' + ph[0] + ')</div>';
-    html += '<div class="hex-desc">' + ph[5] + '</div></div>';
+    html += '<div class="hex-name">' + I18n.hexagramName(ph[0], ph[1]) + ' (' + I18n.t('hexagram') + ' ' + ph[0] + ')</div>';
+    html += '<div class="hex-desc">' + I18n.hexagramDescription(ph[0], ph[5]) + '</div></div>';
 
     if (result.changedHex) {
       var ch = result.changedHex;
       html += '<div class="hex-arrow">&rarr;</div>';
       html += '<div class="hex-changed"><h3>' + I18n.t('changedHex') + '</h3>';
       html += '<div class="hex-symbol">' + ch[2] + '</div>';
-      html += '<div class="hex-name">' + ch[1] + ' (' + I18n.t('hexagram') + ' ' + ch[0] + ')</div>';
-      html += '<div class="hex-desc">' + ch[5] + '</div></div>';
+      html += '<div class="hex-name">' + I18n.hexagramName(ch[0], ch[1]) + ' (' + I18n.t('hexagram') + ' ' + ch[0] + ')</div>';
+      html += '<div class="hex-desc">' + I18n.hexagramDescription(ch[0], ch[5]) + '</div></div>';
     }
     html += '</div>';
 
@@ -883,7 +912,7 @@ const TianjiApp = (function () {
     html += '<div class="hex-moving">';
     html += '<strong>' + I18n.t('movingLines') + ':</strong> ';
     if (result.movingPositions.length > 0) {
-      var posNames = ['初','二','三','四','五','上'];
+      var posNames = ['Sơ','Nhị','Tam','Tứ','Ngũ','Thượng'];
       html += result.movingPositions.map(function (p) { return posNames[p - 1] + I18n.t('linePosition'); }).join(', ');
     } else {
       html += I18n.t('noMovingLines');
@@ -896,7 +925,7 @@ const TianjiApp = (function () {
     html += '<th>' + I18n.t('lineYang') + '/' + I18n.t('lineYin') + '</th>';
     html += '<th>' + I18n.t('movingMark') + '</th>';
     html += '</tr></thead><tbody>';
-    var lineNames = ['初','二','三','四','五','上'];
+    var lineNames = ['Sơ','Nhị','Tam','Tứ','Ngũ','Thượng'];
     for (var i = 5; i >= 0; i--) {
       var isYang = result.primaryLines[i] === 1;
       var isMoving = result.movingPositions.indexOf(i + 1) !== -1;
@@ -908,7 +937,27 @@ const TianjiApp = (function () {
     }
     html += '</tbody></table></div>';
 
+    var movingNames = result.movingPositions.map(function (p) {
+      return ['Sơ', 'Nhị', 'Tam', 'Tứ', 'Ngũ', 'Thượng'][p - 1] + ' hào';
+    });
+    html += '<section class="hex-interpretation">';
+    html += '<h3>Luận giải quẻ</h3>';
+    html += '<div class="interpretation-block"><h4>Quẻ chủ — ' + I18n.hexagramName(ph[0], ph[1]) + '</h4>';
+    html += '<p>' + I18n.hexagramDescription(ph[0], ph[5]) + '</p>';
+    html += '<p>Đây là tượng quẻ thể hiện bối cảnh hiện tại; hãy đối chiếu với sự việc thực tế trước khi kết luận.</p></div>';
+    if (result.changedHex) {
+      html += '<div class="interpretation-block"><h4>Quẻ biến — ' + I18n.hexagramName(ch[0], ch[1]) + '</h4>';
+      html += '<p>' + I18n.hexagramDescription(ch[0], ch[5]) + '</p>';
+      html += '<p>Quẻ biến gợi ý chiều hướng khi hào động chuyển hóa; nên xem như một góc chiêm nghiệm, không phải kết quả định sẵn.</p></div>';
+    }
+    html += '<div class="interpretation-block"><h4>Hào động</h4><p>';
+    html += movingNames.length ? 'Hào động: <strong>' + movingNames.join(', ') + '</strong>. Đây là điểm chuyển biến cần lưu tâm; ưu tiên quan sát, điều chỉnh từng bước và tránh quyết định hấp tấp.' : 'Không có hào động; nên xem trọng ý nghĩa tổng thể của quẻ chủ.';
+    html += '</p></div>';
+    html += '<div class="interpretation-block interpretation-plain"><h4>Cách hiểu đời thường</h4><p>' + plainLanguageReading(ph, result.changedHex, movingNames) + '</p></div>';
+    html += '<p class="interpretation-note">Nội dung chỉ nhằm tham khảo văn hóa Kinh Dịch và hỗ trợ suy ngẫm cá nhân.</p></section>';
+
     area.innerHTML = html;
+    I18n.localizeDocument(area);
   }
 
   // -----------------------------------------------------------------------
@@ -1017,6 +1066,7 @@ const TianjiApp = (function () {
     html += '</div>';
 
     area.innerHTML = html;
+    I18n.localizeDocument(area);
   }
 
   // -----------------------------------------------------------------------
@@ -1289,6 +1339,7 @@ const TianjiApp = (function () {
 
     // Initial tab
     switchTab(activeTab);
+    I18n.localizeDocument(document.body);
 
     // Enable drag scroll on any existing luck pillar containers
     var luckScroll = document.querySelector('.luck-pillars-scroll');

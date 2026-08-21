@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none';">
   <title>天机 — 中国传统玄学计算 | Tianji</title>
   <meta name="description" content="Pure offline Chinese metaphysics calculator — BaZi, Liu Yao, Zi Wei Dou Shu. Privacy-first, no data collection.">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=20260817-vi7">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☯</text></svg>">
 </head>
 <body>
@@ -71,18 +71,18 @@
             <div class="form-group">
               <label for="bazi-hour" data-i18n="birthTime">出生时辰</label>
               <select id="bazi-hour">
-                <option value="0">子时 (23:00-01:00)</option>
-                <option value="1">丑时 (01:00-03:00)</option>
-                <option value="2">寅时 (03:00-05:00)</option>
-                <option value="3">卯时 (05:00-07:00)</option>
-                <option value="4">辰时 (07:00-09:00)</option>
-                <option value="5">巳时 (09:00-11:00)</option>
-                <option value="6">午时 (11:00-13:00)</option>
-                <option value="7" selected>未时 (13:00-15:00)</option>
-                <option value="8">申时 (15:00-17:00)</option>
-                <option value="9">酉时 (17:00-19:00)</option>
-                <option value="10">戌时 (19:00-21:00)</option>
-                <option value="11">亥时 (21:00-23:00)</option>
+                <option value="0" data-i18n="shiChen0">Giờ Tý (23:00–01:00)</option>
+                <option value="1" data-i18n="shiChen1">Giờ Sửu (01:00–03:00)</option>
+                <option value="2" data-i18n="shiChen2">Giờ Dần (03:00–05:00)</option>
+                <option value="3" data-i18n="shiChen3">Giờ Mão (05:00–07:00)</option>
+                <option value="4" data-i18n="shiChen4">Giờ Thìn (07:00–09:00)</option>
+                <option value="5" data-i18n="shiChen5">Giờ Tỵ (09:00–11:00)</option>
+                <option value="6" data-i18n="shiChen6">Giờ Ngọ (11:00–13:00)</option>
+                <option value="7" selected data-i18n="shiChen7">Giờ Mùi (13:00–15:00)</option>
+                <option value="8" data-i18n="shiChen8">Giờ Thân (15:00–17:00)</option>
+                <option value="9" data-i18n="shiChen9">Giờ Dậu (17:00–19:00)</option>
+                <option value="10" data-i18n="shiChen10">Giờ Tuất (19:00–21:00)</option>
+                <option value="11" data-i18n="shiChen11">Giờ Hợi (21:00–23:00)</option>
               </select>
             </div>
             <div class="form-group">
@@ -119,21 +119,21 @@
           </div>
           <div id="liuyao-number-inputs" class="form-row" style="display:none;">
             <div class="form-group">
-              <label for="liuyao-num1">数字一</label>
+              <label for="liuyao-num1" data-i18n="num1Label">Số thứ nhất</label>
               <input type="number" id="liuyao-num1" min="1" max="999" value="3">
             </div>
             <div class="form-group">
-              <label for="liuyao-num2">数字二</label>
+              <label for="liuyao-num2" data-i18n="num2Label">Số thứ hai</label>
               <input type="number" id="liuyao-num2" min="1" max="999" value="7">
             </div>
             <div class="form-group">
-              <label for="liuyao-num3">数字三 (可选)</label>
-              <input type="number" id="liuyao-num3" min="1" max="999" placeholder="可选">
+              <label for="liuyao-num3" data-i18n="num3Label">Số thứ ba (tùy chọn)</label>
+              <input type="number" id="liuyao-num3" min="1" max="999" placeholder="Tùy chọn">
             </div>
           </div>
           <button id="liuyao-cast-btn" class="btn btn-primary" data-i18n="castNow">
             <span class="taiji-spinner" style="display:none;" aria-hidden="true">☯</span>
-            起卦
+            <span data-i18n="castNow">Gieo quẻ</span>
           </button>
         </div>
       </div>
@@ -156,18 +156,18 @@
             <div class="form-group">
               <label for="ziwei-month" data-i18n="lunarMonth">月</label>
               <select id="ziwei-month">
-                <option value="1">正月</option>
-                <option value="2">二月</option>
-                <option value="3">三月</option>
-                <option value="4" selected>四月</option>
-                <option value="5">五月</option>
-                <option value="6">六月</option>
-                <option value="7">七月</option>
-                <option value="8">八月</option>
-                <option value="9">九月</option>
-                <option value="10">十月</option>
-                <option value="11">冬月</option>
-                <option value="12">腊月</option>
+                <option value="1" data-i18n="lunarMonth1">Tháng Giêng</option>
+                <option value="2" data-i18n="lunarMonth2">Tháng Hai</option>
+                <option value="3" data-i18n="lunarMonth3">Tháng Ba</option>
+                <option value="4" selected data-i18n="lunarMonth4">Tháng Tư</option>
+                <option value="5" data-i18n="lunarMonth5">Tháng Năm</option>
+                <option value="6" data-i18n="lunarMonth6">Tháng Sáu</option>
+                <option value="7" data-i18n="lunarMonth7">Tháng Bảy</option>
+                <option value="8" data-i18n="lunarMonth8">Tháng Tám</option>
+                <option value="9" data-i18n="lunarMonth9">Tháng Chín</option>
+                <option value="10" data-i18n="lunarMonth10">Tháng Mười</option>
+                <option value="11" data-i18n="lunarMonth11">Tháng Một âm lịch</option>
+                <option value="12" data-i18n="lunarMonth12">Tháng Chạp</option>
               </select>
             </div>
             <div class="form-group">
@@ -177,18 +177,18 @@
             <div class="form-group">
               <label for="ziwei-hour" data-i18n="birthTime">时辰</label>
               <select id="ziwei-hour">
-                <option value="0">子时</option>
-                <option value="1">丑时</option>
-                <option value="2">寅时</option>
-                <option value="3">卯时</option>
-                <option value="4">辰时</option>
-                <option value="5">巳时</option>
-                <option value="6">午时</option>
-                <option value="7" selected>未时</option>
-                <option value="8">申时</option>
-                <option value="9">酉时</option>
-                <option value="10">戌时</option>
-                <option value="11">亥时</option>
+                <option value="0" data-i18n="shiChen0">Giờ Tý</option>
+                <option value="1" data-i18n="shiChen1">Giờ Sửu</option>
+                <option value="2" data-i18n="shiChen2">Giờ Dần</option>
+                <option value="3" data-i18n="shiChen3">Giờ Mão</option>
+                <option value="4" data-i18n="shiChen4">Giờ Thìn</option>
+                <option value="5" data-i18n="shiChen5">Giờ Tỵ</option>
+                <option value="6" data-i18n="shiChen6">Giờ Ngọ</option>
+                <option value="7" selected data-i18n="shiChen7">Giờ Mùi</option>
+                <option value="8" data-i18n="shiChen8">Giờ Thân</option>
+                <option value="9" data-i18n="shiChen9">Giờ Dậu</option>
+                <option value="10" data-i18n="shiChen10">Giờ Tuất</option>
+                <option value="11" data-i18n="shiChen11">Giờ Hợi</option>
               </select>
             </div>
             <div class="form-group">
@@ -265,11 +265,11 @@
   <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
 
   <!-- Scripts (loaded in order) -->
-  <script src="js/calendar.js"></script>
-  <script src="js/bazi.js"></script>
-  <script src="js/liuyao.js"></script>
-  <script src="js/ziwei.js"></script>
-  <script src="js/i18n.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/calendar.js?v=20260817-vi4"></script>
+  <script src="js/bazi.js?v=20260817-vi4"></script>
+  <script src="js/liuyao.js?v=20260817-vi4"></script>
+  <script src="js/ziwei.js?v=20260817-vi4"></script>
+  <script src="js/i18n.js?v=20260819-vi10"></script>
+  <script src="js/app.js?v=20260821-vi11"></script>
 </body>
 </html>

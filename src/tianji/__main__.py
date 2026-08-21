@@ -68,10 +68,11 @@ def cmd_serve(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     uvicorn.run(
-        "tianji.api.app:app",
+        "tianji.api.app:create_app",
         host=args.host,
         port=args.port,
         reload=args.reload,
+        factory=True,
     )
 
 

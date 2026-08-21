@@ -13,8 +13,8 @@ def create_app() -> FastAPI:
     config = get_config()
 
     app = FastAPI(
-        title="天机 API — Tianji",
-        description="Chinese Metaphysics API: BaZi (八字), Liu Yao (六爻), Zi Wei Dou Shu (紫微斗数)",
+        title="Thiên Cơ API",
+        description="API Kinh Dịch và huyền học Trung Hoa: Bát Tự, Lục Hào, Tử Vi Đẩu Số.",
         version="0.1.0",
         docs_url="/docs",
         redoc_url="/redoc",
@@ -22,7 +22,7 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=config.api.cors_origins,
+        allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

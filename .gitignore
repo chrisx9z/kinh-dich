@@ -76,3 +76,6 @@ build/
 
 # Logs
 *.log
+
+# Local translation cache
+work/

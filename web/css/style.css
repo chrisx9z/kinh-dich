@@ -1926,9 +1926,8 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 
   .pillars-table {
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: none;
+    width: 100%;
   }
 
   .pillars-table td {
@@ -2209,6 +2208,21 @@ input[type="number"]::-webkit-outer-spin-button {
   font-size: 0.78em;
   letter-spacing: 0.05em;
 }
+
+.han-pair, .hidden-pair { display: inline-flex; flex-direction: column; align-items: center; }
+.pillars-table .han-viet { display: block; margin-top: 8px; color: var(--color-text-muted); font-size: 1.35rem; line-height: 1.45; font-family: var(--font-body); font-weight: 600; letter-spacing: .015em; white-space: nowrap; }
+.pillars-table .hidden-pair .han-viet { font-size: 1.23rem; }
+.pillars-table .nayin-row .han-viet { font-size: 1.25rem; }
+.zodiac-pair { margin-top: 7px; }
+.hidden-pair { margin: 0 3px 4px; vertical-align: top; }
+
+.hex-interpretation { margin-top: var(--space-xl); padding: var(--space-lg); background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.hex-interpretation h3 { margin: 0 0 var(--space-md); color: var(--color-gold); }
+.interpretation-block { padding: var(--space-sm) 0; border-bottom: 1px solid var(--color-border-subtle); }
+.interpretation-block:last-of-type { border-bottom: 0; }
+.interpretation-block h4 { margin: 0 0 6px; color: var(--color-jade); }
+.interpretation-block p { margin: 0 0 6px; line-height: 1.7; }
+.interpretation-note { margin: var(--space-md) 0 0; color: var(--color-text-muted); font-size: .86em; font-style: italic; }
 
 /* 强弱因素 */
 .strength-factors {
