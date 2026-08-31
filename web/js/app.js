@@ -239,6 +239,10 @@ const TianjiApp = (function () {
     return themes[annual.tenGod] || ['Điều chỉnh nhịp độ', 'Theo dõi dữ kiện thực tế và tiến từng bước chắc chắn.'];
   }
 
+  function hanVietPillar(stemIndex, branchIndex) {
+    return I18n.hanViet(STEMS[stemIndex]) + ' ' + I18n.hanViet(BRANCHES[branchIndex]);
+  }
+
   function renderLuckDetail(pillar, annualYear) {
     if (!pillar) return '';
     var element = STEM_ELEMENT[pillar.stemIndex];
@@ -250,7 +254,7 @@ const TianjiApp = (function () {
       '金': 'Dùng số liệu, công cụ và nguyên tắc để giảm sai sót.',
       '水': 'Giữ nhịp linh hoạt, nghỉ ngơi đủ và trao đổi trước khi chốt việc.'
     };
-    return '<strong>Đang xem đại vận ' + pillar.char + ' (' + I18n.hanViet(pillar.char) + ')</strong><br>Độ tuổi ' + pillar.startAge + '–' + pillar.endAge + ', khoảng năm ' + pillar.startYear + '–' + pillar.endYear + '. ' + (inPeriod ? '<span class="luck-current-note">Năm đang chọn nằm trong đại vận này.</span>' : 'Năm đang chọn nằm ngoài đại vận này.') + '<br><span>Gợi ý đời thường: ' + advice[element] + '</span>';
+    return '<strong>Đang xem đại vận ' + pillar.char + ' (' + hanVietPillar(pillar.stemIndex, pillar.branchIndex) + ')</strong><br>Độ tuổi ' + pillar.startAge + '–' + pillar.endAge + ', khoảng năm ' + pillar.startYear + '–' + pillar.endYear + '. ' + (inPeriod ? '<span class="luck-current-note">Năm đang chọn nằm trong đại vận này.</span>' : 'Năm đang chọn nằm ngoài đại vận này.') + '<br><span>Gợi ý đời thường: ' + advice[element] + '</span>';
   }
 
   function luckIndexForYear(pillars, year) {
@@ -373,7 +377,8 @@ const TianjiApp = (function () {
     if (annualRelation) relationNote += ' Với lưu niên: ' + annualRelation + '.';
     if (luckRelation) relationNote += ' Với Đại vận: ' + luckRelation + '.';
     var rating = '★'.repeat(score) + '☆'.repeat(5 - score);
-    return '<details class="annual-month-card"><summary><strong>Tháng âm ' + (monthIndex + 1) + '</strong><span class="annual-month-pillar">' + monthPillar.char + ' (' + I18n.hanViet(monthPillar.char) + ') · ' + I18n.hanViet(monthGod) + '</span><span class="annual-month-rating">' + rating + ' · ' + tones[score - 1] + '</span><span class="annual-month-focus">Trọng tâm: ' + focusLabels[focus] + '</span><span class="annual-month-preview">' + focusTexts[focus] + '</span><span class="annual-month-secondary">Yếu tố phụ: ' + focusLabels[secondary] + '</span><span class="annual-month-secondary-preview">' + focusTexts[secondary] + '</span></summary><div class="annual-month-body"><p>' + guidance[0] + '</p><p>' + guidance[1] + '</p><p>' + guidance[2] + '</p><p><strong>Yếu tố phụ:</strong> ' + focusTexts[secondary] + '</p><p class="annual-month-basis"><strong>Căn cứ:</strong> Can ' + I18n.hanViet(stemElement) + ', Chi ' + I18n.hanViet(branchElement) + '. ' + relationNote + ' Trọng tâm tháng: ' + focusLabels[focus] + '. Yếu tố phụ: ' + focusLabels[secondary] + '. Trọng tâm năm: ' + theme[0].toLowerCase() + '.</p></div></details>';
+    var numericScore = Math.max(1, Math.min(10, Math.round((score * 2 + (focusScores[focus] - focusScores[secondary]) * 0.2) * 10) / 10));
+    return '<details class="annual-month-card"><summary><strong>Tháng âm ' + (monthIndex + 1) + '</strong><span class="annual-month-pillar">' + monthPillar.char + ' (' + hanVietPillar(monthPillar.stemIndex, monthPillar.branchIndex) + ') · ' + I18n.hanViet(monthGod) + '</span><span class="annual-month-rating">' + rating + ' · ' + tones[score - 1] + ' · ' + numericScore.toFixed(1) + '/10</span><span class="annual-month-focus">Trọng tâm: ' + focusLabels[focus] + '</span><span class="annual-month-preview">' + focusTexts[focus] + '</span><span class="annual-month-secondary">Yếu tố phụ: ' + focusLabels[secondary] + '</span><span class="annual-month-secondary-preview">' + focusTexts[secondary] + '</span></summary><div class="annual-month-body"><p>' + guidance[0] + '</p><p>' + guidance[1] + '</p><p>' + guidance[2] + '</p><p><strong>Yếu tố phụ:</strong> ' + focusTexts[secondary] + '</p><p class="annual-month-basis"><strong>Căn cứ:</strong> Can ' + I18n.hanViet(stemElement) + ', Chi ' + I18n.hanViet(branchElement) + '. ' + relationNote + ' Trọng tâm tháng: ' + focusLabels[focus] + '. Yếu tố phụ: ' + focusLabels[secondary] + '. Trọng tâm năm: ' + theme[0].toLowerCase() + '.</p></div></details>';
   }
 
   function renderBaziOutlook(chart, birthYear, luck, annualYear, favorable, theme) {
@@ -381,7 +386,7 @@ const TianjiApp = (function () {
     var currentYear = new Date().getFullYear();
     var html = '<section class="bazi-outlook-section"><div class="outlook-header"><div><h3>Tử vi theo năm</h3><p class="outlook-hint">Góc tham khảo lưu niên từ lá số Bát Tự, ưu tiên cách áp dụng đời thường.</p></div><button id="bazi-open-ziwei" type="button" class="btn btn-secondary btn-sm">Mở lá số Tử Vi</button></div>';
     html += '<div class="bazi-year-picker"><span class="picker-label">Năm xem:</span><button type="button" class="btn btn-secondary btn-sm bazi-year-option' + (annualYear === currentYear ? ' active' : '') + '" data-year="' + currentYear + '">Năm nay ' + currentYear + '</button><button type="button" class="btn btn-secondary btn-sm bazi-year-option' + (annualYear === currentYear + 1 ? ' active' : '') + '" data-year="' + (currentYear + 1) + '">Năm sau ' + (currentYear + 1) + '</button><input id="bazi-annual-year" type="number" min="1900" max="2100" value="' + annualYear + '"><button id="bazi-annual-apply" type="button" class="btn btn-primary btn-sm">Xem năm</button></div>';
-    html += '<div class="annual-summary"><strong>' + annual.year + ' · ' + annual.char + ' (' + I18n.hanViet(annual.char) + ')</strong><br><span>Trọng tâm: ' + theme[0] + '.</span> ' + theme[1] + '<br><span>' + annualInfluence(chart, annual, favorable) + '</span></div>';
+    html += '<div class="annual-summary"><strong>' + annual.year + ' · ' + annual.char + ' (' + hanVietPillar(annual.stemIndex, annual.branchIndex) + ')</strong><br><span>Trọng tâm: ' + theme[0] + '.</span> ' + theme[1] + '<br><span>' + annualInfluence(chart, annual, favorable) + '</span></div>';
     html += '<div class="annual-months"><h4>Ghi chú đời thường từng tháng</h4><div class="annual-month-grid">';
     var luckPillar = luck.pillars[baziLuckIndex];
     for (var monthIndex = 0; monthIndex < 12; monthIndex++) html += baziMonthNote(chart, annual, luckPillar, annualYear, monthIndex, favorable, theme);
