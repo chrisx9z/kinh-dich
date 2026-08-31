@@ -253,6 +253,14 @@ const TianjiApp = (function () {
     return '<strong>Đang xem đại vận ' + pillar.char + ' (' + I18n.hanViet(pillar.char) + ')</strong><br>Độ tuổi ' + pillar.startAge + '–' + pillar.endAge + ', khoảng năm ' + pillar.startYear + '–' + pillar.endYear + '. ' + (inPeriod ? '<span class="luck-current-note">Năm đang chọn nằm trong đại vận này.</span>' : 'Năm đang chọn nằm ngoài đại vận này.') + '<br><span>Gợi ý đời thường: ' + advice[element] + '</span>';
   }
 
+  function luckIndexForYear(pillars, year) {
+    for (var i = 0; i < pillars.length; i++) {
+      if (year >= pillars[i].startYear && year <= pillars[i].endYear) return i;
+    }
+    if (year < pillars[0].startYear) return 0;
+    return pillars.length - 1;
+  }
+
   function renderBaziOutlook(chart, birthYear, luck, annualYear) {
     var annual = BaZi.computeFlowYears(chart, annualYear, 1)[0];
     var theme = annualTheme(annual);
@@ -931,7 +939,8 @@ const TianjiApp = (function () {
 
     // 10. 大运
     var lps = luck.pillars;
-    if (baziLuckIndex >= lps.length) baziLuckIndex = 0;
+    if (!Number.isInteger(baziAnnualYear) || baziAnnualYear < 1900 || baziAnnualYear > 2100) baziAnnualYear = year;
+    baziLuckIndex = luckIndexForYear(lps, baziAnnualYear);
     html += '<div class="luck-pillars-section"><h3>' + I18n.t('luckPillars') + '</h3>';
     html += '<div class="luck-direction">起运: ' + luck.startAge + '岁 (' + luck.direction + ')</div>';
     html += '<div class="luck-pillars-scroll"><div class="luck-pillars-track">';
@@ -961,7 +970,6 @@ const TianjiApp = (function () {
     });
     html += '</div></div>';
 
-    if (!Number.isInteger(baziAnnualYear) || baziAnnualYear < 1900 || baziAnnualYear > 2100) baziAnnualYear = year;
     html += renderBaziOutlook(chart, year, luck, baziAnnualYear);
 
     html += '<section class="hex-interpretation everyday-reading"><h3>Cách hiểu đời thường</h3>';
@@ -973,7 +981,11 @@ const TianjiApp = (function () {
     I18n.localizeDocument(resultArea);
     bindResultActions('bazi-result', 'copy-bazi-result', 'download-bazi-result', 'kinh-dich-bat-tu');
     document.querySelectorAll('#bazi-result [data-luck-index]').forEach(function (button) {
-      button.addEventListener('click', function () { baziLuckIndex = parseInt(button.getAttribute('data-luck-index'), 10) || 0; calculateBazi(); });
+      button.addEventListener('click', function () {
+        baziLuckIndex = parseInt(button.getAttribute('data-luck-index'), 10) || 0;
+        document.querySelectorAll('#bazi-result [data-luck-index]').forEach(function (item) { item.classList.toggle('active', item === button); });
+        if ($('bazi-luck-detail')) $('bazi-luck-detail').innerHTML = renderLuckDetail(lps[baziLuckIndex], baziAnnualYear);
+      });
     });
     document.querySelectorAll('#bazi-result .bazi-year-option').forEach(function (button) {
       button.addEventListener('click', function () { baziAnnualYear = parseInt(button.getAttribute('data-year'), 10); calculateBazi(); });
