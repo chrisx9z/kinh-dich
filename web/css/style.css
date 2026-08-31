@@ -246,11 +246,11 @@ a:hover {
    4. Typography
    ============================================================ */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
+  font-family: var(--font-body);
   line-height: 1.3;
   font-weight: 700;
   color: var(--color-text);
-  letter-spacing: 0.04em;
+  letter-spacing: .01em;
 }
 
 h1 { font-size: var(--font-size-4xl); }
@@ -399,7 +399,7 @@ main.container {
   align-items: center;
   gap: var(--space-sm);
   padding: 14px 36px;
-  font-family: var(--font-heading);
+  font-family: var(--font-body);
   font-size: var(--font-size-base);
   font-weight: 600;
   color: #0a0a0f;
@@ -409,7 +409,7 @@ main.container {
   cursor: pointer;
   transition: transform var(--transition-fast),
               box-shadow var(--transition-base);
-  letter-spacing: 0.06em;
+  letter-spacing: .01em;
 }
 
 .hero-cta:hover {
@@ -530,7 +530,7 @@ main.container {
   background: none;
   border: none;
   padding: var(--space-md) var(--space-lg);
-  font-family: var(--font-heading);
+  font-family: var(--font-body);
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   cursor: pointer;
@@ -539,7 +539,7 @@ main.container {
               border-color var(--transition-fast);
   white-space: nowrap;
   position: relative;
-  letter-spacing: 0.06em;
+  letter-spacing: .01em;
 }
 
 .tab:hover {
@@ -796,6 +796,16 @@ input[type="number"]::-webkit-outer-spin-button {
   gap: var(--space-md);
 }
 
+.gender-action-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-md);
+}
+
+.gender-action-row .radio-group {
+  flex: 1;
+}
+
 .form-hint {
   font-size: var(--font-size-xs);
   color: var(--color-jade);
@@ -874,7 +884,7 @@ input[type="number"]::-webkit-outer-spin-button {
   justify-content: center;
   gap: var(--space-sm);
   padding: 12px 24px;
-  font-family: var(--font-heading);
+  font-family: var(--font-body);
   font-size: var(--font-size-sm);
   font-weight: 600;
   border: none;
@@ -970,6 +980,23 @@ input[type="number"]::-webkit-outer-spin-button {
   padding: var(--space-sm);
   letter-spacing: .01em;
   font-weight: 700;
+}
+
+.bazi-view-btn {
+  min-width: 140px;
+  min-height: 54px;
+  padding: 12px 22px;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  letter-spacing: .01em;
+  background: var(--color-gold);
+  color: #0a0a0f;
+  border: 0;
+}
+
+.bazi-view-btn:hover {
+  background: var(--color-gold-bright);
+  box-shadow: var(--shadow-glow-gold);
 }
 
 .pillars-table td {
@@ -1559,6 +1586,9 @@ input[type="number"]::-webkit-outer-spin-button {
 .luck-current-note { color: var(--color-gold); font-weight: 600; }
 @media (max-width: 767px) {
   .bazi-lunar-fields { grid-template-columns: 1fr; }
+  .gender-action-row { flex-direction: column; align-items: stretch; }
+  .gender-action-row .radio-group { width: 100%; }
+  .bazi-view-btn { width: 100%; }
   .annual-month-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .outlook-header { flex-direction: column; }
 }

@@ -191,6 +191,7 @@ const I18n = (function () {
 
       // -- Common UI --
       calculate: '排盘',
+      viewNow: 'View now',
       reset: '重置',
       share: '分享',
       copyLink: '复制链接',
@@ -385,7 +386,7 @@ const I18n = (function () {
   translations.vi = Object.assign({}, translations.en, {
     appTitle: 'Thiên Cơ',
     appSubtitle: 'Công cụ Kinh Dịch và huyền học Trung Hoa',
-    quickStart: 'Bắt đầu nhanh', lunarHint: 'Nhập ngày sinh âm lịch',
+    quickStart: 'Bắt đầu nhanh', viewNow: 'Xem ngay', lunarHint: 'Nhập ngày sinh âm lịch',
     lunarMonth1: 'Tháng Giêng', lunarMonth2: 'Tháng Hai', lunarMonth3: 'Tháng Ba', lunarMonth4: 'Tháng Tư',
     lunarMonth5: 'Tháng Năm', lunarMonth6: 'Tháng Sáu', lunarMonth7: 'Tháng Bảy', lunarMonth8: 'Tháng Tám',
     lunarMonth9: 'Tháng Chín', lunarMonth10: 'Tháng Mười', lunarMonth11: 'Tháng Một âm lịch', lunarMonth12: 'Tháng Chạp',

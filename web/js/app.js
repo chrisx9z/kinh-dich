@@ -2160,6 +2160,12 @@ const TianjiApp = (function () {
     if ($('bazi-calendar-type')) $('bazi-calendar-type').addEventListener('change', function () { updateBaziCalendarFields(); baziAnnualYear = null; calculateBazi(); });
     if ($('bazi-date')) $('bazi-date').addEventListener('change', function () { baziAnnualYear = null; calculateBazi(); });
     if ($('bazi-hour')) $('bazi-hour').addEventListener('change', calculateBazi);
+    if ($('bazi-view-btn')) $('bazi-view-btn').addEventListener('click', function () {
+      baziAnnualYear = null;
+      calculateBazi();
+      var result = $('bazi-result');
+      if (result) result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
     ['bazi-lunar-year','bazi-lunar-month','bazi-lunar-day','bazi-lunar-leap'].forEach(function (id) {
       if ($(id)) $(id).addEventListener('change', function () { baziAnnualYear = null; calculateBazi(); });
     });
