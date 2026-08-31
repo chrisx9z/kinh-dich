@@ -964,12 +964,12 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .pillars-table th {
-  font-family: var(--font-heading);
-  font-size: var(--font-size-sm);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
   color: var(--color-gold);
   padding: var(--space-sm);
-  letter-spacing: 0.06em;
-  font-weight: 600;
+  letter-spacing: .01em;
+  font-weight: 700;
 }
 
 .pillars-table td {
@@ -1001,6 +1001,12 @@ input[type="number"]::-webkit-outer-spin-button {
   font-weight: 700;
   font-family: var(--font-heading);
   display: block;
+}
+
+.pillars-table .stem,
+.pillars-table .branch,
+.pillars-table .hidden-pair > span:first-child {
+  color: var(--color-text) !important;
 }
 
 .pillars-table small {
@@ -2310,7 +2316,7 @@ input[type="number"]::-webkit-outer-spin-button {
   padding: 4px 6px !important;
 }
 .ten-god-label {
-  color: var(--color-gold);
+  color: var(--color-text);
   font-size: 0.8em;
   font-weight: 600;
 }
@@ -2322,7 +2328,7 @@ input[type="number"]::-webkit-outer-spin-button {
   border-top: 1px dashed var(--color-border-subtle) !important;
 }
 .nayin-label {
-  color: var(--color-jade);
+  color: var(--color-text);
   font-size: 0.78em;
   letter-spacing: 0.05em;
 }
