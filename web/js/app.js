@@ -925,7 +925,7 @@ const TianjiApp = (function () {
     ];
     html += '<section class="hex-relations"><h3>Quan hệ quẻ</h3><p class="hex-relations-intro">Các quẻ phụ giúp mở rộng góc nhìn, không thay thế quẻ chủ và quẻ biến.</p><div class="hex-relations-grid">';
     relationCards.forEach(function (card) {
-      html += '<div class="hex-relation-card"><h4>' + card[0] + '</h4><div class="hex-relation-symbol">' + card[1].symbol + '</div><div class="hex-relation-name">' + I18n.hexagramName(card[1].number, card[1].name) + ' (' + I18n.t('hexagram') + ' ' + card[1].number + ')</div><p>' + card[2] + '</p></div>';
+      html += '<div class="hex-relation-card"><h4>' + card[0] + '</h4><div class="hex-relation-symbol">' + card[1][2] + '</div><div class="hex-relation-name">' + I18n.hexagramName(card[1][0], card[1][1]) + ' (' + I18n.t('hexagram') + ' ' + card[1][0] + ')</div><p>' + card[2] + '</p></div>';
     });
     html += '</div></section>';
 
