@@ -1093,7 +1093,8 @@ const TianjiApp = (function () {
       var relativeNames = { '兄弟': 'Huynh đệ', '子孙': 'Tử tôn', '父母': 'Phụ mẫu', '妻财': 'Thê tài', '官鬼': 'Quan quỷ' };
       var godNames = { '青龙': 'Thanh Long', '朱雀': 'Chu Tước', '勾陈': 'Câu Trần', '腾蛇': 'Đằng Xà', '白虎': 'Bạch Hổ', '玄武': 'Huyền Vũ' };
       var elementNames = { '木': 'Mộc', '火': 'Hỏa', '土': 'Thổ', '金': 'Kim', '水': 'Thủy' };
-      var topicConfig = liuyaoTopicConfig($('liuyao-topic') ? $('liuyao-topic').value : 'general');
+      var topic = $('liuyao-topic') ? $('liuyao-topic').value : 'general';
+      var topicConfig = liuyaoTopicConfig(topic);
       var topicLineCount = 0;
       html += '<section class="liuyao-analysis"><h3>Trang bị Lục Hào</h3>';
       html += '<p class="liuyao-analysis-note">Bảng nạp giáp: Thế–Ứng, Can–Chi, Ngũ hành, Lục Thân và Lục Thú. Dấu hiệu thời khí là lớp tham chiếu; luận đầy đủ vẫn cần xét dụng thần và quan hệ động–biến.</p>';
@@ -1112,7 +1113,7 @@ const TianjiApp = (function () {
         var roles = [];
         if (line.isWorld) roles.push('Thế 世');
         if (line.isResponse) roles.push('Ứng 應');
-        var isTopicLine = topicConfig.relative ? line.sixRelative === topicConfig.relative : (topicConfig.label === 'Tình cảm' ? (line.isWorld || line.isResponse) : false);
+        var isTopicLine = topicConfig.relative ? line.sixRelative === topicConfig.relative : (topic === 'relationship' ? (line.isWorld || line.isResponse) : false);
         if (isTopicLine) {
           roles.push('Dụng thần');
           topicLineCount++;
