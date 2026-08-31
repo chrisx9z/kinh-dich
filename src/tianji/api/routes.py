@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from typing import Optional
 
@@ -15,6 +16,12 @@ from tianji.liuyao.analysis import LiuYaoAnalysis
 from tianji.liuyao.casting import cast_by_numbers, cast_by_time
 
 router = APIRouter(prefix="/api/v1", tags=["tianji"])
+logger = logging.getLogger(__name__)
+
+
+def _bad_request(error: Exception) -> HTTPException:
+    logger.exception("Request processing failed", exc_info=error)
+    return HTTPException(status_code=400, detail="Dữ liệu yêu cầu không hợp lệ")
 
 
 # --- Request/Response Models ---
@@ -28,8 +35,8 @@ class BaZiRequest(BaseModel):
 
 
 class LiuYaoRequest(BaseModel):
-    numbers: Optional[list[int]] = Field(None, description="Ít nhất 2 số để khởi quẻ (tùy chọn)")
-    question: str = Field("Tổng quan vận trình", description="Nội dung cần hỏi")
+    numbers: Optional[list[int]] = Field(None, min_length=2, max_length=3, description="2 hoặc 3 số để khởi quẻ (tùy chọn)")
+    question: str = Field("Tổng quan vận trình", max_length=500, description="Nội dung cần hỏi")
 
 
 class ZiWeiRequest(BaseModel):
@@ -79,7 +86,7 @@ async def bazi_chart(req: BaZiRequest):
             },
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise _bad_request(e) from e
 
 
 @router.post("/liuyao/cast", summary="Gieo quẻ Lục Hào")
@@ -100,7 +107,7 @@ async def liuyao_cast(req: LiuYaoRequest):
             **analysis_result,
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise _bad_request(e) from e
 
 
 @router.post("/ziwei/chart", summary="Lập lá số Tử Vi Đẩu Số")
@@ -129,4 +136,4 @@ async def ziwei_chart(req: ZiWeiRequest):
             "palaces": palaces_data,
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise _bad_request(e) from e

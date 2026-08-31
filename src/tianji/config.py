@@ -19,7 +19,7 @@ class TianjiConfig:
     llm_temperature: float = 0.7
 
     # API settings
-    api_host: str = "0.0.0.0"
+    api_host: str = "127.0.0.1"
     api_port: int = 8000
 
     # Calendar settings
@@ -32,7 +32,7 @@ class TianjiConfig:
             openai_api_key=os.getenv("OPENAI_API_KEY", ""),
             openai_base_url=os.getenv("OPENAI_BASE_URL", ""),
             openai_model=os.getenv("TIANJI_LLM_MODEL", "gpt-4o"),
-            api_host=os.getenv("TIANJI_API_HOST", "0.0.0.0"),
+            api_host=os.getenv("TIANJI_API_HOST", "127.0.0.1"),
             api_port=int(os.getenv("TIANJI_API_PORT", "8000")),
         )
 
