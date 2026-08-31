@@ -271,7 +271,7 @@ const TianjiApp = (function () {
     var branch = BRANCHES[annual.branchIndex];
     var clash = chart.pillars.some(function (pillar) { return mod(pillar.branchIndex - annual.branchIndex, 12) === 6; });
     var harmonyPairs = [['子','丑'],['寅','亥'],['卯','戌'],['辰','酉'],['巳','申'],['午','未']];
-    var harmony = chart.pillars.some(function (pillar) { return harmonyPairs.some(function (pair) { return pair.indexOf(pillar.branch) !== -1 && pair.indexOf(branch) !== -1; }); });
+    var harmony = chart.pillars.some(function (pillar) { var natalBranch = BRANCHES[pillar.branchIndex]; return harmonyPairs.some(function (pair) { return pair.indexOf(natalBranch) !== -1 && pair.indexOf(branch) !== -1; }); });
     var branchText = clash ? 'Địa chi lưu niên có dấu hiệu xung với lá số: dự phòng thay đổi, giấy tờ và lịch trình.' : (harmony ? 'Địa chi lưu niên có dấu hiệu hợp: thuận nhờ người phối hợp, nhưng vẫn cần thống nhất trách nhiệm.' : 'Địa chi lưu niên không tạo xung nổi bật: giữ nhịp đều và rà soát theo từng quý.');
     return elementText + ' ' + branchText;
   }
@@ -289,16 +289,19 @@ const TianjiApp = (function () {
     var harmonyPairs = [['子','丑'],['寅','亥'],['卯','戌'],['辰','酉'],['巳','申'],['午','未']];
     var harmPairs = [['子','未'],['丑','午'],['寅','巳'],['卯','辰'],['申','亥'],['酉','戌']];
     function branchRelation(a, b) {
+      if (a < 0 || b < 0) return '';
+      var branchA = BRANCHES[a];
+      var branchB = BRANCHES[b];
       if (a === b) return 'đồng chi';
       if (mod(a - b, 12) === 6) return 'xung';
-      if (harmonyPairs.some(function (pair) { return pair.indexOf(a) !== -1 && pair.indexOf(b) !== -1; })) return 'hợp';
-      if (harmPairs.some(function (pair) { return pair.indexOf(a) !== -1 && pair.indexOf(b) !== -1; })) return 'hại';
+      if (harmonyPairs.some(function (pair) { return pair.indexOf(branchA) !== -1 && pair.indexOf(branchB) !== -1; })) return 'hợp';
+      if (harmPairs.some(function (pair) { return pair.indexOf(branchA) !== -1 && pair.indexOf(branchB) !== -1; })) return 'hại';
       return '';
     }
     var natalRelations = [];
-    chart.pillars.forEach(function (pillar) { var relation = branchRelation(pillar.branch, BRANCHES[monthPillar.branchIndex]); if (relation && natalRelations.indexOf(relation) === -1) natalRelations.push(relation); });
-    var annualRelation = branchRelation(BRANCHES[annual.branchIndex], BRANCHES[monthPillar.branchIndex]);
-    var luckRelation = luckPillar ? branchRelation(luckPillar.branchIndex >= 0 ? BRANCHES[luckPillar.branchIndex] : '', BRANCHES[monthPillar.branchIndex]) : '';
+    chart.pillars.forEach(function (pillar) { var relation = branchRelation(pillar.branchIndex, monthPillar.branchIndex); if (relation && natalRelations.indexOf(relation) === -1) natalRelations.push(relation); });
+    var annualRelation = branchRelation(annual.branchIndex, monthPillar.branchIndex);
+    var luckRelation = luckPillar ? branchRelation(luckPillar.branchIndex, monthPillar.branchIndex) : '';
     var score = 3;
     if (favorableElements.indexOf(stemElement) !== -1) score++;
     if (favorableElements.indexOf(branchElement) !== -1) score++;
@@ -323,11 +326,28 @@ const TianjiApp = (function () {
       '正印': ['Công việc: nên tìm người hướng dẫn và củng cố nền tảng.', 'Tài chính: giữ nhịp an toàn, ưu tiên quỹ dự phòng.', 'Quan hệ/sức khỏe: nhận hỗ trợ và chăm nếp sống đều.']
     };
     var guidance = godGuidance[monthGod] || ['Công việc: làm từng bước và kiểm tra dữ kiện.', 'Tài chính: chỉ cam kết trong khả năng kiểm soát.', 'Quan hệ/sức khỏe: giữ nhịp giao tiếp và nghỉ ngơi cân bằng.'];
+    var focusScores = { work: 1, finance: 1, relationship: 1, health: 1 };
+    if (['正财','偏财','劫财'].indexOf(monthGod) !== -1) focusScores.finance += 3;
+    if (['正官','七杀','正印','偏印','伤官'].indexOf(monthGod) !== -1) focusScores.work += 2;
+    if (['比肩','食神','伤官'].indexOf(monthGod) !== -1) focusScores.relationship += 2;
+    if (favorableElements.indexOf(stemElement) !== -1 || favorableElements.indexOf(branchElement) !== -1) { focusScores.work++; focusScores.finance++; }
+    if (unfavorableElements.indexOf(stemElement) !== -1 || unfavorableElements.indexOf(branchElement) !== -1) { focusScores.finance++; focusScores.health += 2; }
+    if (natalRelations.indexOf('xung') !== -1) { focusScores.health += 2; focusScores.relationship++; focusScores.work++; }
+    if (natalRelations.indexOf('hại') !== -1) { focusScores.relationship += 2; focusScores.finance++; }
+    if (annualRelation === 'xung' || luckRelation === 'xung') { focusScores.work++; focusScores.health++; }
+    if (annualRelation === 'hợp' || luckRelation === 'hợp') { focusScores.relationship++; focusScores.finance++; }
+    var focusOrder = ['work', 'finance', 'relationship', 'health'];
+    var focus = focusOrder[monthIndex % focusOrder.length];
+    focusOrder.forEach(function (key) { if (focusScores[key] > focusScores[focus]) focus = key; });
+    if (natalRelations.indexOf('xung') !== -1 || annualRelation === 'xung' || luckRelation === 'xung') focus = 'health';
+    else if (natalRelations.indexOf('hại') !== -1 || annualRelation === 'hại') focus = 'relationship';
+    var focusLabels = { work: 'Công việc', finance: 'Tài chính', relationship: 'Tình cảm & quan hệ', health: 'Sức khỏe' };
+    var focusTexts = { work: guidance[0], finance: guidance[1], relationship: 'Tình cảm/quan hệ: nói rõ nhu cầu, giữ ranh giới và tránh suy diễn.', health: 'Sức khỏe: giảm quá tải, giữ giờ ngủ và xử lý sớm dấu hiệu kéo dài.' };
     var relationNote = natalRelations.length ? 'Với lá số gốc: ' + natalRelations.join(', ') + '.' : 'Với lá số gốc: chưa thấy quan hệ Hợp/Xung nổi bật.';
     if (annualRelation) relationNote += ' Với lưu niên: ' + annualRelation + '.';
     if (luckRelation) relationNote += ' Với Đại vận: ' + luckRelation + '.';
     var rating = '★'.repeat(score) + '☆'.repeat(5 - score);
-    return '<details class="annual-month-card"><summary><strong>Tháng âm ' + (monthIndex + 1) + '</strong><span class="annual-month-pillar">' + monthPillar.char + ' (' + I18n.hanViet(monthPillar.char) + ') · ' + I18n.hanViet(monthGod) + '</span><span class="annual-month-rating">' + rating + ' · ' + tones[score - 1] + '</span><span class="annual-month-preview">' + guidance[0] + '</span></summary><div class="annual-month-body"><p>' + guidance[0] + '</p><p>' + guidance[1] + '</p><p>' + guidance[2] + '</p><p class="annual-month-basis"><strong>Căn cứ:</strong> Can ' + I18n.hanViet(stemElement) + ', Chi ' + I18n.hanViet(branchElement) + '. ' + relationNote + ' Trọng tâm năm: ' + theme[0].toLowerCase() + '.</p></div></details>';
+    return '<details class="annual-month-card"><summary><strong>Tháng âm ' + (monthIndex + 1) + '</strong><span class="annual-month-pillar">' + monthPillar.char + ' (' + I18n.hanViet(monthPillar.char) + ') · ' + I18n.hanViet(monthGod) + '</span><span class="annual-month-rating">' + rating + ' · ' + tones[score - 1] + '</span><span class="annual-month-focus">Trọng tâm: ' + focusLabels[focus] + '</span><span class="annual-month-preview">' + focusTexts[focus] + '</span></summary><div class="annual-month-body"><p>' + guidance[0] + '</p><p>' + guidance[1] + '</p><p>' + guidance[2] + '</p><p class="annual-month-basis"><strong>Căn cứ:</strong> Can ' + I18n.hanViet(stemElement) + ', Chi ' + I18n.hanViet(branchElement) + '. ' + relationNote + ' Trọng tâm tháng: ' + focusLabels[focus] + '. Trọng tâm năm: ' + theme[0].toLowerCase() + '.</p></div></details>';
   }
 
   function renderBaziOutlook(chart, birthYear, luck, annualYear, favorable, theme) {
