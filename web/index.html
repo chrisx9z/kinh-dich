@@ -65,9 +65,35 @@
         <div class="card-body">
           <div class="form-row">
             <div class="form-group">
-              <label for="bazi-date" data-i18n="birthDate">出生日期</label>
+              <label for="bazi-calendar-type">Loại lịch</label>
+              <select id="bazi-calendar-type">
+                <option value="solar">Dương lịch</option>
+                <option value="lunar">Âm lịch</option>
+              </select>
+            </div>
+            <div class="form-group" id="bazi-solar-date-group">
+              <label for="bazi-date" data-i18n="birthDate">Ngày dương lịch</label>
               <input type="date" id="bazi-date" value="1990-05-15">
             </div>
+          </div>
+          <div id="bazi-lunar-fields" class="bazi-lunar-fields" hidden>
+            <div class="form-group">
+              <label for="bazi-lunar-year">Năm âm lịch</label>
+              <input type="number" id="bazi-lunar-year" min="1900" max="2100" value="1990">
+            </div>
+            <div class="form-group">
+              <label for="bazi-lunar-month">Tháng âm lịch</label>
+              <select id="bazi-lunar-month">
+                <option value="1">Tháng Giêng</option><option value="2">Tháng Hai</option><option value="3">Tháng Ba</option><option value="4">Tháng Tư</option><option value="5">Tháng Năm</option><option value="6">Tháng Sáu</option><option value="7">Tháng Bảy</option><option value="8">Tháng Tám</option><option value="9">Tháng Chín</option><option value="10">Tháng Mười</option><option value="11">Tháng Một âm lịch</option><option value="12">Tháng Chạp</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="bazi-lunar-day">Ngày âm lịch</label>
+              <input type="number" id="bazi-lunar-day" min="1" max="30" value="1">
+            </div>
+            <label class="checkbox-label"><input type="checkbox" id="bazi-lunar-leap"> Tháng nhuận</label>
+          </div>
+          <div class="form-row">
             <div class="form-group">
               <label for="bazi-hour" data-i18n="birthTime">出生时辰</label>
               <select id="bazi-hour">
@@ -305,6 +331,6 @@
   <script src="js/liuyao.js?v=20260831-vi7"></script>
   <script src="js/ziwei.js?v=20260817-vi4"></script>
   <script src="js/i18n.js?v=20260819-vi10"></script>
-  <script src="js/app.js?v=20260831-vi32"></script>
+  <script src="js/app.js?v=20260831-vi34"></script>
 </body>
 </html>

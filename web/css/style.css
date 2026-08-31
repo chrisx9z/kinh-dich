@@ -1424,6 +1424,8 @@ input[type="number"]::-webkit-outer-spin-button {
   margin-right: var(--space-xs);
   transition: all var(--transition-fast);
   cursor: pointer;
+  font: inherit;
+  color: var(--color-text);
 }
 
 .luck-pillar-card:hover {
@@ -1491,6 +1493,31 @@ input[type="number"]::-webkit-outer-spin-button {
   border-color: var(--color-border);
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
+}
+
+.bazi-outlook-section { order: -0.5; padding: var(--space-lg); background: var(--color-bg-card); border: 2px solid var(--color-gold); border-radius: var(--radius-md); box-shadow: 0 0 24px rgba(212, 175, 55, 0.1); }
+.outlook-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-md); }
+.bazi-outlook-section h3 { margin: 0 0 var(--space-xs); color: var(--color-gold); }
+.outlook-hint { margin: 0 0 var(--space-md); color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.bazi-year-picker { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-sm); margin-bottom: var(--space-md); }
+.picker-label { color: var(--color-jade); font-weight: 600; }
+.bazi-year-picker input { width: 110px; }
+.bazi-year-option.active { border-color: var(--color-gold); color: var(--color-gold); background: var(--color-gold-muted); }
+.annual-summary { padding: var(--space-md); margin-bottom: var(--space-lg); background: var(--color-gold-muted); border-left: 3px solid var(--color-gold); border-radius: var(--radius-sm); line-height: 1.7; }
+.annual-summary strong { color: var(--color-gold); }
+.annual-months h4, .luck-viewer h4 { margin: 0 0 var(--space-sm); color: var(--color-jade); }
+.annual-month-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-sm); }
+.annual-month-card { min-height: 76px; padding: var(--space-sm); background: var(--color-bg-raised); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); }
+.annual-month-card strong { display: block; margin-bottom: 4px; color: var(--color-gold); }
+.annual-month-card span { color: var(--color-text-muted); font-size: var(--font-size-sm); line-height: 1.45; }
+.luck-viewer { margin-top: var(--space-lg); }
+.luck-viewer-detail { padding: var(--space-md); background: var(--color-bg-raised); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); color: var(--color-text); line-height: 1.7; }
+.luck-viewer-detail > span { color: var(--color-jade); }
+.luck-current-note { color: var(--color-gold); font-weight: 600; }
+@media (max-width: 767px) {
+  .bazi-lunar-fields { grid-template-columns: 1fr; }
+  .annual-month-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .outlook-header { flex-direction: column; }
 }
 
 .fy-year {
@@ -2227,6 +2254,18 @@ input[type="number"]::-webkit-outer-spin-button {
   color: var(--color-gold);
   margin: 0 0.3em;
 }
+.bazi-lunar-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+  align-items: end;
+  margin-bottom: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+.checkbox-label { display: flex; align-items: center; gap: var(--space-xs); min-height: 44px; color: var(--color-text); font-size: var(--font-size-sm); }
 
 /* 十神标签行 */
 .tengod-row td {

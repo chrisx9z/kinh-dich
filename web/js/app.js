@@ -167,6 +167,8 @@ const TianjiApp = (function () {
   let lastLiuyaoResult = null;
   let liuyaoHistory = loadLiuyaoHistory();
   let chartHistory = loadChartHistory();
+  let baziAnnualYear = null;
+  let baziLuckIndex = 0;
 
   // -----------------------------------------------------------------------
   //  Helpers
@@ -192,6 +194,78 @@ const TianjiApp = (function () {
 
   /** Convert clock hour (0-23) to branch index. */
   function hourToBranch(h) { return h === 23 ? 0 : Math.floor((h + 1) / 2); }
+
+  function getBaziDateInput() {
+    var calendarType = $('bazi-calendar-type') ? $('bazi-calendar-type').value : 'solar';
+    if (calendarType === 'lunar') {
+      var lunarYear = $('bazi-lunar-year') ? parseInt($('bazi-lunar-year').value, 10) : 0;
+      var lunarMonth = $('bazi-lunar-month') ? parseInt($('bazi-lunar-month').value, 10) : 0;
+      var lunarDay = $('bazi-lunar-day') ? parseInt($('bazi-lunar-day').value, 10) : 0;
+      var isLeap = $('bazi-lunar-leap') ? $('bazi-lunar-leap').checked : false;
+      if (!lunarYear || lunarYear < 1900 || lunarYear > 2100 || !lunarMonth || lunarMonth < 1 || lunarMonth > 12 || !lunarDay || lunarDay < 1 || lunarDay > 30) return null;
+      var solar = Calendar.lunarToSolar(lunarYear, lunarMonth, lunarDay, isLeap);
+      var verified = Calendar.solarToLunar(solar.year, solar.month, solar.day);
+      if (verified.year !== lunarYear || verified.month !== lunarMonth || verified.day !== lunarDay || !!verified.isLeap !== !!isLeap) return null;
+      return { calendarType: 'lunar', year: solar.year, month: solar.month, day: solar.day, lunarYear: lunarYear, lunarMonth: lunarMonth, lunarDay: lunarDay, isLeap: isLeap };
+    }
+    var dateStr = $('bazi-date') ? $('bazi-date').value : '';
+    if (!dateStr) return null;
+    var parts = dateStr.split('-');
+    var year = parseInt(parts[0], 10), month = parseInt(parts[1], 10), day = parseInt(parts[2], 10);
+    if (!year || !month || !day) return null;
+    var lunar = Calendar.solarToLunar(year, month, day);
+    return { calendarType: 'solar', year: year, month: month, day: day, lunarYear: lunar.year, lunarMonth: lunar.month, lunarDay: lunar.day, isLeap: lunar.isLeap };
+  }
+
+  function updateBaziCalendarFields() {
+    var lunar = $('bazi-calendar-type') && $('bazi-calendar-type').value === 'lunar';
+    if ($('bazi-solar-date-group')) $('bazi-solar-date-group').hidden = lunar;
+    if ($('bazi-lunar-fields')) $('bazi-lunar-fields').hidden = !lunar;
+  }
+
+  function annualTheme(annual) {
+    var themes = {
+      '比肩': ['Tự chủ và phối hợp', 'Tập trung một ưu tiên, đồng thời giữ ranh giới và phân công rõ ràng.'],
+      '劫财': ['Cạnh tranh và chia sẻ nguồn lực', 'Kiểm tra thỏa thuận, ngân sách và trách nhiệm trước khi hợp tác.'],
+      '食神': ['Nuôi dưỡng và sáng tạo', 'Dành thời gian hoàn thiện kỹ năng, sản phẩm và nhịp sống lành mạnh.'],
+      '伤官': ['Thể hiện và đổi mới', 'Nói thẳng nhưng có cấu trúc; thử nghiệm nhỏ trước khi thay đổi lớn.'],
+      '偏财': ['Cơ hội và linh hoạt tài chính', 'Ưu tiên dòng tiền thật, tránh quyết định dựa trên kỳ vọng quá cao.'],
+      '正财': ['Ổn định và tích lũy', 'Lập ngân sách, giữ cam kết và xây khoản dự phòng đều đặn.'],
+      '七杀': ['Áp lực và kỷ luật', 'Chia việc khó thành mốc ngắn, đặt giới hạn và xử lý sớm rủi ro.'],
+      '正官': ['Trách nhiệm và quy củ', 'Làm đúng quy trình, lưu bằng chứng và thống nhất kỳ vọng với cấp trên.'],
+      '偏印': ['Học sâu và điều chỉnh', 'Chọn ít tài liệu, dành thời gian nghiên cứu rồi áp dụng vào việc cụ thể.'],
+      '正印': ['Hỗ trợ và nền tảng', 'Tìm người hướng dẫn, củng cố kiến thức và chăm nếp sinh hoạt.']
+    };
+    return themes[annual.tenGod] || ['Điều chỉnh nhịp độ', 'Theo dõi dữ kiện thực tế và tiến từng bước chắc chắn.'];
+  }
+
+  function renderLuckDetail(pillar, annualYear) {
+    if (!pillar) return '';
+    var element = STEM_ELEMENT[pillar.stemIndex];
+    var inPeriod = annualYear >= pillar.startYear && annualYear <= pillar.endYear;
+    var advice = {
+      '木': 'Học thêm, mở rộng quan hệ và bắt đầu việc có thể phát triển dần.',
+      '火': 'Trình bày, giao tiếp và đưa ý tưởng ra ánh sáng đúng lúc.',
+      '土': 'Lập quy trình, giữ cam kết và củng cố nền tảng tài chính.',
+      '金': 'Dùng số liệu, công cụ và nguyên tắc để giảm sai sót.',
+      '水': 'Giữ nhịp linh hoạt, nghỉ ngơi đủ và trao đổi trước khi chốt việc.'
+    };
+    return '<strong>Đang xem đại vận ' + pillar.char + ' (' + I18n.hanViet(pillar.char) + ')</strong><br>Độ tuổi ' + pillar.startAge + '–' + pillar.endAge + ', khoảng năm ' + pillar.startYear + '–' + pillar.endYear + '. ' + (inPeriod ? '<span class="luck-current-note">Năm đang chọn nằm trong đại vận này.</span>' : 'Năm đang chọn nằm ngoài đại vận này.') + '<br><span>Gợi ý đời thường: ' + advice[element] + '</span>';
+  }
+
+  function renderBaziOutlook(chart, birthYear, luck, annualYear) {
+    var annual = BaZi.computeFlowYears(chart, annualYear, 1)[0];
+    var theme = annualTheme(annual);
+    var monthFocus = ['Rà soát mục tiêu và ngân sách.', 'Trao đổi rõ vai trò, tránh hứa quá tay.', 'Học một kỹ năng hỗ trợ mục tiêu chính.', 'Hoàn thiện hồ sơ, quy trình hoặc sản phẩm.', 'Kiểm tra sức khỏe và nhịp nghỉ ngơi.', 'Đánh giá tiến độ giữa năm, bỏ việc ít hiệu quả.', 'Mở rộng hợp tác nhưng giữ điều khoản rõ.', 'Ưu tiên việc tồn đọng và xử lý giấy tờ.', 'Đặt lại giới hạn chi tiêu và thời gian.', 'Chia sẻ kết quả, nhận phản hồi có chọn lọc.', 'Chuẩn bị kế hoạch kết thúc hoặc bàn giao.', 'Tổng kết dữ kiện, chọn một hướng cho năm tới.'];
+    var html = '<section class="bazi-outlook-section"><div class="outlook-header"><div><h3>Tử vi theo năm</h3><p class="outlook-hint">Góc tham khảo lưu niên từ lá số Bát Tự, ưu tiên cách áp dụng đời thường.</p></div><button id="bazi-open-ziwei" type="button" class="btn btn-secondary btn-sm">Mở lá số Tử Vi</button></div>';
+    html += '<div class="bazi-year-picker"><span class="picker-label">Năm xem:</span><button type="button" class="btn btn-secondary btn-sm bazi-year-option' + (annualYear === birthYear ? ' active' : '') + '" data-year="' + birthYear + '">Năm sinh ' + birthYear + '</button><button type="button" class="btn btn-secondary btn-sm bazi-year-option' + (annualYear === birthYear + 1 ? ' active' : '') + '" data-year="' + (birthYear + 1) + '">Năm sau ' + (birthYear + 1) + '</button><input id="bazi-annual-year" type="number" min="1900" max="2100" value="' + annualYear + '"><button id="bazi-annual-apply" type="button" class="btn btn-primary btn-sm">Xem năm</button></div>';
+    html += '<div class="annual-summary"><strong>' + annual.year + ' · ' + annual.char + ' (' + I18n.hanViet(annual.char) + ')</strong><br><span>Trọng tâm: ' + theme[0] + '.</span> ' + theme[1] + '</div>';
+    html += '<div class="annual-months"><h4>Ghi chú đời thường từng tháng</h4><div class="annual-month-grid">';
+    monthFocus.forEach(function (note, index) { html += '<div class="annual-month-card"><strong>Tháng ' + (index + 1) + '</strong><span>' + note + '</span></div>'; });
+    html += '</div></div>';
+    html += '<div class="luck-viewer"><h4>Xem các kỳ đại vận</h4><div class="luck-viewer-detail" id="bazi-luck-detail">' + renderLuckDetail(luck.pillars[baziLuckIndex], annualYear) + '</div></div></section>';
+    return html;
+  }
 
   // (BaZi engine functions removed — now delegated to bazi.js)
 
@@ -649,7 +723,6 @@ const TianjiApp = (function () {
    *          五行分析, 日主强弱, 用神忌神, 格局, 地支关系, 大运, 流年
    */
   function calculateBazi() {
-    var dateStr = $('bazi-date') ? $('bazi-date').value : '';
     var hourBranchIdx = $('bazi-hour') ? parseInt($('bazi-hour').value, 10) : 7;
     var genderVal = document.querySelector('input[name="bazi-gender"]:checked');
     var gender = genderVal ? genderVal.value : 'male';
@@ -657,15 +730,16 @@ const TianjiApp = (function () {
     var resultArea = $('bazi-result');
     if (!resultArea) return;
 
-    if (!dateStr) {
-      resultArea.innerHTML = '<p class="empty-state">' + I18n.t('noData') + '</p>';
+    var dateInput = getBaziDateInput();
+    if (!dateInput) {
+      var lunarInput = $('bazi-calendar-type') && $('bazi-calendar-type').value === 'lunar';
+      resultArea.innerHTML = lunarInput ? '<p class="empty-state form-error">Ngày âm lịch không hợp lệ hoặc không tồn tại trong lịch đã chọn.</p>' : '<p class="empty-state">' + I18n.t('noData') + '</p>';
       return;
     }
 
-    var parts = dateStr.split('-');
-    var year = parseInt(parts[0], 10);
-    var month = parseInt(parts[1], 10);
-    var day = parseInt(parts[2], 10);
+    var year = dateInput.year;
+    var month = dateInput.month;
+    var day = dateInput.day;
     var clockHour = branchIdxToClockHour(hourBranchIdx);
 
     // ── Core computation via BaZi engine ──
@@ -681,7 +755,7 @@ const TianjiApp = (function () {
     var favorable = BaZi.suggestFavorable(chart, strength, elements);
     var relResult = BaZi.analyzeRelationships(chart.allBranches);
     var luck = BaZi.computeLuckPillars(chart);
-    var lunar = BaZi.getLunarDate(year, month, day);
+    var lunar = { year: dateInput.lunarYear, month: dateInput.lunarMonth, day: dateInput.lunarDay, isLeap: dateInput.isLeap };
 
     var dmChar = chart.dayMasterChar;
     var dmElement = chart.dayMasterElement;
@@ -701,7 +775,7 @@ const TianjiApp = (function () {
     html += '<div class="bazi-date-info">';
     html += '<span>Dương lịch ' + year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0') + '</span>';
     html += ' <span class="date-sep">/</span> ';
-    html += '<span>Âm lịch ' + lunar.year + ', tháng ' + lunar.month + ', ngày ' + lunar.day + '</span>';
+    html += '<span>Âm lịch ' + lunar.year + ', tháng ' + lunar.month + (lunar.isLeap ? ' nhuận' : '') + ', ngày ' + lunar.day + '</span>';
     html += '</div>';
 
     // 2. 四柱表格 (含纳音)
@@ -857,17 +931,18 @@ const TianjiApp = (function () {
 
     // 10. 大运
     var lps = luck.pillars;
+    if (baziLuckIndex >= lps.length) baziLuckIndex = 0;
     html += '<div class="luck-pillars-section"><h3>' + I18n.t('luckPillars') + '</h3>';
     html += '<div class="luck-direction">起运: ' + luck.startAge + '岁 (' + luck.direction + ')</div>';
     html += '<div class="luck-pillars-scroll"><div class="luck-pillars-track">';
-    lps.forEach(function (lp) {
-      html += '<div class="luck-pillar-card">';
+    lps.forEach(function (lp, luckIndex) {
+      html += '<button type="button" class="luck-pillar-card' + (luckIndex === baziLuckIndex ? ' active' : '') + '" data-luck-index="' + luckIndex + '" aria-label="Xem đại vận ' + lp.startAge + ' đến ' + lp.endAge + ' tuổi">';
       html += '<div class="lp-age">' + lp.startAge + '-' + lp.endAge + I18n.t('age') + '</div>';
       html += '<div class="lp-year">' + lp.startYear + '-' + lp.endYear + '</div>';
       html += '<div class="lp-stem" style="color:' + stemColor(lp.stemIndex) + '">' + STEMS[lp.stemIndex] + '</div>';
       html += '<div class="lp-branch" style="color:' + branchColor(lp.branchIndex) + '">' + BRANCHES[lp.branchIndex] + '</div>';
       html += '<div class="lp-nayin">' + lp.nayin + '</div>';
-      html += '</div>';
+      html += '</button>';
     });
     html += '</div></div></div>';
 
@@ -886,6 +961,9 @@ const TianjiApp = (function () {
     });
     html += '</div></div>';
 
+    if (!Number.isInteger(baziAnnualYear) || baziAnnualYear < 1900 || baziAnnualYear > 2100) baziAnnualYear = year;
+    html += renderBaziOutlook(chart, year, luck, baziAnnualYear);
+
     html += '<section class="hex-interpretation everyday-reading"><h3>Cách hiểu đời thường</h3>';
     html += '<div class="result-actions"><button id="copy-bazi-result" type="button" class="btn btn-secondary btn-sm">Sao chép kết quả</button><button id="download-bazi-result" type="button" class="btn btn-secondary btn-sm">Tải TXT</button></div>';
     html += baziPlainLanguageReading(chart, strength, elements, favorable, rels, pattern);
@@ -894,8 +972,32 @@ const TianjiApp = (function () {
     resultArea.innerHTML = html;
     I18n.localizeDocument(resultArea);
     bindResultActions('bazi-result', 'copy-bazi-result', 'download-bazi-result', 'kinh-dich-bat-tu');
+    document.querySelectorAll('#bazi-result [data-luck-index]').forEach(function (button) {
+      button.addEventListener('click', function () { baziLuckIndex = parseInt(button.getAttribute('data-luck-index'), 10) || 0; calculateBazi(); });
+    });
+    document.querySelectorAll('#bazi-result .bazi-year-option').forEach(function (button) {
+      button.addEventListener('click', function () { baziAnnualYear = parseInt(button.getAttribute('data-year'), 10); calculateBazi(); });
+    });
+    if ($('bazi-annual-apply')) $('bazi-annual-apply').addEventListener('click', function () {
+      var selectedYear = parseInt($('bazi-annual-year').value, 10);
+      if (selectedYear >= 1900 && selectedYear <= 2100) { baziAnnualYear = selectedYear; calculateBazi(); } else showToast('Vui lòng chọn năm từ 1900 đến 2100.');
+    });
+    if ($('bazi-open-ziwei')) $('bazi-open-ziwei').addEventListener('click', function () {
+      if ($('ziwei-year')) $('ziwei-year').value = String(lunar.year);
+      if ($('ziwei-month')) $('ziwei-month').value = String(lunar.month);
+      if ($('ziwei-day')) $('ziwei-day').value = String(lunar.day);
+      if ($('ziwei-hour')) $('ziwei-hour').value = String(hourBranchIdx);
+      var ziweiGender = document.querySelector('input[name="ziwei-gender"][value="' + gender + '"]');
+      if (ziweiGender) ziweiGender.checked = true;
+      switchTab('ziwei');
+    });
     recordChartHistory('bazi', {
+      calendar: dateInput.calendarType,
       date: $('bazi-date') ? $('bazi-date').value : '',
+      lunarYear: dateInput.lunarYear,
+      lunarMonth: dateInput.lunarMonth,
+      lunarDay: dateInput.lunarDay,
+      lunarLeap: dateInput.isLeap,
       hour: $('bazi-hour') ? $('bazi-hour').value : '0',
       gender: gender
     });
@@ -1037,7 +1139,8 @@ const TianjiApp = (function () {
     var gender = params.gender === 'female' ? 'Nữ' : 'Nam';
     if (entry.type === 'bazi') {
       var hourIndex = parseInt(params.hour, 10);
-      return 'Dương lịch ' + (params.date || '') + ' · ' + (BRANCHES[hourIndex] ? I18n.hanViet(BRANCHES[hourIndex]) : 'Giờ chưa chọn') + ' · ' + gender;
+      var birthLabel = params.calendar === 'lunar' ? 'Âm lịch ' + (params.lunarYear || '') + '/' + (params.lunarMonth || '') + '/' + (params.lunarDay || '') : 'Dương lịch ' + (params.date || '');
+      return birthLabel + ' · ' + (BRANCHES[hourIndex] ? I18n.hanViet(BRANCHES[hourIndex]) : 'Giờ chưa chọn') + ' · ' + gender;
     }
     var ziweiHour = parseInt(params.hour, 10);
     return 'Âm lịch ' + (params.year || '') + '/' + (params.month || '') + '/' + (params.day || '') + ' · ' + (BRANCHES[ziweiHour] ? I18n.hanViet(BRANCHES[ziweiHour]) : 'Giờ chưa chọn') + ' · ' + gender;
@@ -1065,10 +1168,16 @@ const TianjiApp = (function () {
     if (!entry) return;
     var params = entry.params || {};
     if (entry.type === 'bazi') {
+      if ($('bazi-calendar-type')) $('bazi-calendar-type').value = params.calendar || 'solar';
       if ($('bazi-date')) $('bazi-date').value = params.date || '';
+      if ($('bazi-lunar-year')) $('bazi-lunar-year').value = params.lunarYear || '';
+      if ($('bazi-lunar-month')) $('bazi-lunar-month').value = String(params.lunarMonth || '1');
+      if ($('bazi-lunar-day')) $('bazi-lunar-day').value = params.lunarDay || '';
+      if ($('bazi-lunar-leap')) $('bazi-lunar-leap').checked = !!params.lunarLeap;
       if ($('bazi-hour')) $('bazi-hour').value = String(params.hour == null ? '0' : params.hour);
       var baziGender = document.querySelector('input[name="bazi-gender"][value="' + params.gender + '"]');
       if (baziGender) baziGender.checked = true;
+      updateBaziCalendarFields();
     } else {
       if ($('ziwei-year')) $('ziwei-year').value = params.year || '';
       if ($('ziwei-month')) $('ziwei-month').value = String(params.month || '1');
@@ -1654,7 +1763,12 @@ const TianjiApp = (function () {
     var params = {};
     if (activeTab === 'bazi') {
       params.tab = 'bazi';
+      params.calendar = $('bazi-calendar-type') ? $('bazi-calendar-type').value : 'solar';
       params.date = $('bazi-date') ? $('bazi-date').value : '';
+      params.lunarYear = $('bazi-lunar-year') ? $('bazi-lunar-year').value : '';
+      params.lunarMonth = $('bazi-lunar-month') ? $('bazi-lunar-month').value : '';
+      params.lunarDay = $('bazi-lunar-day') ? $('bazi-lunar-day').value : '';
+      params.lunarLeap = $('bazi-lunar-leap') ? $('bazi-lunar-leap').checked : false;
       params.hour = $('bazi-hour') ? $('bazi-hour').value : '12';
       var g = document.querySelector('input[name="bazi-gender"]:checked');
       params.gender = g ? g.value : 'male';
@@ -1712,12 +1826,18 @@ const TianjiApp = (function () {
     try {
       var decoded = JSON.parse(atob(hash.substring(1)));
       if (decoded.tab === 'bazi') {
+        if (decoded.calendar && $('bazi-calendar-type')) $('bazi-calendar-type').value = decoded.calendar === 'lunar' ? 'lunar' : 'solar';
         if (decoded.date && $('bazi-date')) $('bazi-date').value = decoded.date;
+        if (decoded.lunarYear && $('bazi-lunar-year')) $('bazi-lunar-year').value = decoded.lunarYear;
+        if (decoded.lunarMonth && $('bazi-lunar-month')) $('bazi-lunar-month').value = decoded.lunarMonth;
+        if (decoded.lunarDay && $('bazi-lunar-day')) $('bazi-lunar-day').value = decoded.lunarDay;
+        if ($('bazi-lunar-leap')) $('bazi-lunar-leap').checked = !!decoded.lunarLeap;
         if (decoded.hour && $('bazi-hour')) $('bazi-hour').value = decoded.hour;
         if (decoded.gender) {
           var radio = document.querySelector('input[name="bazi-gender"][value="' + decoded.gender + '"]');
           if (radio) radio.checked = true;
         }
+        updateBaziCalendarFields();
         switchTab('bazi');
       } else if (decoded.tab === 'ziwei') {
         if (decoded.y && $('ziwei-year')) $('ziwei-year').value = decoded.y;
@@ -1848,6 +1968,14 @@ const TianjiApp = (function () {
       String(today.getMonth() + 1).padStart(2, '0') + '-' +
       String(today.getDate()).padStart(2, '0');
     if ($('bazi-date')) $('bazi-date').value = dateStr;
+    if (typeof Calendar !== 'undefined') {
+      var defaultLunar = Calendar.solarToLunar(today.getFullYear(), today.getMonth() + 1, today.getDate());
+      if ($('bazi-lunar-year')) $('bazi-lunar-year').value = defaultLunar.year;
+      if ($('bazi-lunar-month')) $('bazi-lunar-month').value = String(defaultLunar.month);
+      if ($('bazi-lunar-day')) $('bazi-lunar-day').value = defaultLunar.day;
+      if ($('bazi-lunar-leap')) $('bazi-lunar-leap').checked = !!defaultLunar.isLeap;
+    }
+    updateBaziCalendarFields();
 
     // Desktop tab buttons
     ['bazi','liuyao','ziwei'].forEach(function (t) {
@@ -1890,8 +2018,12 @@ const TianjiApp = (function () {
     }
 
     // BaZi real-time calculation
-    if ($('bazi-date')) $('bazi-date').addEventListener('change', calculateBazi);
+    if ($('bazi-calendar-type')) $('bazi-calendar-type').addEventListener('change', function () { updateBaziCalendarFields(); baziAnnualYear = null; calculateBazi(); });
+    if ($('bazi-date')) $('bazi-date').addEventListener('change', function () { baziAnnualYear = null; calculateBazi(); });
     if ($('bazi-hour')) $('bazi-hour').addEventListener('change', calculateBazi);
+    ['bazi-lunar-year','bazi-lunar-month','bazi-lunar-day','bazi-lunar-leap'].forEach(function (id) {
+      if ($(id)) $(id).addEventListener('change', function () { baziAnnualYear = null; calculateBazi(); });
+    });
     var genderRadios = document.querySelectorAll('input[name="bazi-gender"]');
     for (var i = 0; i < genderRadios.length; i++) {
       genderRadios[i].addEventListener('change', calculateBazi);
@@ -1945,10 +2077,14 @@ const TianjiApp = (function () {
     // Reset button
     if ($('reset-btn')) {
       $('reset-btn').addEventListener('click', function () {
+        if ($('bazi-calendar-type')) $('bazi-calendar-type').value = 'solar';
         if ($('bazi-date')) $('bazi-date').value = dateStr;
         if ($('bazi-hour')) $('bazi-hour').value = '0';
         var mr = document.querySelector('input[name="bazi-gender"][value="male"]');
         if (mr) mr.checked = true;
+        updateBaziCalendarFields();
+        baziAnnualYear = today.getFullYear();
+        baziLuckIndex = 0;
         calculateBazi();
       });
     }
