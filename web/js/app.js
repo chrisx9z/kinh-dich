@@ -276,25 +276,58 @@ const TianjiApp = (function () {
     return elementText + ' ' + branchText;
   }
 
-  function baziMonthNote(chart, annualYear, monthIndex, favorable, theme) {
-    var monthDate = new Date(annualYear, monthIndex, 15);
+  function baziMonthNote(chart, annual, luckPillar, annualYear, monthIndex, favorable, theme) {
+    var lunarDate = Calendar.lunarToSolar(annualYear, monthIndex + 1, 15, false);
+    var monthDate = new Date(lunarDate.year, lunarDate.month - 1, lunarDate.day);
     var monthYear = BaZi.computeYearPillar(monthDate);
     var monthPillar = BaZi.computeMonthPillar(monthDate, monthYear.stemIndex);
-    var element = STEM_ELEMENT[monthPillar.stemIndex];
+    var monthGod = BaZi.computeTenGod(chart.dayMasterIndex, monthPillar.stemIndex);
+    var stemElement = STEM_ELEMENT[monthPillar.stemIndex];
+    var branchElement = BRANCH_ELEMENT[monthPillar.branchIndex];
     var favorableElements = favorable.favorable || [];
     var unfavorableElements = favorable.unfavorable || [];
-    var relation = '';
-    var hasClash = chart.pillars.some(function (pillar) { return mod(pillar.branchIndex - monthPillar.branchIndex, 12) === 6; });
     var harmonyPairs = [['子','丑'],['寅','亥'],['卯','戌'],['辰','酉'],['巳','申'],['午','未']];
-    var hasHarmony = chart.pillars.some(function (pillar) { return mod(pillar.branchIndex - monthPillar.branchIndex, 12) === 0 || harmonyPairs.some(function (pair) { return pair.indexOf(pillar.branch) !== -1 && pair.indexOf(BRANCHES[monthPillar.branchIndex]) !== -1; }); });
-    if (hasClash) relation = 'Dễ có thay đổi hoặc va chạm lịch trình; chừa thời gian dự phòng.';
-    else if (hasHarmony) relation = 'Thuận cho phối hợp và nhờ hỗ trợ; nên chốt việc bằng văn bản.';
-    else relation = 'Giữ nhịp đều, kiểm tra tiến độ giữa tháng rồi mới mở rộng.';
-    var elementNote = favorableElements.indexOf(element) !== -1
-      ? 'Ngũ hành ' + I18n.hanViet(element) + ' đang hỗ trợ dụng thần của lá số, phù hợp để chủ động tiến một bước.'
-      : (unfavorableElements.indexOf(element) !== -1 ? 'Ngũ hành ' + I18n.hanViet(element) + ' thuộc nhóm cần tiết chế, nên giảm cam kết và rà soát sức khỏe, chi phí.' : 'Ngũ hành ' + I18n.hanViet(element) + ' ở mức trung tính, ưu tiên quan sát dữ kiện trước khi quyết định.');
-    var focus = ['Rà soát mục tiêu và ngân sách.', 'Trao đổi rõ vai trò, tránh hứa quá tay.', 'Học một kỹ năng hỗ trợ mục tiêu chính.', 'Hoàn thiện hồ sơ, quy trình hoặc sản phẩm.', 'Kiểm tra sức khỏe và nhịp nghỉ ngơi.', 'Đánh giá tiến độ giữa năm, bỏ việc ít hiệu quả.', 'Mở rộng hợp tác nhưng giữ điều khoản rõ.', 'Ưu tiên việc tồn đọng và xử lý giấy tờ.', 'Đặt lại giới hạn chi tiêu và thời gian.', 'Chia sẻ kết quả, nhận phản hồi có chọn lọc.', 'Chuẩn bị kế hoạch kết thúc hoặc bàn giao.', 'Tổng kết dữ kiện, chọn một hướng cho năm tới.'][monthIndex];
-    return '<div class="annual-month-card"><strong>Tháng ' + (monthIndex + 1) + '</strong><span class="annual-month-pillar">' + monthPillar.char + ' (' + I18n.hanViet(monthPillar.char) + ')</span><span>' + focus + ' ' + elementNote + ' ' + relation + ' Trọng tâm năm: ' + theme[0].toLowerCase() + '.</span></div>';
+    var harmPairs = [['子','未'],['丑','午'],['寅','巳'],['卯','辰'],['申','亥'],['酉','戌']];
+    function branchRelation(a, b) {
+      if (a === b) return 'đồng chi';
+      if (mod(a - b, 12) === 6) return 'xung';
+      if (harmonyPairs.some(function (pair) { return pair.indexOf(a) !== -1 && pair.indexOf(b) !== -1; })) return 'hợp';
+      if (harmPairs.some(function (pair) { return pair.indexOf(a) !== -1 && pair.indexOf(b) !== -1; })) return 'hại';
+      return '';
+    }
+    var natalRelations = [];
+    chart.pillars.forEach(function (pillar) { var relation = branchRelation(pillar.branch, BRANCHES[monthPillar.branchIndex]); if (relation && natalRelations.indexOf(relation) === -1) natalRelations.push(relation); });
+    var annualRelation = branchRelation(BRANCHES[annual.branchIndex], BRANCHES[monthPillar.branchIndex]);
+    var luckRelation = luckPillar ? branchRelation(luckPillar.branchIndex >= 0 ? BRANCHES[luckPillar.branchIndex] : '', BRANCHES[monthPillar.branchIndex]) : '';
+    var score = 3;
+    if (favorableElements.indexOf(stemElement) !== -1) score++;
+    if (favorableElements.indexOf(branchElement) !== -1) score++;
+    if (unfavorableElements.indexOf(stemElement) !== -1) score--;
+    if (unfavorableElements.indexOf(branchElement) !== -1) score--;
+    if (natalRelations.indexOf('xung') !== -1 || natalRelations.indexOf('hại') !== -1) score--;
+    if (natalRelations.indexOf('hợp') !== -1) score++;
+    if (annualRelation === 'xung' || annualRelation === 'hại' || luckRelation === 'xung') score--;
+    if (annualRelation === 'hợp' || luckRelation === 'hợp') score++;
+    score = Math.max(1, Math.min(5, score));
+    var tones = ['Cần thận trọng', 'Cần chọn lọc', 'Trung bình', 'Khá thuận', 'Thuận'];
+    var godGuidance = {
+      '比肩': ['Công việc: tự chủ tốt nhưng nên phân công rõ.', 'Tài chính: giữ quỹ dự phòng, tránh ôm thêm phần người khác.', 'Quan hệ/sức khỏe: giữ ranh giới và nhịp nghỉ ổn định.'],
+      '劫财': ['Công việc: cạnh tranh tăng, mọi thỏa thuận cần ghi rõ.', 'Tài chính: hạn chế cho vay, bảo lãnh và đòn bẩy.', 'Quan hệ/sức khỏe: tránh tranh hơn thua, ngủ đủ trước khi chốt việc.'],
+      '食神': ['Công việc: thuận hoàn thiện sản phẩm, kỹ năng và nội dung.', 'Tài chính: thu nhập đến từ chất lượng và tay nghề.', 'Quan hệ/sức khỏe: ưu tiên ăn ngủ đều, giao tiếp mềm.'],
+      '伤官': ['Công việc: hợp đổi mới nhưng phải kiểm tra quy trình.', 'Tài chính: tránh đầu cơ vì hưng phấn nhất thời.', 'Quan hệ/sức khỏe: nói thẳng có chừng mực, giảm thức khuya.'],
+      '偏财': ['Công việc: dễ có cơ hội ngoài kế hoạch, chọn một hướng để thử.', 'Tài chính: kiểm tra dòng tiền thật trước khi mở rộng.', 'Quan hệ/sức khỏe: giao tiếp rộng nhưng giữ thời gian hồi phục.'],
+      '正财': ['Công việc: bền bỉ với quy trình sẽ tạo kết quả rõ.', 'Tài chính: thuận tích lũy, thu hồi và lập ngân sách.', 'Quan hệ/sức khỏe: giữ lời hứa nhỏ, duy trì lịch sinh hoạt.'],
+      '七杀': ['Công việc: áp lực và deadline cao, cần chia mốc kiểm soát.', 'Tài chính: không nhận rủi ro nếu nguồn thu chưa chắc.', 'Quan hệ/sức khỏe: giảm quá tải, xử lý sớm dấu hiệu kéo dài.'],
+      '正官': ['Công việc: thuận việc cần phê duyệt, hồ sơ và kỷ luật.', 'Tài chính: ưu tiên khoản chắc chắn, tránh đường tắt.', 'Quan hệ/sức khỏe: tôn trọng lịch hẹn và giờ nghỉ.'],
+      '偏印': ['Công việc: hợp nghiên cứu, học sâu và điều chỉnh chiến lược.', 'Tài chính: kiểm tra chi phí ẩn trước khi mua công cụ.', 'Quan hệ/sức khỏe: dành khoảng yên tĩnh, đừng tự cô lập.'],
+      '正印': ['Công việc: nên tìm người hướng dẫn và củng cố nền tảng.', 'Tài chính: giữ nhịp an toàn, ưu tiên quỹ dự phòng.', 'Quan hệ/sức khỏe: nhận hỗ trợ và chăm nếp sống đều.']
+    };
+    var guidance = godGuidance[monthGod] || ['Công việc: làm từng bước và kiểm tra dữ kiện.', 'Tài chính: chỉ cam kết trong khả năng kiểm soát.', 'Quan hệ/sức khỏe: giữ nhịp giao tiếp và nghỉ ngơi cân bằng.'];
+    var relationNote = natalRelations.length ? 'Với lá số gốc: ' + natalRelations.join(', ') + '.' : 'Với lá số gốc: chưa thấy quan hệ Hợp/Xung nổi bật.';
+    if (annualRelation) relationNote += ' Với lưu niên: ' + annualRelation + '.';
+    if (luckRelation) relationNote += ' Với Đại vận: ' + luckRelation + '.';
+    var rating = '★'.repeat(score) + '☆'.repeat(5 - score);
+    return '<details class="annual-month-card"><summary><strong>Tháng âm ' + (monthIndex + 1) + '</strong><span class="annual-month-pillar">' + monthPillar.char + ' (' + I18n.hanViet(monthPillar.char) + ') · ' + I18n.hanViet(monthGod) + '</span><span class="annual-month-rating">' + rating + ' · ' + tones[score - 1] + '</span></summary><div class="annual-month-body"><p>' + guidance[0] + '</p><p>' + guidance[1] + '</p><p>' + guidance[2] + '</p><p class="annual-month-basis"><strong>Căn cứ:</strong> Can ' + I18n.hanViet(stemElement) + ', Chi ' + I18n.hanViet(branchElement) + '. ' + relationNote + ' Trọng tâm năm: ' + theme[0].toLowerCase() + '.</p></div></details>';
   }
 
   function renderBaziOutlook(chart, birthYear, luck, annualYear, favorable, theme) {
@@ -304,7 +337,8 @@ const TianjiApp = (function () {
     html += '<div class="bazi-year-picker"><span class="picker-label">Năm xem:</span><button type="button" class="btn btn-secondary btn-sm bazi-year-option' + (annualYear === currentYear ? ' active' : '') + '" data-year="' + currentYear + '">Năm nay ' + currentYear + '</button><button type="button" class="btn btn-secondary btn-sm bazi-year-option' + (annualYear === currentYear + 1 ? ' active' : '') + '" data-year="' + (currentYear + 1) + '">Năm sau ' + (currentYear + 1) + '</button><input id="bazi-annual-year" type="number" min="1900" max="2100" value="' + annualYear + '"><button id="bazi-annual-apply" type="button" class="btn btn-primary btn-sm">Xem năm</button></div>';
     html += '<div class="annual-summary"><strong>' + annual.year + ' · ' + annual.char + ' (' + I18n.hanViet(annual.char) + ')</strong><br><span>Trọng tâm: ' + theme[0] + '.</span> ' + theme[1] + '<br><span>' + annualInfluence(chart, annual, favorable) + '</span></div>';
     html += '<div class="annual-months"><h4>Ghi chú đời thường từng tháng</h4><div class="annual-month-grid">';
-    for (var monthIndex = 0; monthIndex < 12; monthIndex++) html += baziMonthNote(chart, annualYear, monthIndex, favorable, theme);
+    var luckPillar = luck.pillars[baziLuckIndex];
+    for (var monthIndex = 0; monthIndex < 12; monthIndex++) html += baziMonthNote(chart, annual, luckPillar, annualYear, monthIndex, favorable, theme);
     html += '</div></div>';
     html += '<div class="luck-viewer"><h4>Xem các kỳ đại vận</h4><div class="luck-viewer-detail" id="bazi-luck-detail">' + renderLuckDetail(luck.pillars[baziLuckIndex], annualYear) + '</div></div></section>';
     return html;
