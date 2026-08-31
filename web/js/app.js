@@ -327,7 +327,7 @@ const TianjiApp = (function () {
     if (annualRelation) relationNote += ' Với lưu niên: ' + annualRelation + '.';
     if (luckRelation) relationNote += ' Với Đại vận: ' + luckRelation + '.';
     var rating = '★'.repeat(score) + '☆'.repeat(5 - score);
-    return '<details class="annual-month-card"><summary><strong>Tháng âm ' + (monthIndex + 1) + '</strong><span class="annual-month-pillar">' + monthPillar.char + ' (' + I18n.hanViet(monthPillar.char) + ') · ' + I18n.hanViet(monthGod) + '</span><span class="annual-month-rating">' + rating + ' · ' + tones[score - 1] + '</span></summary><div class="annual-month-body"><p>' + guidance[0] + '</p><p>' + guidance[1] + '</p><p>' + guidance[2] + '</p><p class="annual-month-basis"><strong>Căn cứ:</strong> Can ' + I18n.hanViet(stemElement) + ', Chi ' + I18n.hanViet(branchElement) + '. ' + relationNote + ' Trọng tâm năm: ' + theme[0].toLowerCase() + '.</p></div></details>';
+    return '<details class="annual-month-card"><summary><strong>Tháng âm ' + (monthIndex + 1) + '</strong><span class="annual-month-pillar">' + monthPillar.char + ' (' + I18n.hanViet(monthPillar.char) + ') · ' + I18n.hanViet(monthGod) + '</span><span class="annual-month-rating">' + rating + ' · ' + tones[score - 1] + '</span><span class="annual-month-preview">' + guidance[0] + '</span></summary><div class="annual-month-body"><p>' + guidance[0] + '</p><p>' + guidance[1] + '</p><p>' + guidance[2] + '</p><p class="annual-month-basis"><strong>Căn cứ:</strong> Can ' + I18n.hanViet(stemElement) + ', Chi ' + I18n.hanViet(branchElement) + '. ' + relationNote + ' Trọng tâm năm: ' + theme[0].toLowerCase() + '.</p></div></details>';
   }
 
   function renderBaziOutlook(chart, birthYear, luck, annualYear, favorable, theme) {
