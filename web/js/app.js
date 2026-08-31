@@ -104,12 +104,18 @@ const TianjiApp = (function () {
 
   function analyzeLiuyaoResult(result) {
     if (typeof LiuYao === 'undefined' || !result || !result.primaryHex) return null;
-    return LiuYao.analyze({
+    var castDate = result.castDate || new Date();
+    var calendar = typeof BaZi !== 'undefined' ? BaZi.createChart(
+      castDate.getFullYear(), castDate.getMonth() + 1, castDate.getDate(), castDate.getHours(), 'male'
+    ) : null;
+    var analysis = LiuYao.analyze({
       primary: LiuYao.getHexagramByNumber(result.primaryHex[0]),
       changed: result.changedHex ? LiuYao.getHexagramByNumber(result.changedHex[0]) : null,
       rawLines: result.rawLines,
       movingLines: result.movingPositions
-    });
+    }, calendar ? calendar.dayMasterElementIndex : 0);
+    analysis.calendar = calendar;
+    return analysis;
   }
 
   // Zi Wei palace names (order matches Python PALACE_NAMES)
@@ -165,7 +171,9 @@ const TianjiApp = (function () {
     var movingPos = mod(total, 6) + 1; // 1-6
     var upperCode = TRIGRAM_ORDER[upperIdx];
     var lowerCode = TRIGRAM_ORDER[lowerIdx];
-    return _buildCastResult('time', upperCode, lowerCode, movingPos);
+    var result = _buildCastResult('time', upperCode, lowerCode, movingPos);
+    result.castDate = new Date(dt.getTime());
+    return result;
   }
 
   function liuYaoCastByNumber(n1, n2, n3) {
@@ -1050,6 +1058,12 @@ const TianjiApp = (function () {
       var elementNames = { '木': 'Mộc', '火': 'Hỏa', '土': 'Thổ', '金': 'Kim', '水': 'Thủy' };
       html += '<section class="liuyao-analysis"><h3>Trang bị Lục Hào</h3>';
       html += '<p class="liuyao-analysis-note">Bảng tham chiếu giản lược: Thế–Ứng, nạp chi, Ngũ hành, Lục Thân và Lục Thú. Muốn luận vượng suy đầy đủ cần bổ sung nhật thần, nguyệt kiến và dụng thần.</p>';
+      if (structured.calendar) {
+        var dayPillar = structured.calendar.dayPillar;
+        var monthPillar = structured.calendar.monthPillar;
+        var cycleLabel = function (value) { return value.split('').map(function (char) { return I18n.hanViet(char); }).join(' '); };
+        html += '<div class="liuyao-calendar-context"><strong>Nhật thần:</strong> ' + dayPillar.char + ' (' + cycleLabel(dayPillar.char) + ') · <strong>Nguyệt kiến:</strong> ' + monthPillar.char + ' (' + cycleLabel(monthPillar.char) + ')</div>';
+      }
       html += '<div class="hex-lines-table"><table><thead><tr><th>Hào</th><th>Nạp chi</th><th>Ngũ hành</th><th>Lục Thân</th><th>Lục Thú</th><th>Vai trò</th><th>Trạng thái</th></tr></thead><tbody>';
       for (var ai = structured.lines.length - 1; ai >= 0; ai--) {
         var line = structured.lines[ai];
