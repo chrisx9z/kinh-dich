@@ -484,11 +484,21 @@ const LiuYao = (function () {
   /** conquers[i] = element conquered by i */
   var _CONQUERS = [2, 3, 4, 0, 1]; // 木克土, 火克金, 土克水, 金克木, 水克火
 
-  /**
-   * Standard branch assignment for yang/yin palace lines (bottom to top).
-   */
-  var YANG_PALACE_BRANCHES = ['子', '寅', '辰', '午', '申', '戌'];
-  var YIN_PALACE_BRANCHES  = ['丑', '亥', '酉', '未', '巳', '卯'];
+  var NAJIA_BRANCHES = {
+    7: ['子', '寅', '辰', '午', '申', '戌'],
+    0: ['未', '巳', '卯', '丑', '亥', '酉'],
+    4: ['子', '寅', '辰', '午', '申', '戌'],
+    3: ['丑', '亥', '酉', '未', '巳', '卯'],
+    2: ['寅', '辰', '午', '申', '戌', '子'],
+    5: ['卯', '丑', '亥', '酉', '未', '巳'],
+    1: ['辰', '午', '申', '戌', '子', '寅'],
+    6: ['巳', '卯', '丑', '亥', '酉', '未']
+  };
+
+  var NAJIA_STEMS = {
+    7: ['甲', '壬'], 0: ['乙', '癸'], 4: ['庚', '庚'], 3: ['辛', '辛'],
+    2: ['戊', '戊'], 5: ['己', '己'], 1: ['丙', '丙'], 6: ['丁', '丁']
+  };
 
   var BRANCH_ELEMENT = {
     '子': 4, '丑': 2, '寅': 0, '卯': 0, '辰': 2, '巳': 1,
@@ -508,6 +518,17 @@ const LiuYao = (function () {
     if (_CONQUERS[palaceEl] === lineEl) return '妻财';
     if (_CONQUERS[lineEl] === palaceEl) return '官鬼';
     return '兄弟'; // fallback
+  }
+
+  function _getNajia(hex) {
+    var lowerBranches = NAJIA_BRANCHES[hex.lowerCode] || NAJIA_BRANCHES[0];
+    var upperBranches = NAJIA_BRANCHES[hex.upperCode] || NAJIA_BRANCHES[0];
+    var lowerStem = (NAJIA_STEMS[hex.lowerCode] || ['乙', '癸'])[0];
+    var upperStem = (NAJIA_STEMS[hex.upperCode] || ['乙', '癸'])[1];
+    return {
+      branches: lowerBranches.slice(0, 3).concat(upperBranches.slice(3, 6)),
+      stems: [lowerStem, lowerStem, lowerStem, upperStem, upperStem, upperStem]
+    };
   }
 
   /**
@@ -538,6 +559,7 @@ const LiuYao = (function () {
 
     // Six Gods starting position
     var godStart = ELEMENT_GOD_START[dayStemElement] || 0;
+    var najia = _getNajia(hex);
 
     var LINE_NAMES = ['初', '二', '三', '四', '五', '上'];
     var lines = [];
@@ -548,8 +570,7 @@ const LiuYao = (function () {
       var isYang = (raw === 7 || raw === 9 || raw === 1);
       var isMoving = (movingLines.indexOf(pos) !== -1);
 
-      // Line element (simplified: use yang palace branches)
-      var branch = YANG_PALACE_BRANCHES[i];
+      var branch = najia.branches[i];
       var lineEl = BRANCH_ELEMENT[branch];
 
       var sixRelative = _getSixRelative(lineEl, palaceEl);
@@ -558,6 +579,7 @@ const LiuYao = (function () {
       lines.push({
         position: pos,
         name: LINE_NAMES[i],
+        stem: najia.stems[i],
         branch: branch,
         isYang: isYang,
         isMoving: isMoving,
@@ -610,6 +632,8 @@ const LiuYao = (function () {
 
     // Constants
     ELEMENT_NAMES: ELEMENT_NAMES,
-    PALACE_ELEMENT_MAP: PALACE_ELEMENT_MAP
+    PALACE_ELEMENT_MAP: PALACE_ELEMENT_MAP,
+    NAJIA_BRANCHES: NAJIA_BRANCHES,
+    NAJIA_STEMS: NAJIA_STEMS
   };
 })();

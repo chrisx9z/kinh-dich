@@ -1080,7 +1080,7 @@ const TianjiApp = (function () {
       var godNames = { '青龙': 'Thanh Long', '朱雀': 'Chu Tước', '勾陈': 'Câu Trần', '腾蛇': 'Đằng Xà', '白虎': 'Bạch Hổ', '玄武': 'Huyền Vũ' };
       var elementNames = { '木': 'Mộc', '火': 'Hỏa', '土': 'Thổ', '金': 'Kim', '水': 'Thủy' };
       html += '<section class="liuyao-analysis"><h3>Trang bị Lục Hào</h3>';
-      html += '<p class="liuyao-analysis-note">Bảng tham chiếu giản lược: Thế–Ứng, nạp chi, Ngũ hành, Lục Thân và Lục Thú. Muốn luận vượng suy đầy đủ cần bổ sung nhật thần, nguyệt kiến và dụng thần.</p>';
+      html += '<p class="liuyao-analysis-note">Bảng nạp giáp: Thế–Ứng, Can–Chi, Ngũ hành, Lục Thân và Lục Thú. Dấu hiệu thời khí là lớp tham chiếu; luận đầy đủ vẫn cần xét dụng thần và quan hệ động–biến.</p>';
       if (structured.calendar) {
         var dayPillar = structured.calendar.dayPillar;
         var monthPillar = structured.calendar.monthPillar;
@@ -1089,14 +1089,14 @@ const TianjiApp = (function () {
         var voidBranches = [mod(xunStart + 10, 12), mod(xunStart + 11, 12)].map(function (idx) { return BRANCHES[idx]; });
         html += '<div class="liuyao-calendar-context"><strong>Nhật thần:</strong> ' + dayPillar.char + ' (' + cycleLabel(dayPillar.char) + ') · <strong>Nguyệt kiến:</strong> ' + monthPillar.char + ' (' + cycleLabel(monthPillar.char) + ') · <strong>Tuần không:</strong> ' + voidBranches.join('、') + '</div>';
       }
-      html += '<div class="hex-lines-table"><table><thead><tr><th>Hào</th><th>Nạp chi</th><th>Ngũ hành</th><th>Lục Thân</th><th>Lục Thú</th><th>Vai trò</th><th>Trạng thái</th><th>Thời khí</th></tr></thead><tbody>';
+      html += '<div class="hex-lines-table"><table><thead><tr><th>Hào</th><th>Nạp giáp</th><th>Ngũ hành</th><th>Lục Thân</th><th>Lục Thú</th><th>Vai trò</th><th>Trạng thái</th><th>Thời khí</th></tr></thead><tbody>';
       for (var ai = structured.lines.length - 1; ai >= 0; ai--) {
         var line = structured.lines[ai];
         var roles = [];
         if (line.isWorld) roles.push('Thế 世');
         if (line.isResponse) roles.push('Ứng 應');
         html += '<tr' + (line.isMoving ? ' class="moving-row"' : '') + '><td>' + I18n.hanViet(line.name) + ' hào</td>';
-        html += '<td>' + I18n.hanViet(line.branch) + '</td><td>' + (elementNames[line.element] || line.element) + '</td>';
+        html += '<td>' + line.stem + line.branch + ' (' + I18n.hanViet(line.stem) + ' ' + I18n.hanViet(line.branch) + ')</td><td>' + (elementNames[line.element] || line.element) + '</td>';
         html += '<td>' + (relativeNames[line.sixRelative] || line.sixRelative) + '</td><td>' + (godNames[line.sixGod] || line.sixGod) + '</td>';
         html += '<td>' + (roles.length ? roles.join(' / ') : '—') + '</td><td>' + (line.isMoving ? 'Động' : 'Tĩnh') + '</td><td class="liuyao-time-state">' + liuyaoTimeStates(line, structured.calendar).join(' · ') + '</td></tr>';
       }
