@@ -831,6 +831,10 @@ const TianjiApp = (function () {
     });
     html += '</div></div>';
 
+    html += '<section class="hex-interpretation everyday-reading"><h3>Cách hiểu đời thường</h3>';
+    html += baziPlainLanguageReading(chart, strength, elements, favorable, rels, pattern);
+    html += '<p class="interpretation-note">Gợi ý mang tính tham khảo; hãy đối chiếu với hoàn cảnh, sức khỏe và kế hoạch thực tế.</p></section>';
+
     resultArea.innerHTML = html;
     I18n.localizeDocument(resultArea);
 
@@ -890,6 +894,63 @@ const TianjiApp = (function () {
       text += '<br><strong>Ví dụ áp dụng:</strong> Hãy chọn một việc cụ thể đang khiến bạn băn khoăn, xác định phần đang đổi ở trên, rồi thực hiện một bước nhỏ theo hướng quẻ biến trong hôm nay.';
     }
     return text;
+  }
+
+  function baziPlainLanguageReading(chart, strength, elements, favorable, relationships, pattern) {
+    var elementNames = { '木': 'Mộc', '火': 'Hỏa', '土': 'Thổ', '金': 'Kim', '水': 'Thủy' };
+    var elementActions = {
+      '木': 'học thêm, mở rộng quan hệ và bắt đầu việc có thể phát triển dần',
+      '火': 'trình bày, giao tiếp và đưa sản phẩm hoặc ý tưởng ra ánh sáng',
+      '土': 'lập quy trình, giữ cam kết và củng cố nền tảng tài chính',
+      '金': 'dùng số liệu, công cụ và nguyên tắc để giảm sai sót',
+      '水': 'giữ nhịp linh hoạt, nghỉ ngơi đủ và trao đổi trước khi chốt việc'
+    };
+    var dm = elementNames[chart.dayMasterElement] || I18n.hanViet(chart.dayMasterElement || '');
+    var level = I18n.hanViet(strength.level || '');
+    var direction = strength.isStrong
+      ? 'Bạn có xu hướng tự gánh và thúc việc; nên chọn một ưu tiên chính, giao bớt phần phụ và tránh nhận quá nhiều cam kết cùng lúc.'
+      : 'Bạn nên chia mục tiêu thành bước nhỏ, chủ động tìm người hỗ trợ và giữ lịch sinh hoạt đều trước khi mở rộng việc.';
+    var useful = (favorable.favorable || []).map(function (item) {
+      return I18n.hanViet(item);
+    });
+    var usefulActions = (favorable.favorable || []).map(function (item) {
+      var key = item.charAt(0);
+      return elementActions[key];
+    }).filter(Boolean);
+    var missing = (elements.missing || []).map(function (idx) {
+      var key = ['木', '火', '土', '金', '水'][idx];
+      return elementNames[key] || key;
+    });
+    var relationTip = relationships.length
+      ? 'Khi phối hợp với người khác, hãy xác nhận rõ vai trò, thời hạn và điều khoản bằng văn bản.'
+      : 'Quan hệ hiện không có điểm xung nổi bật; duy trì giao tiếp đều và đừng để việc nhỏ tồn đọng.';
+    var patternName = I18n.hanViet(pattern.pattern || '');
+    var html = '<p>Nhật chủ ' + dm + ', trạng thái ' + level + '. Hiểu đơn giản, đây là cách bạn đang phân bổ năng lượng trong công việc và đời sống; không phải kết luận cố định.</p>';
+    html += '<ul><li><strong>Việc nên làm:</strong> ' + direction + '</li>';
+    html += '<li><strong>Hướng ưu tiên:</strong> ' + (useful.length ? useful.join('、') + '. ' + usefulActions.join('; ') + '.' : 'giữ nhịp ổn định, hoàn thành việc đang dang dở trước khi mở thêm mục tiêu.') + '</li>';
+    if (missing.length) html += '<li><strong>Điểm cần bù:</strong> ' + missing.join('、') + '; hãy tạo thói quen hoặc môi trường mang tính chất này thay vì chờ cảm hứng.</li>';
+    html += '<li><strong>Quan hệ và phối hợp:</strong> ' + relationTip + '</li></ul>';
+    html += '<p><strong>Cách áp dụng tuần này:</strong> chọn một việc gắn với cách cục ' + patternName + ', đặt hạn hoàn thành cụ thể và xem lại kết quả sau 7 ngày.</p>';
+    return html;
+  }
+
+  function ziweiPlainLanguageReading(chart) {
+    var byName = {};
+    chart.palaces.forEach(function (palace) { byName[palace.name] = palace; });
+    var life = byName['命宫'];
+    var career = byName['官禄宫'];
+    var wealth = byName['财帛宫'];
+    var health = byName['疾厄宫'];
+    function stars(palace) {
+      return palace && palace.stars.length ? palace.stars.map(function (star) { return I18n.hanViet(star); }).join(', ') : 'chưa có chính tinh';
+    }
+    var html = '<p>Phần này đọc lá số theo ngôn ngữ đời thường: Cung Mệnh nói về cách bạn tự vận hành, Cung Quan Lộc về cách làm việc, Cung Tài Bạch về cách quản lý nguồn lực và Cung Tật Ách về nếp chăm sóc thân tâm.</p>';
+    html += '<ul><li><strong>Cách vận hành:</strong> Cung Mệnh (' + stars(life) + ') — chọn một vai trò phù hợp, đừng cố làm mọi việc cùng lúc.</li>';
+    html += '<li><strong>Công việc:</strong> Cung Quan Lộc (' + stars(career) + ') — ghi rõ mục tiêu tuần, người phụ trách và tiêu chí hoàn thành.</li>';
+    html += '<li><strong>Tài chính:</strong> Cung Tài Bạch (' + stars(wealth) + ') — tách tiền sinh hoạt, tiền dự phòng và tiền đầu tư; kiểm tra một lần mỗi tuần.</li>';
+    html += '<li><strong>Sức khỏe:</strong> Cung Tật Ách (' + stars(health) + ') — giữ giờ ngủ, vận động nhẹ và xử lý sớm dấu hiệu kéo dài.</li></ul>';
+    html += '<p><strong>Cách áp dụng:</strong> chọn một mục tiêu 30 ngày, chia thành bốn mốc tuần và điều chỉnh theo dữ kiện thực tế thay vì xem đây là định mệnh.</p>';
+    return html;
   }
 
   function renderLiuyaoResult(result) {
@@ -1099,6 +1160,10 @@ const TianjiApp = (function () {
       }
     }
     html += '</div>';
+
+    html += '<section class="hex-interpretation everyday-reading"><h3>Cách hiểu đời thường</h3>';
+    html += ziweiPlainLanguageReading(chart);
+    html += '<p class="interpretation-note">Gợi ý mang tính tham khảo văn hóa; không thay thế tư vấn chuyên môn.</p></section>';
 
     area.innerHTML = html;
     I18n.localizeDocument(area);
