@@ -102,6 +102,16 @@ const TianjiApp = (function () {
     };
   }
 
+  function analyzeLiuyaoResult(result) {
+    if (typeof LiuYao === 'undefined' || !result || !result.primaryHex) return null;
+    return LiuYao.analyze({
+      primary: LiuYao.getHexagramByNumber(result.primaryHex[0]),
+      changed: result.changedHex ? LiuYao.getHexagramByNumber(result.changedHex[0]) : null,
+      rawLines: result.rawLines,
+      movingLines: result.movingPositions
+    });
+  }
+
   // Zi Wei palace names (order matches Python PALACE_NAMES)
   const ZW_PALACES = [
     '命宫','兄弟宫','夫妻宫','子女宫','财帛宫','疾厄宫',
@@ -1032,6 +1042,27 @@ const TianjiApp = (function () {
       html += '</tr>';
     }
     html += '</tbody></table></div>';
+
+    var structured = analyzeLiuyaoResult(result);
+    if (structured) {
+      var relativeNames = { '兄弟': 'Huynh đệ', '子孙': 'Tử tôn', '父母': 'Phụ mẫu', '妻财': 'Thê tài', '官鬼': 'Quan quỷ' };
+      var godNames = { '青龙': 'Thanh Long', '朱雀': 'Chu Tước', '勾陈': 'Câu Trần', '腾蛇': 'Đằng Xà', '白虎': 'Bạch Hổ', '玄武': 'Huyền Vũ' };
+      var elementNames = { '木': 'Mộc', '火': 'Hỏa', '土': 'Thổ', '金': 'Kim', '水': 'Thủy' };
+      html += '<section class="liuyao-analysis"><h3>Trang bị Lục Hào</h3>';
+      html += '<p class="liuyao-analysis-note">Bảng tham chiếu giản lược: Thế–Ứng, nạp chi, Ngũ hành, Lục Thân và Lục Thú. Muốn luận vượng suy đầy đủ cần bổ sung nhật thần, nguyệt kiến và dụng thần.</p>';
+      html += '<div class="hex-lines-table"><table><thead><tr><th>Hào</th><th>Nạp chi</th><th>Ngũ hành</th><th>Lục Thân</th><th>Lục Thú</th><th>Vai trò</th><th>Trạng thái</th></tr></thead><tbody>';
+      for (var ai = structured.lines.length - 1; ai >= 0; ai--) {
+        var line = structured.lines[ai];
+        var roles = [];
+        if (line.isWorld) roles.push('Thế 世');
+        if (line.isResponse) roles.push('Ứng 應');
+        html += '<tr' + (line.isMoving ? ' class="moving-row"' : '') + '><td>' + I18n.hanViet(line.name) + ' hào</td>';
+        html += '<td>' + I18n.hanViet(line.branch) + '</td><td>' + (elementNames[line.element] || line.element) + '</td>';
+        html += '<td>' + (relativeNames[line.sixRelative] || line.sixRelative) + '</td><td>' + (godNames[line.sixGod] || line.sixGod) + '</td>';
+        html += '<td>' + (roles.length ? roles.join(' / ') : '—') + '</td><td>' + (line.isMoving ? 'Động' : 'Tĩnh') + '</td></tr>';
+      }
+      html += '</tbody></table></div></section>';
+    }
 
     var movingNames = result.movingPositions.map(function (p) {
       return ['Sơ', 'Nhị', 'Tam', 'Tứ', 'Ngũ', 'Thượng'][p - 1] + ' hào';

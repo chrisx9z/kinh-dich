@@ -1220,6 +1220,11 @@ input[type="number"]::-webkit-outer-spin-button {
   font-weight: 600;
 }
 
+.liuyao-analysis { margin-top: var(--space-xl); padding: var(--space-lg); background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.liuyao-analysis h3 { margin: 0 0 var(--space-sm); color: var(--color-gold); }
+.liuyao-analysis-note { margin: 0 0 var(--space-md); color: var(--color-text-muted); line-height: 1.6; }
+.liuyao-analysis .hex-lines-table { margin-bottom: 0; }
+
 
 /* ============================================================
    17. Zi Wei Dou Shu 12-Palace Grid

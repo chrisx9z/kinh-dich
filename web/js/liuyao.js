@@ -558,6 +558,7 @@ const LiuYao = (function () {
       lines.push({
         position: pos,
         name: LINE_NAMES[i],
+        branch: branch,
         isYang: isYang,
         isMoving: isMoving,
         element: ELEMENT_NAMES[lineEl],
@@ -570,6 +571,7 @@ const LiuYao = (function () {
 
     return {
       hexagram: hex,
+      palaceElement: palaceElName,
       worldLine: worldLine,
       responseLine: responseLine,
       lines: lines,
