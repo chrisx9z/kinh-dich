@@ -141,6 +141,13 @@ const TianjiApp = (function () {
     return states.length ? states : ['Bình hòa'];
   }
 
+  function liuyaoLineStrength(line, calendar) {
+    var states = liuyaoTimeStates(line, calendar);
+    var weights = { 'Đồng khí': 2, 'Được sinh': 2, 'Tiết khí': -1, 'Bị khắc': -2, 'Khắc tháng': -2, 'Nguyệt phá': -2, 'Nhật xung': -1, 'Tuần không': -1, 'Bình hòa': 0 };
+    var score = states.reduce(function (total, state) { return total + (weights[state] || 0); }, 0);
+    return { score: score, label: score >= 2 ? 'Vượng' : (score <= -2 ? 'Suy' : 'Bình'), className: score >= 2 ? 'strong' : (score <= -2 ? 'weak' : 'neutral') };
+  }
+
   // Zi Wei palace names (order matches Python PALACE_NAMES)
   const ZW_PALACES = [
     '命宫','兄弟宫','夫妻宫','子女宫','财帛宫','疾厄宫',
@@ -1244,6 +1251,9 @@ const TianjiApp = (function () {
         var voidBranches = [mod(xunStart + 10, 12), mod(xunStart + 11, 12)].map(function (idx) { return BRANCHES[idx]; });
         html += '<div class="liuyao-calendar-context"><strong>Nhật thần:</strong> ' + dayPillar.char + ' (' + cycleLabel(dayPillar.char) + ') · <strong>Nguyệt kiến:</strong> ' + monthPillar.char + ' (' + cycleLabel(monthPillar.char) + ') · <strong>Tuần không:</strong> ' + voidBranches.join('、') + '</div>';
       }
+      var strengthCounts = { strong: 0, neutral: 0, weak: 0 };
+      structured.lines.forEach(function (line) { strengthCounts[liuyaoLineStrength(line, structured.calendar).className]++; });
+      html += '<div class="liuyao-strength-context"><strong>Vượng suy tham chiếu:</strong> <span class="liuyao-strength-strong">Vượng ' + strengthCounts.strong + '</span> · <span class="liuyao-strength-neutral">Bình ' + strengthCounts.neutral + '</span> · <span class="liuyao-strength-weak">Suy ' + strengthCounts.weak + '</span><br><span>Điểm tổng hợp từ thời khí để chọn hào cần quan sát trước; không thay thế luận Thế–Ứng và Dụng thần.</span></div>';
       html += '<div class="hex-lines-table"><table><thead><tr><th>Hào</th><th>Nạp giáp</th><th>Ngũ hành</th><th>Lục Thân</th><th>Lục Thú</th><th>Vai trò</th><th>Trạng thái</th><th>Thời khí</th></tr></thead><tbody>';
       for (var ai = structured.lines.length - 1; ai >= 0; ai--) {
         var line = structured.lines[ai];
@@ -1255,13 +1265,14 @@ const TianjiApp = (function () {
           roles.push('Dụng thần');
           topicLineCount++;
         }
+        var lineStrength = liuyaoLineStrength(line, structured.calendar);
         var rowClasses = [];
         if (line.isMoving) rowClasses.push('moving-row');
         if (isTopicLine) rowClasses.push('topic-line');
         html += '<tr' + (rowClasses.length ? ' class="' + rowClasses.join(' ') + '"' : '') + '><td>' + I18n.hanViet(line.name) + ' hào</td>';
         html += '<td>' + line.stem + line.branch + ' (' + I18n.hanViet(line.stem) + ' ' + I18n.hanViet(line.branch) + ')</td><td>' + (elementNames[line.element] || line.element) + '</td>';
         html += '<td>' + (relativeNames[line.sixRelative] || line.sixRelative) + '</td><td>' + (godNames[line.sixGod] || line.sixGod) + '</td>';
-        html += '<td>' + (roles.length ? roles.join(' / ') : '—') + '</td><td>' + (line.isMoving ? 'Động' : 'Tĩnh') + '</td><td class="liuyao-time-state">' + liuyaoTimeStates(line, structured.calendar).join(' · ') + '</td></tr>';
+        html += '<td>' + (roles.length ? roles.join(' / ') : '—') + '</td><td>' + (line.isMoving ? 'Động' : 'Tĩnh') + '</td><td class="liuyao-time-state">' + liuyaoTimeStates(line, structured.calendar).join(' · ') + ' · <strong class="liuyao-strength-' + lineStrength.className + '">' + lineStrength.label + '</strong></td></tr>';
       }
       if (!topicLineCount && topicConfig.relative) html += '<tr class="topic-empty"><td colspan="8">Chưa có hào ' + topicConfig.vi.toLowerCase() + '; hãy xem Thế–Ứng và hào động trước.</td></tr>';
       html += '</tbody></table></div></section>';
