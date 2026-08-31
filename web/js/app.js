@@ -157,6 +157,7 @@ const TianjiApp = (function () {
   // -----------------------------------------------------------------------
   let activeTab = 'bazi';
   let darkTheme = false;
+  let lastLiuyaoResult = null;
 
   // -----------------------------------------------------------------------
   //  Helpers
@@ -916,7 +917,20 @@ const TianjiApp = (function () {
       result = liuYaoCastByCoin();
     }
 
+    lastLiuyaoResult = result;
     renderLiuyaoResult(result);
+  }
+
+  function liuyaoTopicConfig(topic) {
+    var configs = {
+      general: { label: 'Tổng quan', relative: null, vi: 'Thế–Ứng' },
+      career: { label: 'Công việc', relative: '官鬼', vi: 'Quan quỷ' },
+      finance: { label: 'Tài chính', relative: '妻财', vi: 'Thê tài' },
+      relationship: { label: 'Tình cảm', relative: null, vi: 'Thế–Ứng' },
+      health: { label: 'Sức khỏe', relative: '官鬼', vi: 'Quan quỷ' },
+      study: { label: 'Học tập', relative: '父母', vi: 'Phụ mẫu' }
+    };
+    return configs[topic] || configs.general;
   }
 
   function plainLanguageReading(primary, changed, movingNames) {
@@ -1079,8 +1093,11 @@ const TianjiApp = (function () {
       var relativeNames = { '兄弟': 'Huynh đệ', '子孙': 'Tử tôn', '父母': 'Phụ mẫu', '妻财': 'Thê tài', '官鬼': 'Quan quỷ' };
       var godNames = { '青龙': 'Thanh Long', '朱雀': 'Chu Tước', '勾陈': 'Câu Trần', '腾蛇': 'Đằng Xà', '白虎': 'Bạch Hổ', '玄武': 'Huyền Vũ' };
       var elementNames = { '木': 'Mộc', '火': 'Hỏa', '土': 'Thổ', '金': 'Kim', '水': 'Thủy' };
+      var topicConfig = liuyaoTopicConfig($('liuyao-topic') ? $('liuyao-topic').value : 'general');
+      var topicLineCount = 0;
       html += '<section class="liuyao-analysis"><h3>Trang bị Lục Hào</h3>';
       html += '<p class="liuyao-analysis-note">Bảng nạp giáp: Thế–Ứng, Can–Chi, Ngũ hành, Lục Thân và Lục Thú. Dấu hiệu thời khí là lớp tham chiếu; luận đầy đủ vẫn cần xét dụng thần và quan hệ động–biến.</p>';
+      html += '<div class="liuyao-topic-context"><strong>Chủ đề:</strong> ' + topicConfig.label + ' · <strong>Dụng thần tham chiếu:</strong> ' + topicConfig.vi + '<br><span>Hào được đánh dấu “Dụng thần” là điểm nên quan sát trước; không phải kết luận tốt/xấu.</span></div>';
       if (structured.calendar) {
         var dayPillar = structured.calendar.dayPillar;
         var monthPillar = structured.calendar.monthPillar;
@@ -1095,11 +1112,20 @@ const TianjiApp = (function () {
         var roles = [];
         if (line.isWorld) roles.push('Thế 世');
         if (line.isResponse) roles.push('Ứng 應');
-        html += '<tr' + (line.isMoving ? ' class="moving-row"' : '') + '><td>' + I18n.hanViet(line.name) + ' hào</td>';
+        var isTopicLine = topicConfig.relative ? line.sixRelative === topicConfig.relative : (topicConfig.label === 'Tình cảm' ? (line.isWorld || line.isResponse) : false);
+        if (isTopicLine) {
+          roles.push('Dụng thần');
+          topicLineCount++;
+        }
+        var rowClasses = [];
+        if (line.isMoving) rowClasses.push('moving-row');
+        if (isTopicLine) rowClasses.push('topic-line');
+        html += '<tr' + (rowClasses.length ? ' class="' + rowClasses.join(' ') + '"' : '') + '><td>' + I18n.hanViet(line.name) + ' hào</td>';
         html += '<td>' + line.stem + line.branch + ' (' + I18n.hanViet(line.stem) + ' ' + I18n.hanViet(line.branch) + ')</td><td>' + (elementNames[line.element] || line.element) + '</td>';
         html += '<td>' + (relativeNames[line.sixRelative] || line.sixRelative) + '</td><td>' + (godNames[line.sixGod] || line.sixGod) + '</td>';
         html += '<td>' + (roles.length ? roles.join(' / ') : '—') + '</td><td>' + (line.isMoving ? 'Động' : 'Tĩnh') + '</td><td class="liuyao-time-state">' + liuyaoTimeStates(line, structured.calendar).join(' · ') + '</td></tr>';
       }
+      if (!topicLineCount && topicConfig.relative) html += '<tr class="topic-empty"><td colspan="8">Chưa có hào ' + topicConfig.vi.toLowerCase() + '; hãy xem Thế–Ứng và hào động trước.</td></tr>';
       html += '</tbody></table></div></section>';
     }
 
@@ -1477,6 +1503,9 @@ const TianjiApp = (function () {
       updateLiuyaoInputs();
     }
     if ($('liuyao-cast-btn')) $('liuyao-cast-btn').addEventListener('click', castLiuyao);
+    if ($('liuyao-topic')) $('liuyao-topic').addEventListener('change', function () {
+      if (lastLiuyaoResult) renderLiuyaoResult(lastLiuyaoResult);
+    });
 
     // Zi Wei real-time calculation
     ['ziwei-year','ziwei-month','ziwei-day','ziwei-hour'].forEach(function (id) {

@@ -1224,6 +1224,10 @@ input[type="number"]::-webkit-outer-spin-button {
 .liuyao-analysis h3 { margin: 0 0 var(--space-sm); color: var(--color-gold); }
 .liuyao-analysis-note { margin: 0 0 var(--space-md); color: var(--color-text-muted); line-height: 1.6; }
 .liuyao-calendar-context { margin-bottom: var(--space-md); padding: var(--space-sm) var(--space-md); background: var(--color-bg-raised); border-radius: var(--radius-sm); color: var(--color-text); line-height: 1.6; }
+.liuyao-topic-context { margin-bottom: var(--space-md); padding: var(--space-sm) var(--space-md); background: var(--color-bg-raised); border-radius: var(--radius-sm); color: var(--color-text); line-height: 1.6; }
+.liuyao-topic-context span { color: var(--color-text-muted); }
+.liuyao-analysis .topic-line td { box-shadow: inset 3px 0 0 var(--color-gold); color: var(--color-gold); font-weight: 600; }
+.liuyao-analysis .topic-empty td { color: var(--color-text-muted); font-style: italic; }
 .liuyao-time-state { white-space: nowrap; color: var(--color-text); }
 .liuyao-analysis .hex-lines-table { margin-bottom: 0; }
 
