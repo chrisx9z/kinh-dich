@@ -1458,6 +1458,12 @@ const TianjiApp = (function () {
       params.m = $('ziwei-month') ? $('ziwei-month').value : '';
       params.d = $('ziwei-day') ? $('ziwei-day').value : '';
       params.h = $('ziwei-hour') ? $('ziwei-hour').value : '12';
+    } else if (activeTab === 'liuyao') {
+      params.tab = 'liuyao';
+      params.rawLines = lastLiuyaoResult && lastLiuyaoResult.rawLines ? lastLiuyaoResult.rawLines.slice() : [];
+      params.topic = $('liuyao-topic') ? $('liuyao-topic').value : 'general';
+      params.question = encodeURIComponent(lastLiuyaoResult && lastLiuyaoResult.question ? lastLiuyaoResult.question : '');
+      params.castDate = lastLiuyaoResult && lastLiuyaoResult.castDate ? lastLiuyaoResult.castDate.toISOString() : '';
     }
     var encoded = btoa(JSON.stringify(params));
     return window.location.origin + window.location.pathname + '#' + encoded;
@@ -1513,6 +1519,19 @@ const TianjiApp = (function () {
         if (decoded.d && $('ziwei-day')) $('ziwei-day').value = decoded.d;
         if (decoded.h && $('ziwei-hour')) $('ziwei-hour').value = decoded.h;
         switchTab('ziwei');
+      } else if (decoded.tab === 'liuyao') {
+        var sharedLines = decoded.rawLines;
+        var validLines = Array.isArray(sharedLines) && sharedLines.length === 6 && sharedLines.every(function (value) { return Number.isInteger(value) && value >= 6 && value <= 9; });
+        if (!validLines) return;
+        if ($('liuyao-topic') && ['general', 'career', 'finance', 'relationship', 'health', 'study'].indexOf(decoded.topic) !== -1) $('liuyao-topic').value = decoded.topic;
+        if ($('liuyao-question')) {
+          try { $('liuyao-question').value = decodeURIComponent(decoded.question || '').slice(0, 500); } catch (questionError) { $('liuyao-question').value = ''; }
+        }
+        lastLiuyaoResult = _buildCoinResult(sharedLines);
+        lastLiuyaoResult.question = $('liuyao-question') ? $('liuyao-question').value : '';
+        if (decoded.castDate) lastLiuyaoResult.castDate = new Date(decoded.castDate);
+        switchTab('liuyao');
+        renderLiuyaoResult(lastLiuyaoResult);
       }
     } catch (e) {
       // Invalid hash -- ignore silently
