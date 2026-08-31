@@ -1510,6 +1510,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .annual-month-card { min-height: 76px; padding: var(--space-sm); background: var(--color-bg-raised); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); }
 .annual-month-card strong { display: block; margin-bottom: 4px; color: var(--color-gold); }
 .annual-month-card span { color: var(--color-text-muted); font-size: var(--font-size-sm); line-height: 1.45; }
+.annual-month-card .annual-month-pillar { display: block; margin-bottom: 4px; color: var(--color-jade); font-size: var(--font-size-xs); font-family: var(--font-heading); }
 .luck-viewer { margin-top: var(--space-lg); }
 .luck-viewer-detail { padding: var(--space-md); background: var(--color-bg-raised); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); color: var(--color-text); line-height: 1.7; }
 .luck-viewer-detail > span { color: var(--color-jade); }

@@ -261,15 +261,34 @@ const TianjiApp = (function () {
     return pillars.length - 1;
   }
 
-  function renderBaziOutlook(chart, birthYear, luck, annualYear) {
+  function baziMonthNote(chart, annualYear, monthIndex, favorable, theme) {
+    var monthDate = new Date(annualYear, monthIndex, 15);
+    var monthYear = BaZi.computeYearPillar(monthDate);
+    var monthPillar = BaZi.computeMonthPillar(monthDate, monthYear.stemIndex);
+    var element = STEM_ELEMENT[monthPillar.stemIndex];
+    var favorableElements = favorable.favorable || [];
+    var unfavorableElements = favorable.unfavorable || [];
+    var relation = '';
+    var hasClash = chart.pillars.some(function (pillar) { return mod(pillar.branchIndex - monthPillar.branchIndex, 12) === 6; });
+    var harmonyPairs = [['子','丑'],['寅','亥'],['卯','戌'],['辰','酉'],['巳','申'],['午','未']];
+    var hasHarmony = chart.pillars.some(function (pillar) { return mod(pillar.branchIndex - monthPillar.branchIndex, 12) === 0 || harmonyPairs.some(function (pair) { return pair.indexOf(pillar.branch) !== -1 && pair.indexOf(BRANCHES[monthPillar.branchIndex]) !== -1; }); });
+    if (hasClash) relation = 'Dễ có thay đổi hoặc va chạm lịch trình; chừa thời gian dự phòng.';
+    else if (hasHarmony) relation = 'Thuận cho phối hợp và nhờ hỗ trợ; nên chốt việc bằng văn bản.';
+    else relation = 'Giữ nhịp đều, kiểm tra tiến độ giữa tháng rồi mới mở rộng.';
+    var elementNote = favorableElements.indexOf(element) !== -1
+      ? 'Ngũ hành ' + I18n.hanViet(element) + ' đang hỗ trợ dụng thần của lá số, phù hợp để chủ động tiến một bước.'
+      : (unfavorableElements.indexOf(element) !== -1 ? 'Ngũ hành ' + I18n.hanViet(element) + ' thuộc nhóm cần tiết chế, nên giảm cam kết và rà soát sức khỏe, chi phí.' : 'Ngũ hành ' + I18n.hanViet(element) + ' ở mức trung tính, ưu tiên quan sát dữ kiện trước khi quyết định.');
+    var focus = ['Rà soát mục tiêu và ngân sách.', 'Trao đổi rõ vai trò, tránh hứa quá tay.', 'Học một kỹ năng hỗ trợ mục tiêu chính.', 'Hoàn thiện hồ sơ, quy trình hoặc sản phẩm.', 'Kiểm tra sức khỏe và nhịp nghỉ ngơi.', 'Đánh giá tiến độ giữa năm, bỏ việc ít hiệu quả.', 'Mở rộng hợp tác nhưng giữ điều khoản rõ.', 'Ưu tiên việc tồn đọng và xử lý giấy tờ.', 'Đặt lại giới hạn chi tiêu và thời gian.', 'Chia sẻ kết quả, nhận phản hồi có chọn lọc.', 'Chuẩn bị kế hoạch kết thúc hoặc bàn giao.', 'Tổng kết dữ kiện, chọn một hướng cho năm tới.'][monthIndex];
+    return '<div class="annual-month-card"><strong>Tháng ' + (monthIndex + 1) + '</strong><span class="annual-month-pillar">' + monthPillar.char + ' (' + I18n.hanViet(monthPillar.char) + ')</span><span>' + focus + ' ' + elementNote + ' ' + relation + ' Trọng tâm năm: ' + theme[0].toLowerCase() + '.</span></div>';
+  }
+
+  function renderBaziOutlook(chart, birthYear, luck, annualYear, favorable, theme) {
     var annual = BaZi.computeFlowYears(chart, annualYear, 1)[0];
-    var theme = annualTheme(annual);
-    var monthFocus = ['Rà soát mục tiêu và ngân sách.', 'Trao đổi rõ vai trò, tránh hứa quá tay.', 'Học một kỹ năng hỗ trợ mục tiêu chính.', 'Hoàn thiện hồ sơ, quy trình hoặc sản phẩm.', 'Kiểm tra sức khỏe và nhịp nghỉ ngơi.', 'Đánh giá tiến độ giữa năm, bỏ việc ít hiệu quả.', 'Mở rộng hợp tác nhưng giữ điều khoản rõ.', 'Ưu tiên việc tồn đọng và xử lý giấy tờ.', 'Đặt lại giới hạn chi tiêu và thời gian.', 'Chia sẻ kết quả, nhận phản hồi có chọn lọc.', 'Chuẩn bị kế hoạch kết thúc hoặc bàn giao.', 'Tổng kết dữ kiện, chọn một hướng cho năm tới.'];
     var html = '<section class="bazi-outlook-section"><div class="outlook-header"><div><h3>Tử vi theo năm</h3><p class="outlook-hint">Góc tham khảo lưu niên từ lá số Bát Tự, ưu tiên cách áp dụng đời thường.</p></div><button id="bazi-open-ziwei" type="button" class="btn btn-secondary btn-sm">Mở lá số Tử Vi</button></div>';
     html += '<div class="bazi-year-picker"><span class="picker-label">Năm xem:</span><button type="button" class="btn btn-secondary btn-sm bazi-year-option' + (annualYear === birthYear ? ' active' : '') + '" data-year="' + birthYear + '">Năm sinh ' + birthYear + '</button><button type="button" class="btn btn-secondary btn-sm bazi-year-option' + (annualYear === birthYear + 1 ? ' active' : '') + '" data-year="' + (birthYear + 1) + '">Năm sau ' + (birthYear + 1) + '</button><input id="bazi-annual-year" type="number" min="1900" max="2100" value="' + annualYear + '"><button id="bazi-annual-apply" type="button" class="btn btn-primary btn-sm">Xem năm</button></div>';
     html += '<div class="annual-summary"><strong>' + annual.year + ' · ' + annual.char + ' (' + I18n.hanViet(annual.char) + ')</strong><br><span>Trọng tâm: ' + theme[0] + '.</span> ' + theme[1] + '</div>';
     html += '<div class="annual-months"><h4>Ghi chú đời thường từng tháng</h4><div class="annual-month-grid">';
-    monthFocus.forEach(function (note, index) { html += '<div class="annual-month-card"><strong>Tháng ' + (index + 1) + '</strong><span>' + note + '</span></div>'; });
+    for (var monthIndex = 0; monthIndex < 12; monthIndex++) html += baziMonthNote(chart, annualYear, monthIndex, favorable, theme);
     html += '</div></div>';
     html += '<div class="luck-viewer"><h4>Xem các kỳ đại vận</h4><div class="luck-viewer-detail" id="bazi-luck-detail">' + renderLuckDetail(luck.pillars[baziLuckIndex], annualYear) + '</div></div></section>';
     return html;
@@ -970,7 +989,7 @@ const TianjiApp = (function () {
     });
     html += '</div></div>';
 
-    html += renderBaziOutlook(chart, year, luck, baziAnnualYear);
+    html += renderBaziOutlook(chart, year, luck, baziAnnualYear, favorable, annualTheme(BaZi.computeFlowYears(chart, baziAnnualYear, 1)[0]));
 
     html += '<section class="hex-interpretation everyday-reading"><h3>Cách hiểu đời thường</h3>';
     html += '<div class="result-actions"><button id="copy-bazi-result" type="button" class="btn btn-secondary btn-sm">Sao chép kết quả</button><button id="download-bazi-result" type="button" class="btn btn-secondary btn-sm">Tải TXT</button></div>';
