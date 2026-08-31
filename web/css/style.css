@@ -2258,7 +2258,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .zodiac-pair { margin-top: 7px; }
 .hidden-pair { margin: 0 3px 4px; vertical-align: top; }
 
-.hex-interpretation { margin-top: var(--space-xl); padding: var(--space-lg); background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.hex-interpretation { margin-top: var(--space-xl); padding: var(--space-lg); background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); display: flex; flex-direction: column; }
 .hex-interpretation h3 { margin: 0 0 var(--space-md); color: var(--color-gold); }
 .interpretation-actions { display: flex; justify-content: flex-end; gap: var(--space-sm); margin: calc(var(--space-sm) * -1) 0 var(--space-sm); }
 .result-actions { display: flex; justify-content: flex-end; gap: var(--space-sm); margin: 0 0 var(--space-md); }
@@ -2281,6 +2281,20 @@ input[type="number"]::-webkit-outer-spin-button {
 .interpretation-block:last-of-type { border-bottom: 0; }
 .interpretation-block h4 { margin: 0 0 6px; color: var(--color-jade); }
 .interpretation-block p { margin: 0 0 6px; line-height: 1.7; }
+.interpretation-plain { order: 2; margin: 0 0 var(--space-sm); padding: var(--space-md) var(--space-lg); background: linear-gradient(135deg, rgba(212, 175, 55, 0.16), rgba(126, 206, 206, 0.08)); border: 1px solid var(--color-gold); border-radius: var(--radius-md); box-shadow: 0 0 22px rgba(212, 175, 55, 0.12); }
+.interpretation-plain h4 { font-size: var(--font-size-lg); color: var(--color-gold); }
+.interpretation-plain p { font-size: var(--font-size-base); line-height: 1.85; }
+.interpretation-topic { order: 3; }
+.hex-interpretation > h3 { order: 0; }
+.hex-interpretation > .interpretation-actions { order: 1; }
+.hex-interpretation > .interpretation-guide { order: 4; }
+.hex-interpretation > .interpretation-block:not(.interpretation-plain):not(.interpretation-topic) { order: 5; }
+.hex-interpretation > .interpretation-note { order: 6; }
+.everyday-reading { border: 2px solid var(--color-gold); background: linear-gradient(135deg, rgba(212, 175, 55, 0.13), var(--color-bg-card)); box-shadow: 0 0 26px rgba(212, 175, 55, 0.1); }
+.everyday-reading h3 { font-size: var(--font-size-xl); color: var(--color-gold); }
+.everyday-reading > p:first-of-type { font-size: var(--font-size-base); line-height: 1.8; }
+#bazi-result, #liuyao-result, #ziwei-result { display: flex; flex-direction: column; gap: var(--space-md); }
+#bazi-result > .everyday-reading, #ziwei-result > .everyday-reading, #liuyao-result > .hex-interpretation { order: -1; }
 .interpretation-note { margin: var(--space-md) 0 0; color: var(--color-text-muted); font-size: .86em; font-style: italic; }
 
 /* 强弱因素 */
