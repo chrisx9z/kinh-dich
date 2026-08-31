@@ -80,6 +80,28 @@ const TianjiApp = (function () {
   const HEX_BY_TRIGRAMS = {};
   HEX_DATA.forEach(function (h) { HEX_BY_TRIGRAMS[h[3] + ',' + h[4]] = h; });
 
+  function hexagramLines(hex) {
+    var lower = hex[4];
+    var upper = hex[3];
+    return [lower & 1, (lower >> 1) & 1, (lower >> 2) & 1, upper & 1, (upper >> 1) & 1, (upper >> 2) & 1];
+  }
+
+  function linesToHexagram(lines) {
+    var lower = lines[0] | (lines[1] << 1) | (lines[2] << 2);
+    var upper = lines[3] | (lines[4] << 1) | (lines[5] << 2);
+    return HEX_BY_TRIGRAMS[upper + ',' + lower] || HEX_DATA[0];
+  }
+
+  function hexagramRelations(hex) {
+    var lines = hexagramLines(hex);
+    return {
+      mutual: linesToHexagram([lines[1], lines[2], lines[3], lines[2], lines[3], lines[4]]),
+      opposite: linesToHexagram(lines.map(function (line) { return line ? 0 : 1; })),
+      inverse: linesToHexagram(lines.slice().reverse()),
+      exchange: linesToHexagram([lines[3], lines[4], lines[5], lines[0], lines[1], lines[2]])
+    };
+  }
+
   // Zi Wei palace names (order matches Python PALACE_NAMES)
   const ZW_PALACES = [
     '命宫','兄弟宫','夫妻宫','子女宫','财帛宫','疾厄宫',
@@ -893,6 +915,19 @@ const TianjiApp = (function () {
       html += '<div class="hex-desc">' + I18n.hexagramDescription(ch[0], ch[5]) + '</div></div>';
     }
     html += '</div>';
+
+    var relations = hexagramRelations(ph);
+    var relationCards = [
+      ['Hỗ quái (互卦)', relations.mutual, 'Nội tình và động lực ẩn bên trong sự việc.'],
+      ['Thác quái (錯卦)', relations.opposite, 'Mặt đối lập; điều cần nhìn từ phía ngược lại.'],
+      ['Tông quái (綜卦)', relations.inverse, 'Góc nhìn đảo chiều; xem sự việc từ phía bên kia.'],
+      ['Giao quái (交卦)', relations.exchange, 'Đổi vị trí Thượng quái và Hạ quái để thấy tương quan.']
+    ];
+    html += '<section class="hex-relations"><h3>Quan hệ quẻ</h3><p class="hex-relations-intro">Các quẻ phụ giúp mở rộng góc nhìn, không thay thế quẻ chủ và quẻ biến.</p><div class="hex-relations-grid">';
+    relationCards.forEach(function (card) {
+      html += '<div class="hex-relation-card"><h4>' + card[0] + '</h4><div class="hex-relation-symbol">' + card[1].symbol + '</div><div class="hex-relation-name">' + I18n.hexagramName(card[1].number, card[1].name) + ' (' + I18n.t('hexagram') + ' ' + card[1].number + ')</div><p>' + card[2] + '</p></div>';
+    });
+    html += '</div></section>';
 
     // SVG hexagram visualization
     html += '<div class="hex-visual">';

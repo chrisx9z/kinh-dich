@@ -196,6 +196,20 @@ const LiuYao = (function () {
     return getHexagramByTrigrams(upperCode, lowerCode);
   }
 
+  function hexagramRelations(hex) {
+    var lines = hexagramLines(hex);
+    var mutualLines = [lines[1], lines[2], lines[3], lines[2], lines[3], lines[4]];
+    var oppositeLines = lines.map(function (line) { return line ? 0 : 1; });
+    var inverseLines = lines.slice().reverse();
+    var exchangeLines = [lines[3], lines[4], lines[5], lines[0], lines[1], lines[2]];
+    return {
+      mutual: linesToHexagram(mutualLines),
+      opposite: linesToHexagram(oppositeLines),
+      inverse: linesToHexagram(inverseLines),
+      exchange: linesToHexagram(exchangeLines)
+    };
+  }
+
   // ════════════════════════════════════════════════════════════════
   //  Internal: convert raw lines to primary + changed hexagrams
   // ════════════════════════════════════════════════════════════════
@@ -580,6 +594,7 @@ const LiuYao = (function () {
     getHexagramByTrigrams: getHexagramByTrigrams,
     hexagramLines: hexagramLines,
     linesToHexagram: linesToHexagram,
+    hexagramRelations: hexagramRelations,
 
     // Casting 起卦
     castByTime: castByTime,

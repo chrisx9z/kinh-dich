@@ -2218,6 +2218,17 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .hex-interpretation { margin-top: var(--space-xl); padding: var(--space-lg); background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 .hex-interpretation h3 { margin: 0 0 var(--space-md); color: var(--color-gold); }
+.hex-relations { margin-top: var(--space-xl); padding: var(--space-lg); background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.hex-relations h3 { margin: 0 0 var(--space-sm); color: var(--color-gold); }
+.hex-relations-intro { margin: 0 0 var(--space-md); color: var(--color-text-muted); }
+.hex-relations-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-md); }
+.hex-relation-card { min-width: 0; padding: var(--space-md); text-align: center; background: var(--color-bg-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.hex-relation-card h4 { margin: 0 0 var(--space-sm); color: var(--color-jade); font-size: var(--font-size-sm); }
+.hex-relation-symbol { font-size: 2.4rem; line-height: 1.2; color: var(--color-gold); }
+.hex-relation-name { margin-top: var(--space-xs); font-weight: 600; color: var(--color-text); }
+.hex-relation-card p { margin: var(--space-sm) 0 0; color: var(--color-text-muted); font-size: var(--font-size-sm); line-height: 1.45; }
+@media (max-width: 900px) { .hex-relations-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .hex-relations-grid { grid-template-columns: 1fr; } }
 .interpretation-block { padding: var(--space-sm) 0; border-bottom: 1px solid var(--color-border-subtle); }
 .interpretation-block:last-of-type { border-bottom: 0; }
 .interpretation-block h4 { margin: 0 0 6px; color: var(--color-jade); }
