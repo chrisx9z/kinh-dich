@@ -158,6 +158,7 @@ const TianjiApp = (function () {
   let activeTab = 'bazi';
   let darkTheme = false;
   let lastLiuyaoResult = null;
+  let liuyaoHistory = loadLiuyaoHistory();
 
   // -----------------------------------------------------------------------
   //  Helpers
@@ -901,6 +902,75 @@ const TianjiApp = (function () {
     if (numInputs) numInputs.style.display = method === 'number' ? 'block' : 'none';
   }
 
+  function loadLiuyaoHistory() {
+    try {
+      var stored = JSON.parse(localStorage.getItem('tianji-liuyao-history') || '[]');
+      return Array.isArray(stored) ? stored.slice(0, 12) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveLiuyaoHistory() {
+    try {
+      localStorage.setItem('tianji-liuyao-history', JSON.stringify(liuyaoHistory.slice(0, 12)));
+    } catch (e) {}
+  }
+
+  function liuyaoHistoryEntry(result) {
+    var topic = $('liuyao-topic') ? $('liuyao-topic').value : 'general';
+    var method = $('liuyao-method') ? $('liuyao-method').value : 'time';
+    return {
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      topic: topic,
+      method: method,
+      castDate: result.castDate ? result.castDate.toISOString() : new Date().toISOString(),
+      primaryHex: result.primaryHex,
+      changedHex: result.changedHex,
+      rawLines: result.rawLines,
+      primaryLines: result.primaryLines,
+      changedLines: result.changedLines,
+      movingPositions: result.movingPositions
+    };
+  }
+
+  function renderLiuyaoHistory() {
+    var box = $('liuyao-history');
+    var list = $('liuyao-history-list');
+    if (!box || !list) return;
+    box.hidden = !liuyaoHistory.length;
+    if (!liuyaoHistory.length) {
+      list.innerHTML = '';
+      return;
+    }
+    var methodNames = { time: 'Theo thời gian', number: 'Theo số', coin: 'Ba đồng xu' };
+    list.innerHTML = liuyaoHistory.map(function (entry) {
+      var topicConfig = liuyaoTopicConfig(entry.topic);
+      var primaryName = entry.primaryHex ? I18n.hexagramName(entry.primaryHex[0], entry.primaryHex[1]) : 'Quẻ chưa xác định';
+      var changedName = entry.changedHex ? ' → ' + I18n.hexagramName(entry.changedHex[0], entry.changedHex[1]) : '';
+      var date = new Date(entry.createdAt);
+      var dateText = isNaN(date.getTime()) ? '' : date.toLocaleString('vi-VN');
+      return '<button type="button" class="liuyao-history-item" data-history-id="' + entry.id + '"><strong>' + primaryName + changedName + '</strong><span>' + topicConfig.label + ' · ' + (methodNames[entry.method] || 'Gieo quẻ') + (dateText ? ' · ' + dateText : '') + '</span></button>';
+    }).join('');
+  }
+
+  function restoreLiuyaoHistory(id) {
+    var entry = liuyaoHistory.filter(function (item) { return String(item.id) === String(id); })[0];
+    if (!entry) return;
+    if ($('liuyao-topic')) $('liuyao-topic').value = entry.topic || 'general';
+    lastLiuyaoResult = {
+      rawLines: entry.rawLines,
+      primaryLines: entry.primaryLines,
+      changedLines: entry.changedLines,
+      movingPositions: entry.movingPositions || [],
+      primaryHex: entry.primaryHex,
+      changedHex: entry.changedHex
+    };
+    if (entry.castDate) lastLiuyaoResult.castDate = new Date(entry.castDate);
+    renderLiuyaoResult(lastLiuyaoResult);
+  }
+
   function castLiuyao() {
     var method = $('liuyao-method') ? $('liuyao-method').value : 'time';
     var result;
@@ -918,6 +988,10 @@ const TianjiApp = (function () {
     }
 
     lastLiuyaoResult = result;
+    liuyaoHistory.unshift(liuyaoHistoryEntry(result));
+    liuyaoHistory = liuyaoHistory.slice(0, 12);
+    saveLiuyaoHistory();
+    renderLiuyaoHistory();
     renderLiuyaoResult(result);
   }
 
@@ -1561,6 +1635,16 @@ const TianjiApp = (function () {
     if ($('liuyao-cast-btn')) $('liuyao-cast-btn').addEventListener('click', castLiuyao);
     if ($('liuyao-topic')) $('liuyao-topic').addEventListener('change', function () {
       if (lastLiuyaoResult) renderLiuyaoResult(lastLiuyaoResult);
+    });
+    renderLiuyaoHistory();
+    if ($('liuyao-history-clear')) $('liuyao-history-clear').addEventListener('click', function () {
+      liuyaoHistory = [];
+      try { localStorage.removeItem('tianji-liuyao-history'); } catch (e) {}
+      renderLiuyaoHistory();
+    });
+    if ($('liuyao-history-list')) $('liuyao-history-list').addEventListener('click', function (event) {
+      var button = event.target.closest('button[data-history-id]');
+      if (button) restoreLiuyaoHistory(button.getAttribute('data-history-id'));
     });
 
     // Zi Wei real-time calculation

@@ -1230,6 +1230,13 @@ input[type="number"]::-webkit-outer-spin-button {
 .liuyao-analysis .topic-empty td { color: var(--color-text-muted); font-style: italic; }
 .liuyao-time-state { white-space: nowrap; color: var(--color-text); }
 .liuyao-analysis .hex-lines-table { margin-bottom: 0; }
+.liuyao-history { margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 1px solid var(--color-border-subtle); }
+.liuyao-history-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); margin-bottom: var(--space-sm); }
+.liuyao-history-header h3 { margin: 0; color: var(--color-gold); font-size: var(--font-size-md); }
+.liuyao-history-item { display: flex; flex-direction: column; width: 100%; margin-top: 6px; padding: var(--space-sm) var(--space-md); text-align: left; background: var(--color-bg-raised); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); color: var(--color-text); cursor: pointer; }
+.liuyao-history-item:hover { border-color: var(--color-gold); }
+.liuyao-history-item strong { color: var(--color-jade); }
+.liuyao-history-item span { margin-top: 3px; color: var(--color-text-muted); font-size: var(--font-size-xs); }
 
 
 /* ============================================================
