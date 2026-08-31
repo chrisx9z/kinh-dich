@@ -167,6 +167,10 @@ const TianjiApp = (function () {
   /** Short alias for getElementById. */
   function $(id) { return document.getElementById(id); }
 
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
   /** Create element with optional class and text. */
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -920,11 +924,13 @@ const TianjiApp = (function () {
   function liuyaoHistoryEntry(result) {
     var topic = $('liuyao-topic') ? $('liuyao-topic').value : 'general';
     var method = $('liuyao-method') ? $('liuyao-method').value : 'time';
+    var question = $('liuyao-question') ? $('liuyao-question').value.trim().slice(0, 500) : '';
     return {
       id: Date.now(),
       createdAt: new Date().toISOString(),
       topic: topic,
       method: method,
+      question: question,
       castDate: result.castDate ? result.castDate.toISOString() : new Date().toISOString(),
       primaryHex: result.primaryHex,
       changedHex: result.changedHex,
@@ -951,7 +957,8 @@ const TianjiApp = (function () {
       var changedName = entry.changedHex ? ' → ' + I18n.hexagramName(entry.changedHex[0], entry.changedHex[1]) : '';
       var date = new Date(entry.createdAt);
       var dateText = isNaN(date.getTime()) ? '' : date.toLocaleString('vi-VN');
-      return '<button type="button" class="liuyao-history-item" data-history-id="' + entry.id + '"><strong>' + primaryName + changedName + '</strong><span>' + topicConfig.label + ' · ' + (methodNames[entry.method] || 'Gieo quẻ') + (dateText ? ' · ' + dateText : '') + '</span></button>';
+      var questionText = entry.question ? '<em>' + escapeHtml(entry.question.slice(0, 90)) + (entry.question.length > 90 ? '…' : '') + '</em>' : '';
+      return '<button type="button" class="liuyao-history-item" data-history-id="' + entry.id + '"><strong>' + primaryName + changedName + '</strong><span>' + topicConfig.label + ' · ' + (methodNames[entry.method] || 'Gieo quẻ') + (dateText ? ' · ' + dateText : '') + '</span>' + questionText + '</button>';
     }).join('');
   }
 
@@ -959,6 +966,7 @@ const TianjiApp = (function () {
     var entry = liuyaoHistory.filter(function (item) { return String(item.id) === String(id); })[0];
     if (!entry) return;
     if ($('liuyao-topic')) $('liuyao-topic').value = entry.topic || 'general';
+    if ($('liuyao-question')) $('liuyao-question').value = entry.question || '';
     lastLiuyaoResult = {
       rawLines: entry.rawLines,
       primaryLines: entry.primaryLines,
@@ -988,6 +996,7 @@ const TianjiApp = (function () {
     }
 
     lastLiuyaoResult = result;
+    result.question = $('liuyao-question') ? $('liuyao-question').value.trim().slice(0, 500) : '';
     liuyaoHistory.unshift(liuyaoHistoryEntry(result));
     liuyaoHistory = liuyaoHistory.slice(0, 12);
     saveLiuyaoHistory();
@@ -1158,6 +1167,7 @@ const TianjiApp = (function () {
       html += '<div class="hex-desc">' + I18n.hexagramDescription(ch[0], ch[5]) + '</div></div>';
     }
     html += '</div>';
+    if (result.question) html += '<div class="liuyao-question-context"><strong>Vấn đề đã hỏi:</strong><br>' + escapeHtml(result.question).replace(/\r?\n/g, '<br>') + '</div>';
 
     var relations = hexagramRelations(ph);
     var relationCards = [
