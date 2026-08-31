@@ -166,6 +166,7 @@ const TianjiApp = (function () {
   let darkTheme = false;
   let lastLiuyaoResult = null;
   let liuyaoHistory = loadLiuyaoHistory();
+  let chartHistory = loadChartHistory();
 
   // -----------------------------------------------------------------------
   //  Helpers
@@ -893,6 +894,11 @@ const TianjiApp = (function () {
     resultArea.innerHTML = html;
     I18n.localizeDocument(resultArea);
     bindResultActions('bazi-result', 'copy-bazi-result', 'download-bazi-result', 'kinh-dich-bat-tu');
+    recordChartHistory('bazi', {
+      date: $('bazi-date') ? $('bazi-date').value : '',
+      hour: $('bazi-hour') ? $('bazi-hour').value : '0',
+      gender: gender
+    });
 
     // Draw radar chart + enable drag scroll
     requestAnimationFrame(function () {
@@ -986,6 +992,82 @@ const TianjiApp = (function () {
     };
     if (entry.castDate) lastLiuyaoResult.castDate = new Date(entry.castDate);
     renderLiuyaoResult(lastLiuyaoResult);
+  }
+
+  function loadChartHistory() {
+    try {
+      var stored = JSON.parse(localStorage.getItem('tianji-chart-history') || '[]');
+      return Array.isArray(stored) ? stored.filter(function (entry) { return entry && (entry.type === 'bazi' || entry.type === 'ziwei') && entry.params; }).slice(0, 12) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveChartHistory() {
+    try { localStorage.setItem('tianji-chart-history', JSON.stringify(chartHistory.slice(0, 12))); } catch (e) {}
+  }
+
+  function recordChartHistory(type, params) {
+    var signature = type + '|' + JSON.stringify(params);
+    if (chartHistory[0] && chartHistory[0].signature === signature) return;
+    chartHistory.unshift({ id: Date.now() + Math.random(), type: type, params: params, signature: signature, createdAt: new Date().toISOString() });
+    chartHistory = chartHistory.slice(0, 12);
+    saveChartHistory();
+    renderChartHistory(type);
+  }
+
+  function chartHistoryLabel(entry) {
+    var params = entry.params || {};
+    var gender = params.gender === 'female' ? 'Nữ' : 'Nam';
+    if (entry.type === 'bazi') {
+      var hourIndex = parseInt(params.hour, 10);
+      return 'Dương lịch ' + (params.date || '') + ' · ' + (BRANCHES[hourIndex] ? I18n.hanViet(BRANCHES[hourIndex]) : 'Giờ chưa chọn') + ' · ' + gender;
+    }
+    var ziweiHour = parseInt(params.hour, 10);
+    return 'Âm lịch ' + (params.year || '') + '/' + (params.month || '') + '/' + (params.day || '') + ' · ' + (BRANCHES[ziweiHour] ? I18n.hanViet(BRANCHES[ziweiHour]) : 'Giờ chưa chọn') + ' · ' + gender;
+  }
+
+  function renderChartHistory(type) {
+    var box = $(type + '-history');
+    var list = $(type + '-history-list');
+    if (!box || !list) return;
+    var entries = chartHistory.filter(function (entry) { return entry.type === type; });
+    box.hidden = !entries.length;
+    if (!entries.length) {
+      list.innerHTML = '';
+      return;
+    }
+    list.innerHTML = entries.map(function (entry) {
+      var date = new Date(entry.createdAt);
+      var dateText = isNaN(date.getTime()) ? '' : date.toLocaleString('vi-VN');
+      return '<button type="button" class="chart-history-item" data-chart-history-id="' + entry.id + '"><strong>' + escapeHtml(chartHistoryLabel(entry)) + '</strong><span>' + (dateText || 'Đã lưu') + '</span></button>';
+    }).join('');
+  }
+
+  function restoreChartHistory(id) {
+    var entry = chartHistory.filter(function (item) { return String(item.id) === String(id); })[0];
+    if (!entry) return;
+    var params = entry.params || {};
+    if (entry.type === 'bazi') {
+      if ($('bazi-date')) $('bazi-date').value = params.date || '';
+      if ($('bazi-hour')) $('bazi-hour').value = String(params.hour == null ? '0' : params.hour);
+      var baziGender = document.querySelector('input[name="bazi-gender"][value="' + params.gender + '"]');
+      if (baziGender) baziGender.checked = true;
+    } else {
+      if ($('ziwei-year')) $('ziwei-year').value = params.year || '';
+      if ($('ziwei-month')) $('ziwei-month').value = String(params.month || '1');
+      if ($('ziwei-day')) $('ziwei-day').value = params.day || '';
+      if ($('ziwei-hour')) $('ziwei-hour').value = String(params.hour == null ? '0' : params.hour);
+      var ziweiGender = document.querySelector('input[name="ziwei-gender"][value="' + params.gender + '"]');
+      if (ziweiGender) ziweiGender.checked = true;
+    }
+    switchTab(entry.type);
+  }
+
+  function clearChartHistory(type) {
+    chartHistory = chartHistory.filter(function (entry) { return entry.type !== type; });
+    saveChartHistory();
+    renderChartHistory(type);
   }
 
   function castLiuyao() {
@@ -1539,6 +1621,13 @@ const TianjiApp = (function () {
     area.innerHTML = html;
     I18n.localizeDocument(area);
     bindResultActions('ziwei-result', 'copy-ziwei-result', 'download-ziwei-result', 'kinh-dich-tu-vi');
+    recordChartHistory('ziwei', {
+      year: yVal,
+      month: mVal,
+      day: dVal,
+      hour: hVal,
+      gender: gender
+    });
   }
 
   // -----------------------------------------------------------------------
@@ -1820,6 +1909,17 @@ const TianjiApp = (function () {
     for (var g = 0; g < zwGenders.length; g++) {
       zwGenders[g].addEventListener('change', calculateZiwei);
     }
+    renderChartHistory('bazi');
+    renderChartHistory('ziwei');
+    if ($('bazi-history-clear')) $('bazi-history-clear').addEventListener('click', function () { clearChartHistory('bazi'); });
+    if ($('ziwei-history-clear')) $('ziwei-history-clear').addEventListener('click', function () { clearChartHistory('ziwei'); });
+    ['bazi', 'ziwei'].forEach(function (type) {
+      var historyList = $(type + '-history-list');
+      if (historyList) historyList.addEventListener('click', function (event) {
+        var button = event.target.closest('button[data-chart-history-id]');
+        if (button) restoreChartHistory(button.getAttribute('data-chart-history-id'));
+      });
+    });
 
     // Share / copy link
     if ($('share-btn')) $('share-btn').addEventListener('click', copyShareLink);
