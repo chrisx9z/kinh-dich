@@ -1262,6 +1262,7 @@ const TianjiApp = (function () {
     });
     html += '<section class="hex-interpretation">';
     html += '<h3>Luận giải quẻ</h3>';
+    html += '<div class="interpretation-actions"><button id="copy-liuyao-reading" type="button" class="btn btn-secondary btn-sm">Sao chép luận giải</button></div>';
     html += '<details class="interpretation-guide"><summary>Cách đọc nhanh kết quả</summary><ol><li><strong>Quẻ chủ:</strong> bối cảnh và vấn đề đang hiện hữu.</li><li><strong>Hào động:</strong> điểm cụ thể đang thay đổi; xem vị trí hào để biết giai đoạn cần chú ý.</li><li><strong>Quẻ biến:</strong> hướng chuyển hóa có thể xảy ra sau thay đổi, không phải định mệnh cố định.</li><li><strong>Chủ đề:</strong> dùng lời khuyên đời thường và hào Dụng thần tham chiếu để chọn việc nên làm trước.</li></ol></details>';
     html += '<div class="interpretation-block"><h4>Quẻ chủ — ' + I18n.hexagramName(ph[0], ph[1]) + '</h4>';
     html += '<p>' + I18n.hexagramDescription(ph[0], ph[5]) + '</p>';
@@ -1280,6 +1281,40 @@ const TianjiApp = (function () {
 
     area.innerHTML = html;
     I18n.localizeDocument(area);
+    var copyButton = $('copy-liuyao-reading');
+    if (copyButton) copyButton.addEventListener('click', copyLiuyaoReading);
+  }
+
+  function copyLiuyaoReading() {
+    var section = $('liuyao-result') ? $('liuyao-result').querySelector('.hex-interpretation') : null;
+    if (!section) return;
+    var clone = section.cloneNode(true);
+    var actions = clone.querySelector('.interpretation-actions');
+    if (actions) actions.remove();
+    var text = clone.innerText.trim();
+    var success = function () { showToast('Đã sao chép luận giải'); };
+    var failure = function () { showToast('Không thể sao chép; hãy chọn và sao chép thủ công.'); };
+    var fallback = function () {
+      try {
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        var copied = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        if (copied) success(); else failure();
+      } catch (e) {
+        failure();
+      }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(success).catch(fallback);
+    } else {
+      fallback();
+    }
   }
 
   // -----------------------------------------------------------------------
