@@ -921,6 +921,22 @@ const TianjiApp = (function () {
     if (numInputs) numInputs.style.display = method === 'number' ? 'block' : 'none';
   }
 
+  function renderHexagramReference() {
+    var select = $('hex-reference-select');
+    var result = $('hex-reference-result');
+    if (!select || !result) return;
+    var hex = HEX_DATA.filter(function (item) { return String(item[0]) === String(select.value); })[0] || HEX_DATA[0];
+    result.innerHTML = '<div class="hex-reference-symbol">' + hex[2] + '</div><h4>' + I18n.hexagramName(hex[0], hex[1]) + ' (' + I18n.t('hexagram') + ' ' + hex[0] + ')</h4><p class="hex-reference-original">' + hex[1] + ' — ' + hex[5] + '</p><p>' + I18n.hexagramDescription(hex[0], hex[5]) + '</p><p><strong>Cách hiểu đời thường:</strong> ' + I18n.hexagramEverydaySituation(hex[0], I18n.hexagramDescription(hex[0], hex[5])) + '<br><strong>Nên làm:</strong> ' + I18n.hexagramPlainAdvice(hex[0], I18n.hexagramDescription(hex[0], hex[5])) + '</p>';
+  }
+
+  function populateHexagramReference() {
+    var select = $('hex-reference-select');
+    if (!select) return;
+    select.innerHTML = HEX_DATA.map(function (hex) { return '<option value="' + hex[0] + '">' + I18n.hexagramName(hex[0], hex[1]) + ' (' + I18n.t('hexagram') + ' ' + hex[0] + ')</option>'; }).join('');
+    select.value = '1';
+    renderHexagramReference();
+  }
+
   function loadLiuyaoHistory() {
     try {
       var stored = JSON.parse(localStorage.getItem('tianji-liuyao-history') || '[]');
@@ -1886,6 +1902,8 @@ const TianjiApp = (function () {
       $('liuyao-method').addEventListener('change', updateLiuyaoInputs);
       updateLiuyaoInputs();
     }
+    populateHexagramReference();
+    if ($('hex-reference-select')) $('hex-reference-select').addEventListener('change', renderHexagramReference);
     if ($('liuyao-cast-btn')) $('liuyao-cast-btn').addEventListener('click', castLiuyao);
     if ($('liuyao-topic')) $('liuyao-topic').addEventListener('change', function () {
       if (lastLiuyaoResult) renderLiuyaoResult(lastLiuyaoResult);

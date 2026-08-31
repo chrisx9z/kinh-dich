@@ -1246,6 +1246,14 @@ input[type="number"]::-webkit-outer-spin-button {
 .liuyao-question-group { margin-top: var(--space-md); }
 .liuyao-question-group textarea { width: 100%; min-height: 58px; resize: vertical; }
 .liuyao-question-context { margin: var(--space-md) 0; padding: var(--space-sm) var(--space-md); background: var(--color-bg-raised); border-left: 3px solid var(--color-gold); border-radius: var(--radius-sm); color: var(--color-text); line-height: 1.6; }
+.hex-reference { margin: var(--space-md) 0; padding: var(--space-sm) var(--space-md); background: var(--color-bg-raised); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); }
+.hex-reference summary { cursor: pointer; color: var(--color-jade); font-weight: 600; }
+.hex-reference .form-group { margin-top: var(--space-sm); }
+.hex-reference-result { margin-top: var(--space-md); padding: var(--space-md); background: var(--color-bg-card); border-radius: var(--radius-sm); text-align: center; line-height: 1.7; }
+.hex-reference-result h4 { margin: 0; color: var(--color-gold); }
+.hex-reference-symbol { font-size: 3rem; color: var(--color-gold); line-height: 1.1; }
+.hex-reference-original { color: var(--color-text-muted); font-family: var(--font-heading); }
+.hex-reference-result p { margin: var(--space-sm) 0 0; }
 .chart-history { margin-top: var(--space-xl); padding: var(--space-lg); background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 .chart-history-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); margin-bottom: var(--space-sm); }
 .chart-history-header h3 { margin: 0; color: var(--color-gold); font-size: var(--font-size-md); }
