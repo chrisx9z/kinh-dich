@@ -1188,6 +1188,7 @@ const TianjiApp = (function () {
     });
     html += '<section class="hex-interpretation">';
     html += '<h3>Luận giải quẻ</h3>';
+    html += '<details class="interpretation-guide"><summary>Cách đọc nhanh kết quả</summary><ol><li><strong>Quẻ chủ:</strong> bối cảnh và vấn đề đang hiện hữu.</li><li><strong>Hào động:</strong> điểm cụ thể đang thay đổi; xem vị trí hào để biết giai đoạn cần chú ý.</li><li><strong>Quẻ biến:</strong> hướng chuyển hóa có thể xảy ra sau thay đổi, không phải định mệnh cố định.</li><li><strong>Chủ đề:</strong> dùng lời khuyên đời thường và hào Dụng thần tham chiếu để chọn việc nên làm trước.</li></ol></details>';
     html += '<div class="interpretation-block"><h4>Quẻ chủ — ' + I18n.hexagramName(ph[0], ph[1]) + '</h4>';
     html += '<p>' + I18n.hexagramDescription(ph[0], ph[5]) + '</p>';
     html += '<p>Đây là tượng quẻ thể hiện bối cảnh hiện tại; hãy đối chiếu với sự việc thực tế trước khi kết luận.</p></div>';
