@@ -243,6 +243,15 @@ const TianjiApp = (function () {
     return I18n.hanViet(STEMS[stemIndex]) + ' ' + I18n.hanViet(BRANCHES[branchIndex]);
   }
 
+  function formatRelationship(relation) {
+    var kindLabels = { '六合': 'Lục hợp', '半三合': 'Bán tam hợp', '三合': 'Tam hợp', '六冲': 'Lục xung', '三刑': 'Tam hình', '自刑': 'Tự hình', '相刑': 'Tương hình', '六害': 'Lục hại' };
+    var suffixes = { '六合': 'hợp', '半三合': 'bán hợp', '三合': 'tam hợp', '六冲': 'xung', '三刑': 'hình', '自刑': 'tự hình', '相刑': 'tương hình', '六害': 'hại' };
+    var branches = (relation.branches || []).map(function (branch) { return I18n.hanViet(branch); }).filter(function (branch, index, all) { return all.indexOf(branch) === index; });
+    var suffix = suffixes[relation.kind] || I18n.hanViet(relation.kind);
+    if (relation.resultElement) suffix += ' ' + I18n.hanViet(relation.resultElement) + ' cục';
+    return '<strong>' + (kindLabels[relation.kind] || I18n.hanViet(relation.kind)) + ':</strong> ' + branches.join(' ') + ' · ' + suffix;
+  }
+
   function renderLuckDetail(pillar, annualYear) {
     if (!pillar) return '';
     var element = STEM_ELEMENT[pillar.stemIndex];
@@ -1051,9 +1060,7 @@ const TianjiApp = (function () {
     var rels = relResult.relationships;
     if (rels.length > 0) {
       html += '<div class="relationships-section"><h3>' + I18n.t('relationships') + '</h3><ul>';
-      rels.forEach(function (r) {
-        html += '<li><strong>' + r.kind + ':</strong> ' + r.description + '</li>';
-      });
+      rels.forEach(function (r) { html += '<li>' + formatRelationship(r) + '</li>'; });
       html += '</ul></div>';
     }
 
@@ -1062,11 +1069,11 @@ const TianjiApp = (function () {
     if (!Number.isInteger(baziAnnualYear) || baziAnnualYear < 1900 || baziAnnualYear > 2100) baziAnnualYear = new Date().getFullYear();
     baziLuckIndex = luckIndexForYear(lps, baziAnnualYear);
     html += '<div class="luck-pillars-section"><h3>' + I18n.t('luckPillars') + '</h3>';
-    html += '<div class="luck-direction">起运: ' + luck.startAge + '岁 (' + luck.direction + ')</div>';
+    html += '<div class="luck-direction">Khởi vận: ' + luck.startAge + ' tuổi (' + I18n.hanViet(luck.direction) + ')</div>';
     html += '<div class="luck-pillars-scroll"><div class="luck-pillars-track">';
     lps.forEach(function (lp, luckIndex) {
       html += '<button type="button" class="luck-pillar-card' + (luckIndex === baziLuckIndex ? ' active' : '') + '" data-luck-index="' + luckIndex + '" aria-label="Xem đại vận ' + lp.startAge + ' đến ' + lp.endAge + ' tuổi">';
-      html += '<div class="lp-age">' + lp.startAge + '-' + lp.endAge + I18n.t('age') + '</div>';
+      html += '<div class="lp-age">' + lp.startAge + '-' + lp.endAge + ' ' + I18n.t('age') + '</div>';
       html += '<div class="lp-year">' + lp.startYear + '-' + lp.endYear + '</div>';
       html += '<div class="lp-stem" style="color:' + stemColor(lp.stemIndex) + '">' + STEMS[lp.stemIndex] + '</div>';
       html += '<div class="lp-branch" style="color:' + branchColor(lp.branchIndex) + '">' + BRANCHES[lp.branchIndex] + '</div>';
@@ -1083,7 +1090,7 @@ const TianjiApp = (function () {
     flowYears.forEach(function (fy) {
       html += '<div class="flow-year-cell">';
       html += '<div class="fy-year">' + fy.year + '</div>';
-      html += '<div class="fy-gz" style="color:' + stemColor(fy.stemIndex) + '">' + fy.char + '</div>';
+      html += '<div class="fy-gz">' + hanVietPillar(fy.stemIndex, fy.branchIndex) + '</div>';
       html += '<div class="fy-tg">' + fy.tenGod + '</div>';
       html += '<div class="fy-nayin">' + fy.nayin + '</div>';
       html += '</div>';
