@@ -933,6 +933,59 @@ const TianjiApp = (function () {
     return configs[topic] || configs.general;
   }
 
+  function liuyaoTopicReading(primary, changed, movingNames, topic) {
+    var configs = {
+      general: {
+        label: 'Tổng quan',
+        context: 'Xem quẻ chủ là tình trạng hiện tại, rồi đối chiếu với việc đang xảy ra trước khi quyết định.',
+        action: 'Chọn một việc cụ thể, ghi rõ dữ kiện đang có và thực hiện một bước nhỏ có thể kiểm chứng trong hôm nay.',
+        avoid: 'Tránh suy diễn từ một dấu hiệu đơn lẻ hoặc giao toàn bộ quyết định cho quẻ.'
+      },
+      career: {
+        label: 'Công việc',
+        context: 'Tập trung vào tiến độ, người phê duyệt, hồ sơ và cách phối hợp thay vì chỉ nhìn kết quả cuối cùng.',
+        action: 'Chốt một đầu việc, người chịu trách nhiệm và mốc kiểm tra; hoàn thiện giấy tờ trước khi đẩy nhanh.',
+        avoid: 'Không ký vội, tranh luận khi thiếu dữ kiện hoặc nhận thêm cam kết chưa có thời hạn rõ ràng.'
+      },
+      finance: {
+        label: 'Tài chính',
+        context: 'Đọc quẻ như lời nhắc về dòng tiền, mức độ chắc chắn của nguồn thu và các khoản phải chi.',
+        action: 'Tách chi phí bắt buộc, quỹ dự phòng và khoản có thể trì hoãn; kiểm tra lại con số trước khi xuống tiền.',
+        avoid: 'Tránh vay, đầu tư hoặc mua sắm lớn chỉ vì nóng ruột hay nghe lời rủ rê.'
+      },
+      relationship: {
+        label: 'Tình cảm',
+        context: 'Quan sát cả nhu cầu của mình và phản ứng của đối phương; Thế–Ứng cho biết hai phía đang lệch hay đồng thuận.',
+        action: 'Nói một điều cụ thể bằng thái độ bình tĩnh, lắng nghe câu trả lời và thống nhất bước tiếp theo.',
+        avoid: 'Không đọc ý, thử lòng hoặc ép đối phương phải phản hồi ngay.'
+      },
+      health: {
+        label: 'Sức khỏe',
+        context: 'Xem đây là lời nhắc điều chỉnh nếp sinh hoạt và theo dõi dấu hiệu thực tế, không phải chẩn đoán y khoa.',
+        action: 'Ưu tiên ngủ đủ, ăn uống đều, vận động nhẹ và đặt lịch khám nếu triệu chứng kéo dài hoặc nặng lên.',
+        avoid: 'Không tự ngưng thuốc, tự chẩn đoán hoặc trì hoãn chăm sóc chuyên môn.'
+      },
+      study: {
+        label: 'Học tập',
+        context: 'Đặt quẻ vào mục tiêu, phương pháp và kỷ luật học; kết quả đến từ nhịp ôn luyện đều hơn là học dồn.',
+        action: 'Chia nội dung thành phiên ngắn, làm bài kiểm tra nhỏ và sửa ngay phần sai trước khi học mới.',
+        avoid: 'Tránh đổi tài liệu liên tục, học theo cảm hứng hoặc đăng ký quá nhiều mục tiêu cùng lúc.'
+      }
+    };
+    var config = configs[topic] || configs.general;
+    var primaryName = I18n.hexagramName(primary[0], primary[1]);
+    var html = '<p><strong>Bối cảnh:</strong> ' + config.context + ' Quẻ chủ <strong>' + primaryName + '</strong> là điểm xuất phát để đối chiếu với thực tế.</p>';
+    html += '<ul><li><strong>Việc nên làm:</strong> ' + config.action + '</li>';
+    html += '<li><strong>Điểm cần tránh:</strong> ' + config.avoid + '</li>';
+    if (movingNames.length) html += '<li><strong>Hào cần xem trước:</strong> ' + movingNames.join(', ') + '. Đây là phần đang thay đổi, nên kiểm tra trước khi chốt.</li>';
+    html += '</ul>';
+    if (changed) {
+      var changedName = I18n.hexagramName(changed[0], changed[1]);
+      html += '<p><strong>Hướng chuyển:</strong> Khi tình hình đi về <strong>' + changedName + '</strong>, hãy điều chỉnh từng bước theo dữ kiện mới thay vì cố giữ nguyên kế hoạch cũ.</p>';
+    }
+    return html;
+  }
+
   function plainLanguageReading(primary, changed, movingNames) {
     var text = '<strong>Tình huống gần gũi:</strong> ' + I18n.hexagramEverydaySituation(primary[0], I18n.hexagramDescription(primary[0], primary[5]));
     text += '<br><strong>Nên làm:</strong> ' + I18n.hexagramPlainAdvice(primary[0], I18n.hexagramDescription(primary[0], primary[5]));
@@ -1089,12 +1142,12 @@ const TianjiApp = (function () {
     html += '</tbody></table></div>';
 
     var structured = analyzeLiuyaoResult(result);
+    var topic = $('liuyao-topic') ? $('liuyao-topic').value : 'general';
+    var topicConfig = liuyaoTopicConfig(topic);
     if (structured) {
       var relativeNames = { '兄弟': 'Huynh đệ', '子孙': 'Tử tôn', '父母': 'Phụ mẫu', '妻财': 'Thê tài', '官鬼': 'Quan quỷ' };
       var godNames = { '青龙': 'Thanh Long', '朱雀': 'Chu Tước', '勾陈': 'Câu Trần', '腾蛇': 'Đằng Xà', '白虎': 'Bạch Hổ', '玄武': 'Huyền Vũ' };
       var elementNames = { '木': 'Mộc', '火': 'Hỏa', '土': 'Thổ', '金': 'Kim', '水': 'Thủy' };
-      var topic = $('liuyao-topic') ? $('liuyao-topic').value : 'general';
-      var topicConfig = liuyaoTopicConfig(topic);
       var topicLineCount = 0;
       html += '<section class="liuyao-analysis"><h3>Trang bị Lục Hào</h3>';
       html += '<p class="liuyao-analysis-note">Bảng nạp giáp: Thế–Ứng, Can–Chi, Ngũ hành, Lục Thân và Lục Thú. Dấu hiệu thời khí là lớp tham chiếu; luận đầy đủ vẫn cần xét dụng thần và quan hệ động–biến.</p>';
@@ -1147,6 +1200,7 @@ const TianjiApp = (function () {
     html += movingNames.length ? 'Hào động: <strong>' + movingNames.join(', ') + '</strong>. Đây là điểm chuyển biến cần lưu tâm; ưu tiên quan sát, điều chỉnh từng bước và tránh quyết định hấp tấp.' : 'Không có hào động; nên xem trọng ý nghĩa tổng thể của quẻ chủ.';
     html += '</p></div>';
     html += '<div class="interpretation-block interpretation-plain"><h4>Cách hiểu đời thường</h4><p>' + plainLanguageReading(ph, result.changedHex, movingNames) + '</p></div>';
+    html += '<div class="interpretation-block interpretation-topic"><h4>Áp dụng đời thường — ' + topicConfig.label + '</h4>' + liuyaoTopicReading(ph, result.changedHex, movingNames, topic) + '</div>';
     html += '<p class="interpretation-note">Nội dung chỉ nhằm tham khảo văn hóa Kinh Dịch và hỗ trợ suy ngẫm cá nhân.</p></section>';
 
     area.innerHTML = html;
