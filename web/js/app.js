@@ -118,6 +118,29 @@ const TianjiApp = (function () {
     return analysis;
   }
 
+  function liuyaoTimeStates(line, calendar) {
+    if (!calendar) return ['Chưa có lịch'];
+    var branchIndex = BRANCHES.indexOf(line.branch);
+    var monthBranch = calendar.monthPillar.branchIndex;
+    var dayBranch = calendar.dayPillar.branchIndex;
+    var dayStem = calendar.dayPillar.stemIndex;
+    var states = [];
+    var clashes = function (a, b) { return mod(a - b, 12) === 6; };
+    if (clashes(branchIndex, monthBranch)) states.push('Nguyệt phá');
+    if (clashes(branchIndex, dayBranch)) states.push('Nhật xung');
+    var xunStart = mod(dayBranch - dayStem, 12);
+    if (branchIndex === mod(xunStart + 10, 12) || branchIndex === mod(xunStart + 11, 12)) states.push('Tuần không');
+    var elementIndex = { '木': 0, '火': 1, '土': 2, '金': 3, '水': 4 };
+    var lineElement = elementIndex[line.element];
+    var monthElement = elementIndex[BRANCH_ELEMENT[monthBranch]];
+    if (lineElement === monthElement) states.push('Đồng khí');
+    else if (mod(monthElement + 1, 5) === lineElement) states.push('Được sinh');
+    else if (mod(lineElement + 1, 5) === monthElement) states.push('Tiết khí');
+    else if (mod(monthElement + 2, 5) === lineElement) states.push('Bị khắc');
+    else if (mod(lineElement + 2, 5) === monthElement) states.push('Khắc tháng');
+    return states.length ? states : ['Bình hòa'];
+  }
+
   // Zi Wei palace names (order matches Python PALACE_NAMES)
   const ZW_PALACES = [
     '命宫','兄弟宫','夫妻宫','子女宫','财帛宫','疾厄宫',
@@ -1062,9 +1085,11 @@ const TianjiApp = (function () {
         var dayPillar = structured.calendar.dayPillar;
         var monthPillar = structured.calendar.monthPillar;
         var cycleLabel = function (value) { return value.split('').map(function (char) { return I18n.hanViet(char); }).join(' '); };
-        html += '<div class="liuyao-calendar-context"><strong>Nhật thần:</strong> ' + dayPillar.char + ' (' + cycleLabel(dayPillar.char) + ') · <strong>Nguyệt kiến:</strong> ' + monthPillar.char + ' (' + cycleLabel(monthPillar.char) + ')</div>';
+        var xunStart = mod(dayPillar.branchIndex - dayPillar.stemIndex, 12);
+        var voidBranches = [mod(xunStart + 10, 12), mod(xunStart + 11, 12)].map(function (idx) { return BRANCHES[idx]; });
+        html += '<div class="liuyao-calendar-context"><strong>Nhật thần:</strong> ' + dayPillar.char + ' (' + cycleLabel(dayPillar.char) + ') · <strong>Nguyệt kiến:</strong> ' + monthPillar.char + ' (' + cycleLabel(monthPillar.char) + ') · <strong>Tuần không:</strong> ' + voidBranches.join('、') + '</div>';
       }
-      html += '<div class="hex-lines-table"><table><thead><tr><th>Hào</th><th>Nạp chi</th><th>Ngũ hành</th><th>Lục Thân</th><th>Lục Thú</th><th>Vai trò</th><th>Trạng thái</th></tr></thead><tbody>';
+      html += '<div class="hex-lines-table"><table><thead><tr><th>Hào</th><th>Nạp chi</th><th>Ngũ hành</th><th>Lục Thân</th><th>Lục Thú</th><th>Vai trò</th><th>Trạng thái</th><th>Thời khí</th></tr></thead><tbody>';
       for (var ai = structured.lines.length - 1; ai >= 0; ai--) {
         var line = structured.lines[ai];
         var roles = [];
@@ -1073,7 +1098,7 @@ const TianjiApp = (function () {
         html += '<tr' + (line.isMoving ? ' class="moving-row"' : '') + '><td>' + I18n.hanViet(line.name) + ' hào</td>';
         html += '<td>' + I18n.hanViet(line.branch) + '</td><td>' + (elementNames[line.element] || line.element) + '</td>';
         html += '<td>' + (relativeNames[line.sixRelative] || line.sixRelative) + '</td><td>' + (godNames[line.sixGod] || line.sixGod) + '</td>';
-        html += '<td>' + (roles.length ? roles.join(' / ') : '—') + '</td><td>' + (line.isMoving ? 'Động' : 'Tĩnh') + '</td></tr>';
+        html += '<td>' + (roles.length ? roles.join(' / ') : '—') + '</td><td>' + (line.isMoving ? 'Động' : 'Tĩnh') + '</td><td class="liuyao-time-state">' + liuyaoTimeStates(line, structured.calendar).join(' · ') + '</td></tr>';
       }
       html += '</tbody></table></div></section>';
     }
