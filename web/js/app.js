@@ -886,11 +886,13 @@ const TianjiApp = (function () {
     html += '</div></div>';
 
     html += '<section class="hex-interpretation everyday-reading"><h3>Cách hiểu đời thường</h3>';
+    html += '<div class="result-actions"><button id="copy-bazi-result" type="button" class="btn btn-secondary btn-sm">Sao chép kết quả</button><button id="download-bazi-result" type="button" class="btn btn-secondary btn-sm">Tải TXT</button></div>';
     html += baziPlainLanguageReading(chart, strength, elements, favorable, rels, pattern);
     html += '<p class="interpretation-note">Gợi ý mang tính tham khảo; hãy đối chiếu với hoàn cảnh, sức khỏe và kế hoạch thực tế.</p></section>';
 
     resultArea.innerHTML = html;
     I18n.localizeDocument(resultArea);
+    bindResultActions('bazi-result', 'copy-bazi-result', 'download-bazi-result', 'kinh-dich-bat-tu');
 
     // Draw radar chart + enable drag scroll
     requestAnimationFrame(function () {
@@ -1364,6 +1366,66 @@ const TianjiApp = (function () {
     }
   }
 
+  function getResultText(areaId) {
+    var area = $(areaId);
+    if (!area) return '';
+    var clone = area.cloneNode(true);
+    var actions = clone.querySelectorAll('.result-actions');
+    for (var i = 0; i < actions.length; i++) actions[i].remove();
+    return (clone.innerText || clone.textContent || '').trim();
+  }
+
+  function copyResult(areaId) {
+    var text = getResultText(areaId);
+    if (!text) return;
+    var success = function () { showToast('Đã sao chép kết quả'); };
+    var failure = function () { showToast('Không thể sao chép; hãy chọn và sao chép thủ công.'); };
+    var fallback = function () {
+      try {
+        var textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        var copied = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        if (copied) success(); else failure();
+      } catch (e) {
+        failure();
+      }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(success).catch(fallback);
+    else fallback();
+  }
+
+  function downloadResult(areaId, filenamePrefix) {
+    var text = getResultText(areaId);
+    if (!text) return;
+    try {
+      var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.href = url;
+      link.download = filenamePrefix + '-' + new Date().toISOString().slice(0, 10) + '.txt';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+      showToast('Đã tải xuống kết quả');
+    } catch (e) {
+      showToast('Không thể tải xuống kết quả.');
+    }
+  }
+
+  function bindResultActions(areaId, copyId, downloadId, filenamePrefix) {
+    var copyButton = $(copyId);
+    var downloadButton = $(downloadId);
+    if (copyButton) copyButton.addEventListener('click', function () { copyResult(areaId); });
+    if (downloadButton) downloadButton.addEventListener('click', function () { downloadResult(areaId, filenamePrefix); });
+  }
+
   // -----------------------------------------------------------------------
   //  Zi Wei Tab Rendering
   // -----------------------------------------------------------------------
@@ -1470,11 +1532,13 @@ const TianjiApp = (function () {
     html += '</div>';
 
     html += '<section class="hex-interpretation everyday-reading"><h3>Cách hiểu đời thường</h3>';
+    html += '<div class="result-actions"><button id="copy-ziwei-result" type="button" class="btn btn-secondary btn-sm">Sao chép kết quả</button><button id="download-ziwei-result" type="button" class="btn btn-secondary btn-sm">Tải TXT</button></div>';
     html += ziweiPlainLanguageReading(chart);
     html += '<p class="interpretation-note">Gợi ý mang tính tham khảo văn hóa; không thay thế tư vấn chuyên môn.</p></section>';
 
     area.innerHTML = html;
     I18n.localizeDocument(area);
+    bindResultActions('ziwei-result', 'copy-ziwei-result', 'download-ziwei-result', 'kinh-dich-tu-vi');
   }
 
   // -----------------------------------------------------------------------
