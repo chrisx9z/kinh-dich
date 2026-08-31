@@ -1283,7 +1283,7 @@ const TianjiApp = (function () {
     });
     html += '<section class="hex-interpretation">';
     html += '<h3>Luận giải quẻ</h3>';
-    html += '<div class="interpretation-actions"><button id="copy-liuyao-reading" type="button" class="btn btn-secondary btn-sm">Sao chép luận giải</button></div>';
+    html += '<div class="interpretation-actions"><button id="copy-liuyao-reading" type="button" class="btn btn-secondary btn-sm">Sao chép luận giải</button><button id="download-liuyao-reading" type="button" class="btn btn-secondary btn-sm">Tải TXT</button></div>';
     html += '<details class="interpretation-guide"><summary>Cách đọc nhanh kết quả</summary><ol><li><strong>Quẻ chủ:</strong> bối cảnh và vấn đề đang hiện hữu.</li><li><strong>Hào động:</strong> điểm cụ thể đang thay đổi; xem vị trí hào để biết giai đoạn cần chú ý.</li><li><strong>Quẻ biến:</strong> hướng chuyển hóa có thể xảy ra sau thay đổi, không phải định mệnh cố định.</li><li><strong>Chủ đề:</strong> dùng lời khuyên đời thường và hào Dụng thần tham chiếu để chọn việc nên làm trước.</li></ol></details>';
     html += '<div class="interpretation-block"><h4>Quẻ chủ — ' + I18n.hexagramName(ph[0], ph[1]) + '</h4>';
     html += '<p>' + I18n.hexagramDescription(ph[0], ph[5]) + '</p>';
@@ -1304,15 +1304,22 @@ const TianjiApp = (function () {
     I18n.localizeDocument(area);
     var copyButton = $('copy-liuyao-reading');
     if (copyButton) copyButton.addEventListener('click', copyLiuyaoReading);
+    var downloadButton = $('download-liuyao-reading');
+    if (downloadButton) downloadButton.addEventListener('click', downloadLiuyaoReading);
   }
 
-  function copyLiuyaoReading() {
+  function getLiuyaoReadingText() {
     var section = $('liuyao-result') ? $('liuyao-result').querySelector('.hex-interpretation') : null;
-    if (!section) return;
+    if (!section) return '';
     var clone = section.cloneNode(true);
     var actions = clone.querySelector('.interpretation-actions');
     if (actions) actions.remove();
-    var text = clone.innerText.trim();
+    return (clone.innerText || clone.textContent || '').trim();
+  }
+
+  function copyLiuyaoReading() {
+    var text = getLiuyaoReadingText();
+    if (!text) return;
     var success = function () { showToast('Đã sao chép luận giải'); };
     var failure = function () { showToast('Không thể sao chép; hãy chọn và sao chép thủ công.'); };
     var fallback = function () {
@@ -1335,6 +1342,25 @@ const TianjiApp = (function () {
       navigator.clipboard.writeText(text).then(success).catch(fallback);
     } else {
       fallback();
+    }
+  }
+
+  function downloadLiuyaoReading() {
+    var text = getLiuyaoReadingText();
+    if (!text) return;
+    try {
+      var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.href = url;
+      link.download = 'kinh-dich-luan-giai-' + new Date().toISOString().slice(0, 10) + '.txt';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+      showToast('Đã tải xuống luận giải');
+    } catch (e) {
+      showToast('Không thể tải xuống luận giải.');
     }
   }
 

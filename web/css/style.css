@@ -2245,7 +2245,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .hex-interpretation { margin-top: var(--space-xl); padding: var(--space-lg); background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 .hex-interpretation h3 { margin: 0 0 var(--space-md); color: var(--color-gold); }
-.interpretation-actions { display: flex; justify-content: flex-end; margin: calc(var(--space-sm) * -1) 0 var(--space-sm); }
+.interpretation-actions { display: flex; justify-content: flex-end; gap: var(--space-sm); margin: calc(var(--space-sm) * -1) 0 var(--space-sm); }
 .interpretation-guide { margin: 0 0 var(--space-md); padding: var(--space-sm) var(--space-md); background: var(--color-bg-raised); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); }
 .interpretation-guide summary { cursor: pointer; color: var(--color-jade); font-weight: 600; }
 .interpretation-guide ol { margin: var(--space-sm) 0 0; padding-left: 1.35rem; color: var(--color-text); line-height: 1.7; }
