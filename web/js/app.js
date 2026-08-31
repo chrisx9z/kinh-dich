@@ -261,6 +261,21 @@ const TianjiApp = (function () {
     return pillars.length - 1;
   }
 
+  function annualInfluence(chart, annual, favorable) {
+    var element = STEM_ELEMENT[annual.stemIndex];
+    var favorableElements = favorable.favorable || [];
+    var unfavorableElements = favorable.unfavorable || [];
+    var elementText = favorableElements.indexOf(element) !== -1
+      ? 'Ngũ hành ' + I18n.hanViet(element) + ' nâng đỡ Dụng thần, nên chủ động mở rộng việc có thể kiểm chứng.'
+      : (unfavorableElements.indexOf(element) !== -1 ? 'Ngũ hành ' + I18n.hanViet(element) + ' thuộc nhóm cần tiết chế, nên giữ ngân sách và giảm cam kết quá sức.' : 'Ngũ hành ' + I18n.hanViet(element) + ' ở mức trung tính, nên thử nhỏ và đo kết quả trước khi tăng tốc.');
+    var branch = BRANCHES[annual.branchIndex];
+    var clash = chart.pillars.some(function (pillar) { return mod(pillar.branchIndex - annual.branchIndex, 12) === 6; });
+    var harmonyPairs = [['子','丑'],['寅','亥'],['卯','戌'],['辰','酉'],['巳','申'],['午','未']];
+    var harmony = chart.pillars.some(function (pillar) { return harmonyPairs.some(function (pair) { return pair.indexOf(pillar.branch) !== -1 && pair.indexOf(branch) !== -1; }); });
+    var branchText = clash ? 'Địa chi lưu niên có dấu hiệu xung với lá số: dự phòng thay đổi, giấy tờ và lịch trình.' : (harmony ? 'Địa chi lưu niên có dấu hiệu hợp: thuận nhờ người phối hợp, nhưng vẫn cần thống nhất trách nhiệm.' : 'Địa chi lưu niên không tạo xung nổi bật: giữ nhịp đều và rà soát theo từng quý.');
+    return elementText + ' ' + branchText;
+  }
+
   function baziMonthNote(chart, annualYear, monthIndex, favorable, theme) {
     var monthDate = new Date(annualYear, monthIndex, 15);
     var monthYear = BaZi.computeYearPillar(monthDate);
@@ -284,9 +299,10 @@ const TianjiApp = (function () {
 
   function renderBaziOutlook(chart, birthYear, luck, annualYear, favorable, theme) {
     var annual = BaZi.computeFlowYears(chart, annualYear, 1)[0];
+    var currentYear = new Date().getFullYear();
     var html = '<section class="bazi-outlook-section"><div class="outlook-header"><div><h3>Tử vi theo năm</h3><p class="outlook-hint">Góc tham khảo lưu niên từ lá số Bát Tự, ưu tiên cách áp dụng đời thường.</p></div><button id="bazi-open-ziwei" type="button" class="btn btn-secondary btn-sm">Mở lá số Tử Vi</button></div>';
-    html += '<div class="bazi-year-picker"><span class="picker-label">Năm xem:</span><button type="button" class="btn btn-secondary btn-sm bazi-year-option' + (annualYear === birthYear ? ' active' : '') + '" data-year="' + birthYear + '">Năm sinh ' + birthYear + '</button><button type="button" class="btn btn-secondary btn-sm bazi-year-option' + (annualYear === birthYear + 1 ? ' active' : '') + '" data-year="' + (birthYear + 1) + '">Năm sau ' + (birthYear + 1) + '</button><input id="bazi-annual-year" type="number" min="1900" max="2100" value="' + annualYear + '"><button id="bazi-annual-apply" type="button" class="btn btn-primary btn-sm">Xem năm</button></div>';
-    html += '<div class="annual-summary"><strong>' + annual.year + ' · ' + annual.char + ' (' + I18n.hanViet(annual.char) + ')</strong><br><span>Trọng tâm: ' + theme[0] + '.</span> ' + theme[1] + '</div>';
+    html += '<div class="bazi-year-picker"><span class="picker-label">Năm xem:</span><button type="button" class="btn btn-secondary btn-sm bazi-year-option' + (annualYear === currentYear ? ' active' : '') + '" data-year="' + currentYear + '">Năm nay ' + currentYear + '</button><button type="button" class="btn btn-secondary btn-sm bazi-year-option' + (annualYear === currentYear + 1 ? ' active' : '') + '" data-year="' + (currentYear + 1) + '">Năm sau ' + (currentYear + 1) + '</button><input id="bazi-annual-year" type="number" min="1900" max="2100" value="' + annualYear + '"><button id="bazi-annual-apply" type="button" class="btn btn-primary btn-sm">Xem năm</button></div>';
+    html += '<div class="annual-summary"><strong>' + annual.year + ' · ' + annual.char + ' (' + I18n.hanViet(annual.char) + ')</strong><br><span>Trọng tâm: ' + theme[0] + '.</span> ' + theme[1] + '<br><span>' + annualInfluence(chart, annual, favorable) + '</span></div>';
     html += '<div class="annual-months"><h4>Ghi chú đời thường từng tháng</h4><div class="annual-month-grid">';
     for (var monthIndex = 0; monthIndex < 12; monthIndex++) html += baziMonthNote(chart, annualYear, monthIndex, favorable, theme);
     html += '</div></div>';
@@ -958,7 +974,7 @@ const TianjiApp = (function () {
 
     // 10. 大运
     var lps = luck.pillars;
-    if (!Number.isInteger(baziAnnualYear) || baziAnnualYear < 1900 || baziAnnualYear > 2100) baziAnnualYear = year;
+    if (!Number.isInteger(baziAnnualYear) || baziAnnualYear < 1900 || baziAnnualYear > 2100) baziAnnualYear = new Date().getFullYear();
     baziLuckIndex = luckIndexForYear(lps, baziAnnualYear);
     html += '<div class="luck-pillars-section"><h3>' + I18n.t('luckPillars') + '</h3>';
     html += '<div class="luck-direction">起运: ' + luck.startAge + '岁 (' + luck.direction + ')</div>';
