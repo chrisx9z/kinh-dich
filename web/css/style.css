@@ -1516,6 +1516,8 @@ input[type="number"]::-webkit-outer-spin-button {
 .annual-month-card .annual-month-rating { display: block; color: var(--color-gold); font-size: var(--font-size-xs); }
 .annual-month-card .annual-month-focus { display: block; margin-top: 5px; color: var(--color-jade); font-size: var(--font-size-xs); font-weight: 600; }
 .annual-month-card .annual-month-preview { display: block; margin-top: 6px; color: var(--color-text); font-size: var(--font-size-sm); line-height: 1.45; }
+.annual-month-card .annual-month-secondary { display: block; margin-top: 5px; color: var(--color-gold); font-size: var(--font-size-xs); font-weight: 600; }
+.annual-month-card .annual-month-secondary-preview { display: block; margin-top: 3px; color: var(--color-text-muted); font-size: var(--font-size-xs); line-height: 1.45; }
 .annual-month-card[open] { border-color: var(--color-gold); }
 .annual-month-body { margin-top: var(--space-sm); color: var(--color-text); font-size: var(--font-size-sm); line-height: 1.6; }
 .annual-month-body p { margin: 0 0 6px; }

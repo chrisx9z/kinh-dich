@@ -327,6 +327,29 @@ const TianjiApp = (function () {
     };
     var guidance = godGuidance[monthGod] || ['Công việc: làm từng bước và kiểm tra dữ kiện.', 'Tài chính: chỉ cam kết trong khả năng kiểm soát.', 'Quan hệ/sức khỏe: giữ nhịp giao tiếp và nghỉ ngơi cân bằng.'];
     var focusScores = { work: 1, finance: 1, relationship: 1, health: 1 };
+    var annualGodWeights = {
+      '比肩': { work: 1, relationship: 1 },
+      '劫财': { finance: 2, relationship: 1, work: 1 },
+      '食神': { finance: 1, relationship: 1, health: 1 },
+      '伤官': { work: 1, relationship: 1, health: 1 },
+      '偏财': { finance: 3, relationship: 1 },
+      '正财': { finance: 3, work: 1 },
+      '七杀': { work: 2, health: 1 },
+      '正官': { work: 2, relationship: 1 },
+      '偏印': { work: 1, health: 1 },
+      '正印': { work: 1, health: 1, relationship: 1 }
+    };
+    var annualGodWeightsForYear = annualGodWeights[annual.tenGod] || {};
+    Object.keys(annualGodWeightsForYear).forEach(function (key) { focusScores[key] += annualGodWeightsForYear[key]; });
+    var annualStemElement = STEM_ELEMENT[annual.stemIndex];
+    var annualBranchElement = BRANCH_ELEMENT[annual.branchIndex];
+    if (favorableElements.indexOf(annualStemElement) !== -1 || favorableElements.indexOf(annualBranchElement) !== -1) { focusScores.work++; focusScores.finance++; }
+    if (unfavorableElements.indexOf(annualStemElement) !== -1 || unfavorableElements.indexOf(annualBranchElement) !== -1) { focusScores.finance++; focusScores.health++; }
+    var annualNatalRelations = [];
+    chart.pillars.forEach(function (pillar) { var annualNatalRelation = branchRelation(pillar.branchIndex, annual.branchIndex); if (annualNatalRelation && annualNatalRelations.indexOf(annualNatalRelation) === -1) annualNatalRelations.push(annualNatalRelation); });
+    if (annualNatalRelations.indexOf('xung') !== -1) { focusScores.health += 2; focusScores.work++; }
+    if (annualNatalRelations.indexOf('hại') !== -1) { focusScores.relationship += 2; focusScores.finance++; }
+    if (annualNatalRelations.indexOf('hợp') !== -1) { focusScores.relationship++; focusScores.finance++; }
     if (['正财','偏财','劫财'].indexOf(monthGod) !== -1) focusScores.finance += 3;
     if (['正官','七杀','正印','偏印','伤官'].indexOf(monthGod) !== -1) focusScores.work += 2;
     if (['比肩','食神','伤官'].indexOf(monthGod) !== -1) focusScores.relationship += 2;
@@ -337,17 +360,20 @@ const TianjiApp = (function () {
     if (annualRelation === 'xung' || luckRelation === 'xung') { focusScores.work++; focusScores.health++; }
     if (annualRelation === 'hợp' || luckRelation === 'hợp') { focusScores.relationship++; focusScores.finance++; }
     var focusOrder = ['work', 'finance', 'relationship', 'health'];
-    var focus = focusOrder[monthIndex % focusOrder.length];
-    focusOrder.forEach(function (key) { if (focusScores[key] > focusScores[focus]) focus = key; });
+    var yearSeed = mod(annualYear * 17 + annual.stemIndex * 13 + annual.branchIndex * 7 + monthIndex * 5, 97);
+    function tieRank(key) { return mod(yearSeed + focusOrder.indexOf(key) * 19, 97); }
+    var rankedFocus = focusOrder.slice().sort(function (a, b) { return focusScores[b] - focusScores[a] || tieRank(a) - tieRank(b); });
+    var focus = rankedFocus[0];
     if (natalRelations.indexOf('xung') !== -1 || annualRelation === 'xung' || luckRelation === 'xung') focus = 'health';
     else if (natalRelations.indexOf('hại') !== -1 || annualRelation === 'hại') focus = 'relationship';
+    var secondary = focusOrder.filter(function (key) { return key !== focus; }).sort(function (a, b) { return focusScores[b] - focusScores[a] || tieRank(a) - tieRank(b); })[0];
     var focusLabels = { work: 'Công việc', finance: 'Tài chính', relationship: 'Tình cảm & quan hệ', health: 'Sức khỏe' };
     var focusTexts = { work: guidance[0], finance: guidance[1], relationship: 'Tình cảm/quan hệ: nói rõ nhu cầu, giữ ranh giới và tránh suy diễn.', health: 'Sức khỏe: giảm quá tải, giữ giờ ngủ và xử lý sớm dấu hiệu kéo dài.' };
     var relationNote = natalRelations.length ? 'Với lá số gốc: ' + natalRelations.join(', ') + '.' : 'Với lá số gốc: chưa thấy quan hệ Hợp/Xung nổi bật.';
     if (annualRelation) relationNote += ' Với lưu niên: ' + annualRelation + '.';
     if (luckRelation) relationNote += ' Với Đại vận: ' + luckRelation + '.';
     var rating = '★'.repeat(score) + '☆'.repeat(5 - score);
-    return '<details class="annual-month-card"><summary><strong>Tháng âm ' + (monthIndex + 1) + '</strong><span class="annual-month-pillar">' + monthPillar.char + ' (' + I18n.hanViet(monthPillar.char) + ') · ' + I18n.hanViet(monthGod) + '</span><span class="annual-month-rating">' + rating + ' · ' + tones[score - 1] + '</span><span class="annual-month-focus">Trọng tâm: ' + focusLabels[focus] + '</span><span class="annual-month-preview">' + focusTexts[focus] + '</span></summary><div class="annual-month-body"><p>' + guidance[0] + '</p><p>' + guidance[1] + '</p><p>' + guidance[2] + '</p><p class="annual-month-basis"><strong>Căn cứ:</strong> Can ' + I18n.hanViet(stemElement) + ', Chi ' + I18n.hanViet(branchElement) + '. ' + relationNote + ' Trọng tâm tháng: ' + focusLabels[focus] + '. Trọng tâm năm: ' + theme[0].toLowerCase() + '.</p></div></details>';
+    return '<details class="annual-month-card"><summary><strong>Tháng âm ' + (monthIndex + 1) + '</strong><span class="annual-month-pillar">' + monthPillar.char + ' (' + I18n.hanViet(monthPillar.char) + ') · ' + I18n.hanViet(monthGod) + '</span><span class="annual-month-rating">' + rating + ' · ' + tones[score - 1] + '</span><span class="annual-month-focus">Trọng tâm: ' + focusLabels[focus] + '</span><span class="annual-month-preview">' + focusTexts[focus] + '</span><span class="annual-month-secondary">Yếu tố phụ: ' + focusLabels[secondary] + '</span><span class="annual-month-secondary-preview">' + focusTexts[secondary] + '</span></summary><div class="annual-month-body"><p>' + guidance[0] + '</p><p>' + guidance[1] + '</p><p>' + guidance[2] + '</p><p><strong>Yếu tố phụ:</strong> ' + focusTexts[secondary] + '</p><p class="annual-month-basis"><strong>Căn cứ:</strong> Can ' + I18n.hanViet(stemElement) + ', Chi ' + I18n.hanViet(branchElement) + '. ' + relationNote + ' Trọng tâm tháng: ' + focusLabels[focus] + '. Yếu tố phụ: ' + focusLabels[secondary] + '. Trọng tâm năm: ' + theme[0].toLowerCase() + '.</p></div></details>';
   }
 
   function renderBaziOutlook(chart, birthYear, luck, annualYear, favorable, theme) {
